@@ -22,6 +22,10 @@ struct ExamplesView: View {
     
     var body: some View {
         ZStack(alignment: .bottom) {
+            EdgeFadeOverlay()
+                .allowsHitTesting(false)
+                .zIndex(0)
+            
             TabView(selection: $selectedTab) {
                 // Tab 1: Today
                 TodayView(
@@ -73,7 +77,7 @@ struct ExamplesView: View {
                         Text("Profile")
                     }
             }
-            .overlay(EdgeFadeOverlay())
+            .zIndex(1)
             .background(Color(.systemBackground))
             .onAppear { lastNonProfileTab = selectedTab }
             .onChange(of: selectedTab) { newValue in
