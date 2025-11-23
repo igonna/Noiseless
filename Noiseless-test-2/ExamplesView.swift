@@ -22,10 +22,10 @@ struct ExamplesView: View {
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            EdgeFadeOverlay()
+            EdgeFadeBackground()
                 .allowsHitTesting(false)
                 .zIndex(0)
-            
+
             TabView(selection: $selectedTab) {
                 // Tab 1: Today
                 TodayView(
@@ -77,7 +77,6 @@ struct ExamplesView: View {
                         Text("Profile")
                     }
             }
-            .zIndex(1)
             .background(Color(.systemBackground))
             .onAppear { lastNonProfileTab = selectedTab }
             .onChange(of: selectedTab) { newValue in
@@ -94,27 +93,41 @@ struct ExamplesView: View {
         }
     }
 }
-struct EdgeFadeOverlay: View {
+struct EdgeFadeBackground: View {
     var body: some View {
-        VStack(spacing: 0) {
-            LinearGradient(
-                colors: [Color(.systemBackground), Color(.systemBackground).opacity(0)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: 96)
-            
-            Spacer()
-            
-            LinearGradient(
-                colors: [Color(.systemBackground).opacity(0), Color(.systemBackground)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: 96)
+        ZStack {
+            VStack {
+                EdgeFadeTop()
+                Spacer()
+            }
+            VStack {
+                Spacer()
+                EdgeFadeBottom()
+            }
         }
-        .allowsHitTesting(false)
         .ignoresSafeArea()
+    }
+}
+
+struct EdgeFadeTop: View {
+    var body: some View {
+        LinearGradient(
+            colors: [Color(.systemBackground), Color(.systemBackground).opacity(0)],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .frame(height: 96)
+    }
+}
+
+struct EdgeFadeBottom: View {
+    var body: some View {
+        LinearGradient(
+            colors: [Color(.systemBackground).opacity(0), Color(.systemBackground)],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .frame(height: 96)
     }
 }
 
