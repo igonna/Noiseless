@@ -142,7 +142,7 @@ struct TodayView: View {
                 }
             }
             .padding(24)
-            .padding(.bottom, 96) // pb-24
+            .padding(.bottom, 32) // reduce extra bottom padding so last card sits near tab bar
             .frame(maxWidth: 672) // md:max-w-2xl
         }
         .onAppear {
