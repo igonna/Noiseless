@@ -1,13 +1,13 @@
 //
-//  Noiseless_test_2UITests.swift
-//  Noiseless-test-2UITests
+//  NoiselessUITests.swift
+//  NoiselessUITests
 //
 //  Created by c on 24.11.25.
 //
 
 import XCTest
 
-final class Noiseless_test_2UITests: XCTestCase {
+final class NoiselessUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

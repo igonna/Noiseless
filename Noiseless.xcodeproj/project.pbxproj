@@ -12,37 +12,37 @@
 			containerPortal = 025C6A032ED3AB9500D6D08E /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 025C6A0A2ED3AB9500D6D08E;
-			remoteInfo = "Noiseless-test-2";
+			remoteInfo = "Noiseless";
 		};
 		025C6A232ED3AB9700D6D08E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 025C6A032ED3AB9500D6D08E /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 025C6A0A2ED3AB9500D6D08E;
-			remoteInfo = "Noiseless-test-2";
+			remoteInfo = "Noiseless";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		025C6A0B2ED3AB9500D6D08E /* Noiseless-test-2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Noiseless-test-2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		025C6A182ED3AB9700D6D08E /* Noiseless-test-2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Noiseless-test-2Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		025C6A222ED3AB9700D6D08E /* Noiseless-test-2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Noiseless-test-2UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		025C6A0B2ED3AB9500D6D08E /* Noiseless.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Noiseless.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		025C6A182ED3AB9700D6D08E /* NoiselessTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "NoiselessTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		025C6A222ED3AB9700D6D08E /* NoiselessUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "NoiselessUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		025C6A0D2ED3AB9500D6D08E /* Noiseless-test-2 */ = {
+		025C6A0D2ED3AB9500D6D08E /* Noiseless */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Noiseless-test-2";
+			path = "Noiseless";
 			sourceTree = "<group>";
 		};
-		025C6A1B2ED3AB9700D6D08E /* Noiseless-test-2Tests */ = {
+		025C6A1B2ED3AB9700D6D08E /* NoiselessTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Noiseless-test-2Tests";
+			path = "NoiselessTests";
 			sourceTree = "<group>";
 		};
-		025C6A252ED3AB9700D6D08E /* Noiseless-test-2UITests */ = {
+		025C6A252ED3AB9700D6D08E /* NoiselessUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Noiseless-test-2UITests";
+			path = "NoiselessUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,9 +75,9 @@
 		025C6A022ED3AB9500D6D08E = {
 			isa = PBXGroup;
 			children = (
-				025C6A0D2ED3AB9500D6D08E /* Noiseless-test-2 */,
-				025C6A1B2ED3AB9700D6D08E /* Noiseless-test-2Tests */,
-				025C6A252ED3AB9700D6D08E /* Noiseless-test-2UITests */,
+				025C6A0D2ED3AB9500D6D08E /* Noiseless */,
+				025C6A1B2ED3AB9700D6D08E /* NoiselessTests */,
+				025C6A252ED3AB9700D6D08E /* NoiselessUITests */,
 				025C6A0C2ED3AB9500D6D08E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -85,9 +85,9 @@
 		025C6A0C2ED3AB9500D6D08E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				025C6A0B2ED3AB9500D6D08E /* Noiseless-test-2.app */,
-				025C6A182ED3AB9700D6D08E /* Noiseless-test-2Tests.xctest */,
-				025C6A222ED3AB9700D6D08E /* Noiseless-test-2UITests.xctest */,
+				025C6A0B2ED3AB9500D6D08E /* Noiseless.app */,
+				025C6A182ED3AB9700D6D08E /* NoiselessTests.xctest */,
+				025C6A222ED3AB9700D6D08E /* NoiselessUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		025C6A0A2ED3AB9500D6D08E /* Noiseless-test-2 */ = {
+		025C6A0A2ED3AB9500D6D08E /* Noiseless */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 025C6A2C2ED3AB9700D6D08E /* Build configuration list for PBXNativeTarget "Noiseless-test-2" */;
+			buildConfigurationList = 025C6A2C2ED3AB9700D6D08E /* Build configuration list for PBXNativeTarget "Noiseless" */;
 			buildPhases = (
 				025C6A072ED3AB9500D6D08E /* Sources */,
 				025C6A082ED3AB9500D6D08E /* Frameworks */,
@@ -108,18 +108,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				025C6A0D2ED3AB9500D6D08E /* Noiseless-test-2 */,
+				025C6A0D2ED3AB9500D6D08E /* Noiseless */,
 			);
-			name = "Noiseless-test-2";
+			name = "Noiseless";
 			packageProductDependencies = (
 			);
-			productName = "Noiseless-test-2";
-			productReference = 025C6A0B2ED3AB9500D6D08E /* Noiseless-test-2.app */;
+			productName = "Noiseless";
+			productReference = 025C6A0B2ED3AB9500D6D08E /* Noiseless.app */;
 			productType = "com.apple.product-type.application";
 		};
-		025C6A172ED3AB9700D6D08E /* Noiseless-test-2Tests */ = {
+		025C6A172ED3AB9700D6D08E /* NoiselessTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 025C6A2F2ED3AB9700D6D08E /* Build configuration list for PBXNativeTarget "Noiseless-test-2Tests" */;
+			buildConfigurationList = 025C6A2F2ED3AB9700D6D08E /* Build configuration list for PBXNativeTarget "NoiselessTests" */;
 			buildPhases = (
 				025C6A142ED3AB9700D6D08E /* Sources */,
 				025C6A152ED3AB9700D6D08E /* Frameworks */,
@@ -131,18 +131,18 @@
 				025C6A1A2ED3AB9700D6D08E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				025C6A1B2ED3AB9700D6D08E /* Noiseless-test-2Tests */,
+				025C6A1B2ED3AB9700D6D08E /* NoiselessTests */,
 			);
-			name = "Noiseless-test-2Tests";
+			name = "NoiselessTests";
 			packageProductDependencies = (
 			);
-			productName = "Noiseless-test-2Tests";
-			productReference = 025C6A182ED3AB9700D6D08E /* Noiseless-test-2Tests.xctest */;
+			productName = "NoiselessTests";
+			productReference = 025C6A182ED3AB9700D6D08E /* NoiselessTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		025C6A212ED3AB9700D6D08E /* Noiseless-test-2UITests */ = {
+		025C6A212ED3AB9700D6D08E /* NoiselessUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 025C6A322ED3AB9700D6D08E /* Build configuration list for PBXNativeTarget "Noiseless-test-2UITests" */;
+			buildConfigurationList = 025C6A322ED3AB9700D6D08E /* Build configuration list for PBXNativeTarget "NoiselessUITests" */;
 			buildPhases = (
 				025C6A1E2ED3AB9700D6D08E /* Sources */,
 				025C6A1F2ED3AB9700D6D08E /* Frameworks */,
@@ -154,13 +154,13 @@
 				025C6A242ED3AB9700D6D08E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				025C6A252ED3AB9700D6D08E /* Noiseless-test-2UITests */,
+				025C6A252ED3AB9700D6D08E /* NoiselessUITests */,
 			);
-			name = "Noiseless-test-2UITests";
+			name = "NoiselessUITests";
 			packageProductDependencies = (
 			);
-			productName = "Noiseless-test-2UITests";
-			productReference = 025C6A222ED3AB9700D6D08E /* Noiseless-test-2UITests.xctest */;
+			productName = "NoiselessUITests";
+			productReference = 025C6A222ED3AB9700D6D08E /* NoiselessUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -186,7 +186,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 025C6A062ED3AB9500D6D08E /* Build configuration list for PBXProject "Noiseless-test-2" */;
+			buildConfigurationList = 025C6A062ED3AB9500D6D08E /* Build configuration list for PBXProject "Noiseless" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -200,9 +200,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				025C6A0A2ED3AB9500D6D08E /* Noiseless-test-2 */,
-				025C6A172ED3AB9700D6D08E /* Noiseless-test-2Tests */,
-				025C6A212ED3AB9700D6D08E /* Noiseless-test-2UITests */,
+				025C6A0A2ED3AB9500D6D08E /* Noiseless */,
+				025C6A172ED3AB9700D6D08E /* NoiselessTests */,
+				025C6A212ED3AB9700D6D08E /* NoiselessUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -258,12 +258,12 @@
 /* Begin PBXTargetDependency section */
 		025C6A1A2ED3AB9700D6D08E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 025C6A0A2ED3AB9500D6D08E /* Noiseless-test-2 */;
+			target = 025C6A0A2ED3AB9500D6D08E /* Noiseless */;
 			targetProxy = 025C6A192ED3AB9700D6D08E /* PBXContainerItemProxy */;
 		};
 		025C6A242ED3AB9700D6D08E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 025C6A0A2ED3AB9500D6D08E /* Noiseless-test-2 */;
+			target = 025C6A0A2ED3AB9500D6D08E /* Noiseless */;
 			targetProxy = 025C6A232ED3AB9700D6D08E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -410,7 +410,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "test.Noiseless-test-2";
+				PRODUCT_BUNDLE_IDENTIFIER = "test.Noiseless";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -442,7 +442,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "test.Noiseless-test-2";
+				PRODUCT_BUNDLE_IDENTIFIER = "test.Noiseless";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -464,7 +464,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "test.Noiseless-test-2Tests";
+				PRODUCT_BUNDLE_IDENTIFIER = "test.NoiselessTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -472,7 +472,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Noiseless-test-2.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Noiseless-test-2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Noiseless.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Noiseless";
 			};
 			name = Debug;
 		};
@@ -486,7 +486,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "test.Noiseless-test-2Tests";
+				PRODUCT_BUNDLE_IDENTIFIER = "test.NoiselessTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -494,7 +494,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Noiseless-test-2.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Noiseless-test-2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Noiseless.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Noiseless";
 			};
 			name = Release;
 		};
@@ -506,7 +506,7 @@
 				DEVELOPMENT_TEAM = 55282Q75C2;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "test.Noiseless-test-2UITests";
+				PRODUCT_BUNDLE_IDENTIFIER = "test.NoiselessUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -514,7 +514,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "Noiseless-test-2";
+				TEST_TARGET_NAME = "Noiseless";
 			};
 			name = Debug;
 		};
@@ -526,7 +526,7 @@
 				DEVELOPMENT_TEAM = 55282Q75C2;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "test.Noiseless-test-2UITests";
+				PRODUCT_BUNDLE_IDENTIFIER = "test.NoiselessUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -534,14 +534,14 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "Noiseless-test-2";
+				TEST_TARGET_NAME = "Noiseless";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		025C6A062ED3AB9500D6D08E /* Build configuration list for PBXProject "Noiseless-test-2" */ = {
+		025C6A062ED3AB9500D6D08E /* Build configuration list for PBXProject "Noiseless" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				025C6A2A2ED3AB9700D6D08E /* Debug */,
@@ -550,7 +550,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		025C6A2C2ED3AB9700D6D08E /* Build configuration list for PBXNativeTarget "Noiseless-test-2" */ = {
+		025C6A2C2ED3AB9700D6D08E /* Build configuration list for PBXNativeTarget "Noiseless" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				025C6A2D2ED3AB9700D6D08E /* Debug */,
@@ -559,7 +559,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		025C6A2F2ED3AB9700D6D08E /* Build configuration list for PBXNativeTarget "Noiseless-test-2Tests" */ = {
+		025C6A2F2ED3AB9700D6D08E /* Build configuration list for PBXNativeTarget "NoiselessTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				025C6A302ED3AB9700D6D08E /* Debug */,
@@ -568,7 +568,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		025C6A322ED3AB9700D6D08E /* Build configuration list for PBXNativeTarget "Noiseless-test-2UITests" */ = {
+		025C6A322ED3AB9700D6D08E /* Build configuration list for PBXNativeTarget "NoiselessUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				025C6A332ED3AB9700D6D08E /* Debug */,

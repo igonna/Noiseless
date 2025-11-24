@@ -1,13 +1,13 @@
 //
-//  Noiseless_test_2UITestsLaunchTests.swift
-//  Noiseless-test-2UITests
+//  NoiselessUITestsLaunchTests.swift
+//  NoiselessUITests
 //
 //  Created by c on 24.11.25.
 //
 
 import XCTest
 
-final class Noiseless_test_2UITestsLaunchTests: XCTestCase {
+final class NoiselessUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
