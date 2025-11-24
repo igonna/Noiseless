@@ -10,10 +10,13 @@ struct ExamplesView: View {
         appearance.configureWithDefaultBackground()
         appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
         appearance.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.65)
-        appearance.stackedLayoutAppearance.selected.iconColor = UIColor.label
-        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.label]
-        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.secondaryLabel
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.secondaryLabel]
+        // Use a single, dynamic color for both selected and unselected states so icons and labels
+        // match in light (dark text) and dark mode (bright text).
+        let tabColor = UIColor.label
+        appearance.stackedLayoutAppearance.selected.iconColor = tabColor
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: tabColor]
+        appearance.stackedLayoutAppearance.normal.iconColor = tabColor
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: tabColor]
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
         UITabBar.appearance().isTranslucent = true
@@ -87,6 +90,7 @@ struct ExamplesView: View {
                 .tag(0)
                 .tabItem {
                     Image("tab_calendar")
+                        .renderingMode(.template)
                     Text("Today")
                 }
                 
@@ -95,6 +99,7 @@ struct ExamplesView: View {
                     .tag(1)
                     .tabItem {
                         Image("tab_activity")
+                            .renderingMode(.template)
                         Text("Trends")
                     }
                 
@@ -103,6 +108,7 @@ struct ExamplesView: View {
                     .tag(2)
                     .tabItem {
                         Image("tab_trending")
+                            .renderingMode(.template)
                         Text("Growth")
                     }
                 
@@ -111,6 +117,7 @@ struct ExamplesView: View {
                     .tag(3)
                     .tabItem {
                         Image("tab_bookmark")
+                            .renderingMode(.template)
                         Text("Saved")
                     }
 
@@ -119,6 +126,7 @@ struct ExamplesView: View {
                     .tag(4)
                     .tabItem {
                         Image("icon_profile")
+                            .renderingMode(.template)
                         Text("Profile")
                     }
             }
