@@ -381,6 +381,7 @@ struct SelectionScreen: View {
     
     @State private var isAdding: Bool = false
     @State private var customInput: String = ""
+    @FocusState private var addFieldFocused: Bool
     
     var body: some View {
         // Merge default options with any selected options that aren't in the default list
@@ -419,9 +420,11 @@ struct SelectionScreen: View {
                                 icon: "plus",
                                 isAdd: true
                             ) {
-                                toggleAdding(true) {
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    isAdding = true
                                     customInput = ""
                                 }
+                                focusAddFieldSoon()
                             }
                         }
                         .padding(.vertical, 8)
@@ -434,11 +437,15 @@ struct SelectionScreen: View {
                     BottomActionSection(buttonDisabled: selected.isEmpty) {
                         onNext()
                     }
+                    .animation(.easeInOut(duration: 0.25), value: isAdding)
 
                 } else {
                     VStack(alignment: .leading) {
                         Button(action: {
-                            toggleAdding(false)
+                            withAnimation(.easeInOut(duration: 0.25)) {
+                                isAdding = false
+                            }
+                            addFieldFocused = false
                         }) {
                             HStack(spacing: 8) {
                                 Image(systemName: "arrow.left")
@@ -455,6 +462,7 @@ struct SelectionScreen: View {
                             .padding(.vertical, 12)
                             .overlay(Rectangle().frame(height: 1).padding(.top, 35).foregroundColor(.zinc800), alignment: .bottom)
                             .accentColor(.white)
+                            .focused($addFieldFocused)
                             .onSubmit {
                                 addCustomOption()
                             }
@@ -483,19 +491,16 @@ struct SelectionScreen: View {
                     onSelect(newSelection)
                 }
             }
-            toggleAdding(false)
+            withAnimation(.easeInOut(duration: 0.25)) {
+                isAdding = false
+            }
+            addFieldFocused = false
         }
     }
-}
 
-extension SelectionScreen {
-    private func toggleAdding(_ flag: Bool, completion: (() -> Void)? = nil) {
-        var transaction = Transaction()
-        transaction.disablesAnimations = true
-        transaction.animation = nil
-        withTransaction(transaction) {
-            isAdding = flag
-            completion?()
+    private func focusAddFieldSoon() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            addFieldFocused = true
         }
     }
 }

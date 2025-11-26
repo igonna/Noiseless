@@ -216,6 +216,7 @@ struct IdentityDetailsSelectionScreen: View {
 
     @State private var isAdding: Bool = false
     @State private var customInput: String = ""
+    @FocusState private var addFieldFocused: Bool
 
     var body: some View {
         // Merge default options with the selected option if it's custom
@@ -241,9 +242,11 @@ struct IdentityDetailsSelectionScreen: View {
                                 icon: "plus",
                                 isAdd: true
                             ) {
-                                toggleAdding(true) {
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    isAdding = true
                                     customInput = ""
                                 }
+                                focusAddFieldSoon()
                             }
                         }
                         .padding(.vertical, 8)
@@ -256,11 +259,15 @@ struct IdentityDetailsSelectionScreen: View {
                     BottomActionSection(buttonDisabled: selected.isEmpty) {
                         onNext()
                     }
+                    .animation(.easeInOut(duration: 0.25), value: isAdding)
 
                 } else {
                     VStack(alignment: .leading) {
                         Button(action: {
-                            toggleAdding(false)
+                            withAnimation(.easeInOut(duration: 0.25)) {
+                                isAdding = false
+                            }
+                            addFieldFocused = false
                         }) {
                             HStack(spacing: 8) {
                                 Image(systemName: "arrow.left")
@@ -277,6 +284,7 @@ struct IdentityDetailsSelectionScreen: View {
                             .padding(.vertical, 12)
                             .overlay(Rectangle().frame(height: 1).padding(.top, 35).foregroundColor(.zinc800), alignment: .bottom)
                             .accentColor(.white)
+                            .focused($addFieldFocused)
                             .onSubmit {
                                 addCustomOption()
                             }
@@ -298,19 +306,16 @@ struct IdentityDetailsSelectionScreen: View {
         let val = customInput.trimmingCharacters(in: .whitespacesAndNewlines)
         if !val.isEmpty {
             onSelect(val)
-            toggleAdding(false)
+            withAnimation(.easeInOut(duration: 0.25)) {
+                isAdding = false
+            }
+            addFieldFocused = false
         }
     }
-}
 
-extension IdentityDetailsSelectionScreen {
-    private func toggleAdding(_ flag: Bool, completion: (() -> Void)? = nil) {
-        var transaction = Transaction()
-        transaction.disablesAnimations = true
-        transaction.animation = nil
-        withTransaction(transaction) {
-            isAdding = flag
-            completion?()
+    private func focusAddFieldSoon() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            addFieldFocused = true
         }
     }
 }
