@@ -216,7 +216,7 @@ struct PhaseTrustView: View {
                                         model.updateUserData(PartialUserData(identityDetail: option))
                                     }
                                 }
-                                
+
                                 OptionButton(
                                     label: "Add",
                                     icon: "plus",
@@ -229,7 +229,9 @@ struct PhaseTrustView: View {
                                 }
                             }
                             .padding(.vertical, 8)
+                            .padding(.horizontal, 2)
                         }
+                        .clipped()
                         
                         Spacer()
                         Divider().background(Color.zinc900)

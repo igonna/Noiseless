@@ -8,6 +8,7 @@ struct PhaseRewardView: View {
             switch model.currentStep {
             case .socialProof: socialProofView
             case .privacy: privacyView
+            case .encouragement: encouragementView
             default: EmptyView()
             }
         }
@@ -108,6 +109,25 @@ struct PhaseRewardView: View {
                         .tracking(0.5)
                 }
                 
+                PrimaryButton(title: "Continue") {
+                    model.nextStep()
+                }
+                .padding(.bottom, 20)
+            }
+        }
+    }
+
+    // Screen 14: Encouragement (Skipped - directly goes to ritual in React implementation)
+    // Note: React implementation skips this screen entirely and jumps from privacy to buildingModel
+    var encouragementView: some View {
+        StepLayout(title: "You're ready!", centerContent: true) {
+            VStack(spacing: 32) {
+                Spacer()
+                Text("Let's build your personalized path.")
+                    .font(.system(size: 18))
+                    .foregroundColor(.zinc400)
+                    .multilineTextAlignment(.center)
+                Spacer()
                 PrimaryButton(title: "Continue") {
                     model.goToStep(.buildingModel)
                 }

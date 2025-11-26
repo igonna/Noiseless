@@ -130,7 +130,6 @@ struct OptionButton: View {
                                 lineWidth: 1
                             )
                     )
-                    .shadow(color: selected ? Color.white.opacity(0.2) : Color.clear, radius: 15, x: 0, y: 0)
             )
             // Hover effect simulation (scale)
             .scaleEffect(selected ? 1.02 : 1.0)
@@ -272,7 +271,6 @@ struct ProgressBar: View {
                 Capsule()
                     .fill(Color.white)
                     .frame(width: geometry.size.width * progress, height: 6)
-                    .shadow(color: Color.white.opacity(0.5), radius: 5, x: 0, y: 0) // React: shadow-[0_0_10px_rgba(255,255,255,0.5)]
                     .animation(.linear(duration: 0.3), value: progress)
             }
         }

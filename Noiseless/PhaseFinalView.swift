@@ -7,7 +7,10 @@ struct PhaseFinalView: View {
         Group {
             switch model.currentStep {
             case .notifications: notificationsView
+            case .integrations: integrationsView
             case .finalWelcome: finalWelcomeView
+            case .firstSuggestion: firstSuggestionView
+            case .habitLoop: habitLoopView
             case .dashboard: dashboardView
             default: EmptyView()
             }
@@ -86,7 +89,7 @@ struct PhaseFinalView: View {
         ZStack {
             Color.black.ignoresSafeArea()
             VStack(spacing: 24) {
-                Text("Dashboard Placeholder")
+                Text("Welcome to Noiseless")
                     .font(.system(size: 20, weight: .semibold))
                     .foregroundColor(.zinc400)
                 VStack(alignment: .leading, spacing: 16) {
@@ -120,13 +123,73 @@ struct PhaseFinalView: View {
             .padding()
         }
     }
+
+    // Screen 24: Integrations (Skipped in current flow)
+    var integrationsView: some View {
+        StepLayout(
+            title: "Connect Your Tools",
+            subtitle: "Integrate with the apps you already use.",
+            showProgressBar: false,
+            centerContent: true,
+            hideBackButton: true,
+            centerTitle: true
+        ) {
+            VStack(spacing: 32) {
+                Spacer()
+                Text("Coming soon...")
+                    .font(.system(size: 18))
+                    .foregroundColor(.zinc500)
+                Spacer()
+                PrimaryButton(title: "Continue") {
+                    model.nextStep()
+                }
+                .padding(.bottom, 20)
+            }
+        }
+    }
+
+    // Screen 26: First Suggestion (Not implemented in React - placeholder)
+    var firstSuggestionView: some View {
+        StepLayout(showProgressBar: false, centerContent: true, hideBackButton: true) {
+            VStack(spacing: 32) {
+                Spacer()
+                Text("Your first suggestion is ready")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                Spacer()
+                PrimaryButton(title: "Continue") {
+                    model.nextStep()
+                }
+                .padding(.bottom, 20)
+            }
+        }
+    }
+
+    // Screen 27: Habit Loop (Not implemented in React - placeholder)
+    var habitLoopView: some View {
+        StepLayout(showProgressBar: false, centerContent: true, hideBackButton: true) {
+            VStack(spacing: 32) {
+                Spacer()
+                Text("Build lasting habits")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                Spacer()
+                PrimaryButton(title: "Continue") {
+                    model.nextStep()
+                }
+                .padding(.bottom, 20)
+            }
+        }
+    }
 }
 
 private struct NotificationPrompt: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 12) {
-                Text("“Aura” Would Like to Send You Notifications")
+                Text("\"Noiseless\" Would Like to Send You Notifications")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)

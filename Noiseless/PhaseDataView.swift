@@ -391,7 +391,7 @@ struct SelectionScreen: View {
                             ForEach(displayOptions, id: \.self) { option in
                                 let isSelected = selected.contains(option)
                                 let isMaxReached = maxSelection != nil && selected.count >= maxSelection! && !isSelected
-                                
+
                                 OptionButton(
                                     label: option,
                                     selected: isSelected
@@ -410,7 +410,7 @@ struct SelectionScreen: View {
                                 .opacity(isMaxReached ? 0.5 : 1.0)
                                 .disabled(isMaxReached)
                             }
-                            
+
                             OptionButton(
                                 label: "Add",
                                 icon: "plus",
@@ -423,7 +423,9 @@ struct SelectionScreen: View {
                             }
                         }
                         .padding(.vertical, 8)
+                        .padding(.horizontal, 2)
                     }
+                    .clipped()
                     
                     Spacer()
                     
