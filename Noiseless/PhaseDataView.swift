@@ -298,13 +298,13 @@ struct PhaseDataView: View {
         let options = VisionOption.sampleOptions
         
         return StepLayout(title: "What do you want to achieve?", subtitle: "Select up to 3") {
-            VStack(spacing: 24) {
+            VStack(alignment: .leading, spacing: 0) {
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 14) {
                         ForEach(options) { option in
                             let isSelected = model.userData.vision.contains(option.label)
                             let isMaxReached = !isSelected && model.userData.vision.count >= 3
-                            
+
                             VisionOptionCard(option: option, isSelected: isSelected, isDisabled: isMaxReached) {
                                 withAnimation(.spring(response: 0.45, dampingFraction: 0.85)) {
                                     var current = model.userData.vision
@@ -320,7 +320,8 @@ struct PhaseDataView: View {
                     }
                     .padding(.vertical, 6)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+
+                Spacer()
 
                 BottomActionSection(buttonDisabled: model.userData.vision.isEmpty) {
                     model.nextStep()
@@ -433,7 +434,7 @@ struct SelectionScreen: View {
                     BottomActionSection(buttonDisabled: selected.isEmpty) {
                         onNext()
                     }
-                    
+
                 } else {
                     VStack(alignment: .leading) {
                         Button(action: {

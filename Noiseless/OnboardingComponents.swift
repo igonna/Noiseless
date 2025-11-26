@@ -251,6 +251,23 @@ struct BottomActionSection: View {
             }
         }
         .padding(.bottom, 10)
+        .background(Color.zinc950)
+    }
+}
+
+// Layout wrapper for scrollable content with fixed button at bottom
+struct ScrollableContentLayout<Content: View>: View {
+    let content: () -> Content
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView(showsIndicators: false) {
+                content()
+                    .padding(.vertical, 8)
+            }
+
+            Spacer(minLength: 0)
+        }
     }
 }
 
