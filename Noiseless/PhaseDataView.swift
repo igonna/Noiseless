@@ -292,72 +292,39 @@ struct PhaseDataView: View {
     
     // Screen 8: Vision
     var visionView: some View {
-        let visionOptions: [(label: String, icon: String)] = [
-            ("More income", "dollarsign.circle"),
-            ("Learn powerful skills", "bolt"),
-            ("More freedom", "wind"),
-            ("Start a business", "rocket"),
-            ("More discipline", "target"),
-            ("Better well-being", "heart"),
-            ("Multiple income streams", "square.stack.3d.up"),
-            ("Find clarity", "lightbulb"),
-            ("New career path", "safari")
-        ]
+        let options = VisionOption.sampleOptions
         
         return StepLayout(title: "What do you want to achieve?", subtitle: "Select up to 3") {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 12) {
-                    ForEach(visionOptions, id: \.label) { item in
-                        let isSelected = model.userData.vision.contains(item.label)
-                        let isMaxReached = !isSelected && model.userData.vision.count >= 3
-                        
-                        Button(action: {
-                            var current = model.userData.vision
-                            if isSelected {
-                                current.removeAll { $0 == item.label }
-                            } else if current.count < 3 {
-                                current.append(item.label)
+            VStack(spacing: 24) {
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: 14) {
+                        ForEach(options) { option in
+                            let isSelected = model.userData.vision.contains(option.label)
+                            let isMaxReached = !isSelected && model.userData.vision.count >= 3
+                            
+                            VisionOptionCard(option: option, isSelected: isSelected, isDisabled: isMaxReached) {
+                                withAnimation(.spring(response: 0.45, dampingFraction: 0.85)) {
+                                    var current = model.userData.vision
+                                    if isSelected {
+                                        current.removeAll { $0 == option.label }
+                                    } else if current.count < 3 {
+                                        current.append(option.label)
+                                    }
+                                    model.updateUserData(PartialUserData(vision: current))
+                                }
                             }
-                            model.updateUserData(PartialUserData(vision: current))
-                        }) {
-                            HStack(spacing: 16) {
-                                Image(systemName: item.icon)
-                                    .font(.system(size: 20))
-                                    .foregroundColor(isSelected ? .black : .zinc200)
-                                    .padding(8)
-                                    .background(isSelected ? Color.white : Color.zinc800)
-                                    .cornerRadius(8)
-                                
-                                Text(item.label)
-                                    .font(.system(size: 18, weight: .medium))
-                                    .foregroundColor(isSelected ? .white : .zinc200)
-                                
-                                Spacer()
-                            }
-                            .padding(16)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(isSelected ? Color.zinc800 : (isMaxReached ? Color.zinc900.opacity(0.2) : Color.zinc900.opacity(0.5)))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(isSelected ? Color.zinc500 : Color.zinc800.opacity(0.5), lineWidth: 1)
-                                    )
-                                    .shadow(color: isSelected ? Color.white.opacity(0.05) : Color.clear, radius: 15, x: 0, y: 0)
-                            )
-                            .opacity(isMaxReached ? 0.5 : 1.0)
                         }
-                        .disabled(isMaxReached)
                     }
+                    .padding(.vertical, 6)
                 }
-                .padding(.vertical, 8)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                
+                Divider().background(Color.zinc900)
+                
+                PrimaryButton(title: "Continue", disabled: model.userData.vision.isEmpty) {
+                    model.nextStep()
+                }
             }
-            
-            Spacer()
-            
-            PrimaryButton(title: "Continue", disabled: model.userData.vision.isEmpty) {
-                model.nextStep()
-            }
-            .padding(.bottom, 20)
         }
     }
     
@@ -417,7 +384,7 @@ struct SelectionScreen: View {
         let displayOptions = (options + selected.filter { !options.contains($0) }).removingDuplicates()
         
         return StepLayout(title: title, subtitle: subtitle) {
-            VStack {
+            VStack(alignment: .leading, spacing: 0) {
                 if !isAdding {
                     ScrollView(showsIndicators: false) {
                         FlowLayout(spacing: 12) {
@@ -460,6 +427,9 @@ struct SelectionScreen: View {
                     
                     Spacer()
                     
+                    Divider().background(Color.zinc900)
+                        .padding(.bottom, 16)
+                    
                     PrimaryButton(title: "Continue", disabled: selected.isEmpty) {
                         onNext()
                     }
@@ -472,9 +442,10 @@ struct SelectionScreen: View {
                                 isAdding = false
                             }
                         }) {
-                            HStack {
+                            HStack(spacing: 8) {
                                 Image(systemName: "arrow.left")
                                 Text("Add new option")
+                                    .font(.system(size: 14, weight: .semibold))
                             }
                             .foregroundColor(.zinc400)
                             .padding(.bottom, 16)
@@ -547,7 +518,7 @@ struct TimeBudgetScreen: View {
                         .font(.system(size: 48, weight: .bold))
                         .foregroundColor(.white)
                         .transition(.opacity.combined(with: .scale))
-                        .id("label-\(index)") // Force transition
+                        .id("label-\(index)")
                     
                     Text("“\(currentOption.desc)”")
                         .font(.system(size: 18, weight: .medium))
@@ -561,9 +532,8 @@ struct TimeBudgetScreen: View {
                 Spacer()
                 
                 VStack(spacing: 24) {
-                    Slider(value: $selectedIndex, in: 0...Double(options.count - 1), step: 1)
-                        .accentColor(.white)
-                        .padding(.horizontal, 20)
+                    DiscreteStepSlider(index: $selectedIndex, steps: options.count)
+                        .padding(.horizontal, 12)
                     
                     HStack {
                         Text("GENTLE")
@@ -578,8 +548,6 @@ struct TimeBudgetScreen: View {
                 .padding(.bottom, 40)
                 
                 PrimaryButton(title: "Continue") {
-                    let opt = options[index]
-                    model.updateUserData(PartialUserData(timeBudget: "\(opt.label) — \(opt.desc)"))
                     model.nextStep()
                 }
                 .padding(.bottom, 20)
@@ -592,7 +560,142 @@ struct TimeBudgetScreen: View {
                     selectedIndex = Double(idx)
                 }
             }
+            syncTimeBudget(with: Int(round(selectedIndex)))
         }
+        .onChange(of: Int(round(selectedIndex))) { newValue in
+            syncTimeBudget(with: newValue)
+        }
+    }
+    
+    private func syncTimeBudget(with index: Int) {
+        guard options.indices.contains(index) else { return }
+        let option = options[index]
+        model.updateUserData(PartialUserData(timeBudget: "\(option.label) — \(option.desc)"))
+    }
+}
+
+struct DiscreteStepSlider: View {
+    @Binding var index: Double
+    let steps: Int
+    
+    private var progress: CGFloat {
+        guard steps > 1 else { return 0 }
+        return CGFloat(index / Double(steps - 1))
+    }
+    
+    var body: some View {
+        GeometryReader { geometry in
+            let width = max(geometry.size.width, 1)
+            let effectiveWidth = max(width - 8, 1)
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(Color.zinc800)
+                    .frame(height: 8)
+                Capsule()
+                    .fill(
+                        LinearGradient(colors: [.white, Color.zinc500], startPoint: .leading, endPoint: .trailing)
+                    )
+                    .frame(width: max(progress * width, 0), height: 8)
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: 24, height: 24)
+                    .shadow(color: Color.white.opacity(0.4), radius: 8, x: 0, y: 0)
+                    .offset(x: max(min(progress * width, width - 12), 0) - 12)
+            }
+            .frame(height: 32)
+            .padding(.horizontal, 4)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        let clampedX = min(max(0, value.location.x - 4), effectiveWidth)
+                        updateIndex(for: clampedX / effectiveWidth)
+                    }
+            )
+        }
+        .frame(height: 44)
+    }
+    
+    private func updateIndex(for ratio: CGFloat) {
+        guard steps > 1 else {
+            index = 0
+            return
+        }
+        let raw = Double(ratio) * Double(steps - 1)
+        let stepped = min(max(round(raw), 0), Double(steps - 1))
+        withAnimation(.easeInOut(duration: 0.15)) {
+            index = stepped
+        }
+    }
+}
+
+struct VisionOption: Identifiable {
+    let label: String
+    let icon: String
+    var id: String { label }
+}
+
+extension VisionOption {
+    static let sampleOptions: [VisionOption] = [
+        VisionOption(label: "More income", icon: "dollarsign.circle.fill"),
+        VisionOption(label: "Learn powerful skills", icon: "bolt.fill"),
+        VisionOption(label: "More freedom", icon: "wind"),
+        VisionOption(label: "Start a business", icon: "rocket.fill"),
+        VisionOption(label: "More discipline", icon: "target"),
+        VisionOption(label: "Better well-being", icon: "heart.fill"),
+        VisionOption(label: "Multiple income streams", icon: "square.stack.3d.up.fill"),
+        VisionOption(label: "Find clarity", icon: "lightbulb"),
+        VisionOption(label: "New career path", icon: "safari")
+    ]
+}
+
+struct VisionOptionCard: View {
+    let option: VisionOption
+    let isSelected: Bool
+    let isDisabled: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(isSelected ? Color.white : Color.zinc900)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(isSelected ? Color.white : Color.zinc800, lineWidth: isSelected ? 0 : 1)
+                        )
+                        .frame(width: 56, height: 56)
+                        .shadow(color: isSelected ? Color.white.opacity(0.25) : Color.clear, radius: 12, x: 0, y: 0)
+                    Image(systemName: option.icon)
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundColor(isSelected ? .black : .white)
+                }
+                
+                Text(option.label)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(isSelected ? Color.zinc900.opacity(0.9) : Color.zinc900.opacity(0.55))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(isSelected ? Color.zinc500 : Color.zinc800.opacity(0.6), lineWidth: 1)
+                    )
+            )
+            .contentShape(RoundedRectangle(cornerRadius: 20))
+        }
+        .buttonStyle(.plain)
+        .opacity(isDisabled ? 0.45 : 1)
+        .scaleEffect(isSelected ? 1.01 : 1)
+        .animation(.spring(response: 0.4, dampingFraction: 0.85), value: isSelected)
     }
 }
 

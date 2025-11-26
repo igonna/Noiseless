@@ -1,25 +1,97 @@
 import SwiftUI
+import UIKit
+
+enum PrimaryButtonStyle {
+    case primary
+    case secondary
+    case ghost
+}
 
 struct PrimaryButton: View {
     let title: String
     var disabled: Bool = false
+    var variant: PrimaryButtonStyle = .primary
     var fullWidth: Bool = true
-    var height: CGFloat = 56 // Default to match standard, but allow override
+    var height: CGFloat = 56
     var fontSize: CGFloat = 16
+    var iconSystemName: String? = nil
     let action: () -> Void
+    
+    init(
+        title: String,
+        disabled: Bool = false,
+        variant: PrimaryButtonStyle = .primary,
+        fullWidth: Bool = true,
+        height: CGFloat = 56,
+        fontSize: CGFloat = 16,
+        iconSystemName: String? = nil,
+        action: @escaping () -> Void
+    ) {
+        self.title = title
+        self.disabled = disabled
+        self.variant = variant
+        self.fullWidth = fullWidth
+        self.height = height
+        self.fontSize = fontSize
+        self.iconSystemName = iconSystemName
+        self.action = action
+    }
+    
+    private var backgroundColor: Color {
+        switch variant {
+        case .primary: return .white
+        case .secondary: return .zinc900
+        case .ghost: return Color.clear
+        }
+    }
+    
+    private var foregroundColor: Color {
+        switch variant {
+        case .primary: return .black
+        case .secondary: return .white
+        case .ghost: return .zinc400
+        }
+    }
+    
+    private var borderColor: Color? {
+        switch variant {
+        case .primary: return nil
+        case .secondary: return Color.zinc700
+        case .ghost: return Color.zinc700
+        }
+    }
+    
+    private var shadowColor: Color {
+        switch variant {
+        case .primary: return Color.white.opacity(0.15)
+        case .secondary: return Color.black.opacity(0.45)
+        case .ghost: return Color.clear
+        }
+    }
     
     var body: some View {
         Button(action: action) {
-            Text(title)
-                .font(.system(size: fontSize, weight: .bold)) // Bold weight
-                .foregroundColor(.black)
-                .frame(maxWidth: fullWidth ? .infinity : nil)
-                .frame(height: height)
-                .background(Color.white)
-                .cornerRadius(100) // Fully rounded capsule
-                .shadow(color: Color.white.opacity(0.15), radius: 15, x: 0, y: 0) // Glow shadow
-                .opacity(disabled ? 0.5 : 1.0)
+            HStack(spacing: 8) {
+                if let iconSystemName {
+                    Image(systemName: iconSystemName)
+                        .font(.system(size: fontSize, weight: .semibold))
+                }
+                Text(title)
+                    .font(.system(size: fontSize, weight: .bold))
+            }
+            .foregroundColor(foregroundColor)
+            .frame(maxWidth: fullWidth ? .infinity : nil)
+            .frame(height: height)
+            .background(backgroundColor)
+            .overlay(
+                Capsule()
+                    .stroke(borderColor ?? Color.clear, lineWidth: borderColor == nil ? 0 : 1)
+            )
+            .cornerRadius(height / 2)
+            .shadow(color: shadowColor, radius: 15, x: 0, y: 0)
+            .opacity(disabled ? 0.5 : 1.0)
         }
+        .buttonStyle(.plain)
         .disabled(disabled)
     }
 }
@@ -36,12 +108,8 @@ struct OptionButton: View {
             HStack(spacing: 8) {
                 if let iconName = icon {
                     Image(systemName: iconName)
-                        .font(.system(size: 18))
+                        .font(.system(size: 18, weight: .medium))
                         .foregroundColor(selected ? .black : (isAdd ? .zinc500 : .zinc400))
-                        // React doesn't have background on icon for standard state, only selected has 'text-black'
-                        // Wait, React: selected ? 'text-black' : ...
-                        // My code: selected ? .black : ...
-                        // React wrapper: selected ? 'bg-white' : 'bg-zinc-900'
                 }
                 
                 Text(label)
@@ -52,10 +120,15 @@ struct OptionButton: View {
             .padding(.vertical, 12)
             .background(
                 Capsule()
-                    .fill(selected ? Color.white : (isAdd ? Color.clear : Color.zinc900))
+                    .fill(
+                        selected ? Color.white : (isAdd ? Color.clear : Color.zinc900.opacity(0.8))
+                    )
                     .overlay(
                         Capsule()
-                            .stroke(selected ? Color.white : Color.zinc800, lineWidth: 1)
+                            .stroke(
+                                selected ? Color.white : (isAdd ? Color.zinc800 : Color.zinc800.opacity(0.8)),
+                                lineWidth: 1
+                            )
                     )
                     .shadow(color: selected ? Color.white.opacity(0.2) : Color.clear, radius: 15, x: 0, y: 0)
             )
@@ -63,6 +136,7 @@ struct OptionButton: View {
             .scaleEffect(selected ? 1.02 : 1.0)
             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: selected)
         }
+        .buttonStyle(.plain)
     }
 }
 
@@ -71,81 +145,111 @@ struct StepLayout<Content: View>: View {
     let subtitle: String?
     let showProgressBar: Bool
     let centerContent: Bool
+    let hideBackButton: Bool
+    let centerTitle: Bool
     let content: () -> Content
     
     @EnvironmentObject var model: OnboardingModel
     
-    init(title: String? = nil, subtitle: String? = nil, showProgressBar: Bool = true, centerContent: Bool = false, @ViewBuilder content: @escaping () -> Content) {
+    init(
+        title: String? = nil,
+        subtitle: String? = nil,
+        showProgressBar: Bool = true,
+        centerContent: Bool = false,
+        hideBackButton: Bool = false,
+        centerTitle: Bool = false,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
         self.title = title
         self.subtitle = subtitle
         self.showProgressBar = showProgressBar
         self.centerContent = centerContent
+        self.hideBackButton = hideBackButton
+        self.centerTitle = centerTitle
         self.content = content
     }
     
+    private var headingAlignment: TextAlignment {
+        (centerContent || centerTitle) ? .center : .leading
+    }
+    
+    private var stackAlignment: HorizontalAlignment {
+        centerContent ? .center : .leading
+    }
+    
+    private var contentTopPadding: CGFloat {
+        showProgressBar ? 120 : 96
+    }
+    
     var body: some View {
-        ZStack {
-            Color(red: 0.035, green: 0.035, blue: 0.039) // zinc-950 hex #09090b
-                .edgesIgnoringSafeArea(.all)
-            
-            VStack(spacing: 0) {
-                // Header: Back Button & Progress Bar
-                HStack(spacing: 16) {
-                    // Back Button Logic
-                    if model.currentStep.rawValue > 1 {
-                        let isMinimal = model.currentStep == .trialOffer || model.currentStep == .paywall
-                        
-                        Button(action: {
-                            model.prevStep()
-                        }) {
-                            Image(systemName: isMinimal ? "chevron.left" : "arrow.left")
-                                .font(.system(size: isMinimal ? 24 : 20)) // React: 32px vs 24px
-                                .foregroundColor(isMinimal ? .zinc500 : .zinc400)
-                                .padding(8)
-                                // Minimal has no hover bg in React, standard does. SwiftUI buttons don't hover same way.
-                                // We'll keep it simple.
-                        }
-                    } else {
-                        Color.clear.frame(width: 40, height: 40)
-                    }
-                    
-                    if showProgressBar {
-                        ProgressBar(currentStep: model.currentStep)
-                    } else {
-                        Spacer()
-                    }
-                }
-                .padding(.horizontal, 24) // React: px-6
-                .padding(.top, 10)
-                .padding(.bottom, 20)
+        GeometryReader { _ in
+            ZStack(alignment: .top) {
+                Color.zinc950
+                    .ignoresSafeArea()
                 
-                VStack(alignment: centerContent ? .center : .leading, spacing: 16) {
+                VStack(alignment: stackAlignment, spacing: 16) {
                     if let title = title {
                         Text(title)
-                            .font(.system(size: 32, weight: .bold)) // React: text-3xl md:text-4xl
-                            .tracking(-0.5) // React: tracking-tight
+                            .font(.system(size: 32, weight: .bold))
+                            .tracking(-0.5)
                             .foregroundColor(.white)
-                            .multilineTextAlignment(centerContent ? .center : .leading)
-                            .lineSpacing(4) // React: leading-[1.15]
+                            .multilineTextAlignment(headingAlignment)
+                            .lineSpacing(4)
+                            .frame(maxWidth: .infinity, alignment: centerContent ? .center : .leading)
                     }
                     
                     if let subtitle = subtitle {
                         Text(subtitle)
-                            .font(.system(size: 18)) // React: text-lg
+                            .font(.system(size: 18))
                             .foregroundColor(.zinc400)
-                            .multilineTextAlignment(centerContent ? .center : .leading)
-                            .lineSpacing(6) // React: leading-relaxed
+                            .multilineTextAlignment(headingAlignment)
+                            .lineSpacing(6)
+                            .frame(maxWidth: .infinity, alignment: centerContent ? .center : .leading)
                     }
                     
                     content()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: centerContent ? .center : .top)
                 }
-                .padding(.horizontal, 24) // React: px-6
-                .padding(.top, 24) // React: pt-24 (approx 96px, but we have header above, so maybe less padding here relative to header)
-                // Actually React has absolute header, so pt-24 is from top of screen.
-                // In SwiftUI VStack, we need to adjust.
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: centerContent ? .center : .top)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.horizontal, 24)
+                .padding(.top, contentTopPadding)
+                .padding(.bottom, 32)
+                
+                headerView
             }
         }
+    }
+    
+    private var headerView: some View {
+        HStack(spacing: 16) {
+            if shouldShowBackButton {
+                let isMinimal = model.currentStep == .trialOffer || model.currentStep == .paywall
+                Button(action: model.prevStep) {
+                    Image(systemName: isMinimal ? "chevron.left" : "arrow.left")
+                        .font(.system(size: isMinimal ? 28 : 20, weight: .medium))
+                        .foregroundColor(isMinimal ? .zinc500 : .zinc400)
+                        .padding(8)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            } else {
+                Color.clear.frame(width: 40, height: 40)
+            }
+            
+            if showProgressBar {
+                ProgressBar(currentStep: model.currentStep)
+            } else {
+                Spacer()
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 12)
+        .padding(.bottom, 8)
+        .background(Color.zinc950.opacity(0.001))
+    }
+    
+    private var shouldShowBackButton: Bool {
+        !hideBackButton && model.currentStep.rawValue > ScreenStep.welcome.rawValue
     }
 }
 
@@ -201,7 +305,8 @@ struct FlowLayout: Layout {
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let rows = computeRows(proposal: proposal, subviews: subviews)
         let height = rows.last?.maxY ?? 0
-        return CGSize(width: proposal.width ?? 0, height: height)
+        let width = proposal.width ?? defaultWidth
+        return CGSize(width: width, height: height)
     }
     
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
@@ -232,7 +337,7 @@ struct FlowLayout: Layout {
         var y: CGFloat = 0
         var maxHeightInRow: CGFloat = 0
         
-        let maxWidth = proposal.width ?? 0
+        let maxWidth = proposal.width ?? defaultWidth
         
         for subview in subviews {
             let size = subview.sizeThatFits(.unspecified)
@@ -258,5 +363,9 @@ struct FlowLayout: Layout {
         }
         
         return rows
+    }
+    
+    private var defaultWidth: CGFloat {
+        max(UIScreen.main.bounds.width - 48, 0)
     }
 }

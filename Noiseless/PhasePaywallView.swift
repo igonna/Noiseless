@@ -23,7 +23,7 @@ struct PhasePaywallView: View {
 
     // Screen 20: Hard Paywall + Trial
     var paywallView: some View {
-        StepLayout(title: "Unlock Your Noiseless Advantage", showProgressBar: false, centerContent: true) {
+        StepLayout(title: "Unlock Your Noiseless Advantage", showProgressBar: false, centerTitle: true) {
             VStack {
                 // Features List
                 VStack(alignment: .leading, spacing: 20) {
@@ -180,19 +180,11 @@ struct PhasePaywallView: View {
                             model.goToStep(.notifications)
                         }
                         
-                        Button(action: {
+                        PrimaryButton(
+                            title: "Skip",
+                            variant: .secondary
+                        ) {
                             model.goToStep(.paywall)
-                        }) {
-                            Text("Skip")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(Color.zinc800)
-                                .cornerRadius(100)
-                                .overlay(
-                                    Capsule().stroke(Color.zinc700, lineWidth: 1)
-                                )
                         }
                     }
                 }

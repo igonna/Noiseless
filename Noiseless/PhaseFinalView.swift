@@ -7,8 +7,8 @@ struct PhaseFinalView: View {
         Group {
             switch model.currentStep {
             case .notifications: notificationsView
-            case .integrations: integrationsView
             case .finalWelcome: finalWelcomeView
+            case .dashboard: dashboardView
             default: EmptyView()
             }
         }
@@ -16,59 +16,25 @@ struct PhaseFinalView: View {
     
     // Screen 23: Notifications
     var notificationsView: some View {
-        StepLayout(centerContent: true) {
+        StepLayout(
+            title: "Reach your goals with notifications",
+            subtitle: "Stay on track with daily insights tailored to your journey.",
+            showProgressBar: false,
+            centerContent: true,
+            hideBackButton: true,
+            centerTitle: true
+        ) {
             VStack(spacing: 32) {
                 Spacer()
-                
-                Image(systemName: "bell.badge.fill")
-                    .font(.system(size: 80))
-                    .foregroundColor(.white)
-                
-                VStack(spacing: 16) {
-                    Text("Stay on track.")
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                    
-                    Text("Enable notifications to get your daily insights at the perfect time.")
-                        .font(.system(size: 18))
-                        .foregroundColor(.zinc400)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 32)
-                }
-                
+                NotificationPrompt()
                 Spacer()
-                
-                VStack(spacing: 16) {
-                    PrimaryButton(title: "Enable Notifications") {
-                        // Request permission logic here
-                        model.nextStep()
+                VStack(spacing: 12) {
+                    PrimaryButton(title: "Continue") {
+                        model.goToStep(.finalWelcome)
                     }
-                    
-                    Button(action: {
-                        model.nextStep()
-                    }) {
-                        Text("Not Now")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.zinc500)
+                    PrimaryButton(title: "Not Now", variant: .ghost) {
+                        model.goToStep(.finalWelcome)
                     }
-                }
-                .padding(.bottom, 20)
-            }
-        }
-    }
-    
-    // Screen 24: Integrations (Optional)
-    var integrationsView: some View {
-        StepLayout(title: "Connect your apps.", subtitle: "Get better insights by connecting your data.") {
-            VStack(spacing: 16) {
-                IntegrationRow(icon: "figure.walk", name: "HealthKit", isConnected: false)
-                IntegrationRow(icon: "calendar", name: "Calendar", isConnected: true)
-                
-                Spacer()
-                
-                PrimaryButton(title: "Continue") {
-                    model.nextStep()
                 }
                 .padding(.bottom, 20)
             }
@@ -77,67 +43,123 @@ struct PhaseFinalView: View {
     
     // Screen 25: Final Welcome
     var finalWelcomeView: some View {
-        StepLayout(centerContent: true) {
-            VStack(spacing: 32) {
-                Spacer()
-                
-                Image(systemName: "sun.max.fill")
-                    .font(.system(size: 80))
-                    .foregroundColor(.yellow)
-                    .shadow(color: .yellow.opacity(0.5), radius: 20, x: 0, y: 0)
-                
-                VStack(spacing: 16) {
-                    Text("Welcome to Aura.")
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
+        StepLayout(showProgressBar: false, centerContent: true, hideBackButton: true) {
+            ZStack {
+                LinearGradient(colors: [.zinc950, Color.zinc900.opacity(0.4), .zinc950], startPoint: .top, endPoint: .bottom)
+                    .ignoresSafeArea()
+                VStack(spacing: 32) {
+                    Spacer()
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.15))
+                            .frame(width: 220, height: 220)
+                            .blur(radius: 60)
+                        RoundedRectangle(cornerRadius: 32)
+                            .fill(Color.white)
+                            .frame(width: 120, height: 120)
+                            .overlay(Circle().fill(Color.black).frame(width: 60, height: 60))
+                    }
                     
-                    Text("Your personalized dashboard is ready.")
-                        .font(.system(size: 18))
-                        .foregroundColor(.zinc400)
-                        .multilineTextAlignment(.center)
+                    VStack(spacing: 16) {
+                        Text("Welcome to Noiseless.")
+                            .font(.system(size: 36, weight: .bold))
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.white)
+                        Text("Your personal model is ready — your first insight is waiting.")
+                            .font(.system(size: 18))
+                            .foregroundColor(.zinc400)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(.horizontal)
+                    Spacer()
+                    PrimaryButton(title: "See My Insight") {
+                        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+                        model.goToStep(.dashboard)
+                    }
+                    .padding(.bottom, 24)
                 }
-                
-                Spacer()
-                
-                PrimaryButton(title: "Go to Dashboard") {
-                    // Complete onboarding
-                    UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-                    model.goToStep(.dashboard)
-                }
-                .padding(.bottom, 20)
             }
+        }
+    }
+    
+    private var dashboardView: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            VStack(spacing: 24) {
+                Text("Dashboard Placeholder")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(.zinc400)
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Today's Focus")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(.zinc500)
+                        .textCase(.uppercase)
+                    Text("Review your career transition strategy.")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundColor(.white)
+                }
+                .padding()
+                .background(Color.zinc900)
+                .cornerRadius(20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.zinc800, lineWidth: 1)
+                )
+                
+                Text("This is where the actual application begins. The onboarding flow is complete.")
+                    .font(.system(size: 15))
+                    .foregroundColor(.zinc400)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                
+                PrimaryButton(title: "Restart Demo", variant: .secondary, fullWidth: false) {
+                    UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+                    model.goToStep(.welcome)
+                }
+            }
+            .padding()
         }
     }
 }
 
-struct IntegrationRow: View {
-    let icon: String
-    let name: String
-    @State var isConnected: Bool
-    
+private struct NotificationPrompt: View {
     var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .font(.system(size: 24))
-                .foregroundColor(.white)
-                .frame(width: 40, height: 40)
-                .background(Color.zinc800)
-                .cornerRadius(8)
-            
-            Text(name)
-                .font(.system(size: 18, weight: .medium))
-                .foregroundColor(.white)
-            
-            Spacer()
-            
-            Toggle("", isOn: $isConnected)
-                .labelsHidden()
-                .toggleStyle(SwitchToggleStyle(tint: .white))
+        VStack(spacing: 0) {
+            VStack(spacing: 12) {
+                Text("“Aura” Would Like to Send You Notifications")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                Text("Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.")
+                    .font(.system(size: 14))
+                    .foregroundColor(.zinc500)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 24)
+            .padding(.bottom, 16)
+            Divider().background(Color.zinc900)
+            HStack(spacing: 0) {
+                Text("Don't Allow")
+                    .font(.system(size: 16))
+                    .foregroundColor(.zinc500)
+                    .frame(maxWidth: .infinity)
+                    .padding(14)
+                    .overlay(Rectangle().stroke(Color.zinc900, lineWidth: 0.5))
+                Text("Allow")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(14)
+            }
         }
-        .padding(16)
         .background(Color.zinc900)
-        .cornerRadius(12)
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.zinc800, lineWidth: 1))
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.zinc800, lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.4), radius: 30, x: 0, y: 10)
+        .padding(.horizontal)
     }
 }

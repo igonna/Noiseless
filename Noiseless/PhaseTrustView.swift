@@ -15,11 +15,17 @@ struct PhaseTrustView: View {
                 identityDetailsView
             }
         }
+        .onChange(of: model.currentStep) { step in
+            if step != .identityDetails {
+                showOtherInput = false
+                customInput = ""
+            }
+        }
     }
     
     // Screen 1: Welcome
     var welcomeView: some View {
-        StepLayout(showProgressBar: false, centerContent: true) {
+        StepLayout(showProgressBar: false, centerContent: true, hideBackButton: true) {
             ZStack {
                 // Glow effect
                 GlowView()
@@ -93,16 +99,36 @@ struct PhaseTrustView: View {
         
         return StepLayout(title: "Which describes you best?") {
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 12) {
+                LazyVStack(spacing: 12) {
                     ForEach(identities, id: \.id) { item in
-                        OptionButton(
-                            label: item.label,
-                            icon: item.icon,
-                            selected: false // Single selection, immediate next step
-                        ) {
+                        Button {
                             model.updateUserData(PartialUserData(identity: item.label))
                             model.nextStep()
+                        } label: {
+                            HStack(spacing: 16) {
+                                Image(systemName: item.icon)
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundColor(.zinc200)
+                                    .frame(width: 48, height: 48)
+                                    .background(Color.zinc800)
+                                    .cornerRadius(12)
+                                
+                                Text(item.label)
+                                    .font(.system(size: 18, weight: .medium))
+                                    .foregroundColor(.zinc200)
+                                Spacer()
+                            }
+                            .padding(20)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.zinc900.opacity(0.5))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(Color.zinc800.opacity(0.6), lineWidth: 1)
+                                    )
+                            )
                         }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.vertical, 8)
@@ -144,20 +170,28 @@ struct PhaseTrustView: View {
         if isDirectInput {
             return AnyView(
                 StepLayout(title: title) {
-                    VStack {
+                    VStack(alignment: .leading, spacing: 24) {
                         TextField(placeholder, text: $model.userData.identityDetail)
-                            .font(.system(size: 24))
+                            .font(.system(size: 28, weight: .semibold))
                             .foregroundColor(.white)
-                            .padding(.vertical, 16)
-                            .overlay(Rectangle().frame(height: 1).padding(.top, 35).foregroundColor(.zinc800), alignment: .bottom)
+                            .padding(.vertical, 20)
+                            .overlay(alignment: .bottom) {
+                                Rectangle()
+                                    .frame(height: 1)
+                                    .foregroundColor(.zinc800)
+                            }
                             .accentColor(.white)
+                            .onSubmit(submitIdentityDetail)
                         
                         Spacer()
+                        Divider().background(Color.zinc900)
                         
-                        PrimaryButton(title: "Continue", disabled: model.userData.identityDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
-                            model.nextStep()
+                        PrimaryButton(
+                            title: "Continue",
+                            disabled: model.userData.identityDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        ) {
+                            submitIdentityDetail()
                         }
-                        .padding(.bottom, 20)
                     }
                 }
             )
@@ -170,102 +204,76 @@ struct PhaseTrustView: View {
         
         return AnyView(
             StepLayout(title: title) {
-                VStack {
+                VStack(spacing: 24) {
                     if !showOtherInput {
                         ScrollView(showsIndicators: false) {
-                            // Using LazyVGrid for wrapping layout equivalent
                             FlowLayout(spacing: 12) {
                                 ForEach(displayOptions, id: \.self) { option in
-                                    Button(action: {
+                                    OptionButton(
+                                        label: option,
+                                        selected: currentSelected == option
+                                    ) {
                                         model.updateUserData(PartialUserData(identityDetail: option))
-                                    }) {
-                                        Text(option)
-                                            .font(.system(size: 16, weight: .medium))
-                                            .foregroundColor(currentSelected == option ? .white : .zinc200)
-                                            .padding(.horizontal, 16)
-                                            .padding(.vertical, 12)
-                                            .background(
-                                                RoundedRectangle(cornerRadius: 12)
-                                                    .fill(currentSelected == option ? Color.zinc800 : Color.zinc900.opacity(0.5))
-                                                    .overlay(
-                                                        RoundedRectangle(cornerRadius: 12)
-                                                            .stroke(currentSelected == option ? Color.zinc500 : Color.zinc800.opacity(0.5), lineWidth: 1)
-                                                    )
-                                            )
                                     }
                                 }
                                 
-                                Button(action: {
-                                    withAnimation {
+                                OptionButton(
+                                    label: "Add",
+                                    icon: "plus",
+                                    isAdd: true
+                                ) {
+                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                                         showOtherInput = true
                                         customInput = ""
                                     }
-                                }) {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: "plus")
-                                            .font(.system(size: 14))
-                                        Text("Add")
-                                            .font(.system(size: 16, weight: .medium))
-                                    }
-                                    .foregroundColor(.zinc400)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 12)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.zinc800.opacity(0.5), lineWidth: 1)
-                                    )
                                 }
                             }
                             .padding(.vertical, 8)
                         }
                         
                         Spacer()
+                        Divider().background(Color.zinc900)
                         
-                        PrimaryButton(title: "Continue", disabled: model.userData.identityDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
+                        PrimaryButton(
+                            title: "Continue",
+                            disabled: model.userData.identityDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        ) {
                             model.nextStep()
                         }
-                        .padding(.bottom, 20)
-                        
                     } else {
-                        // Custom Input View
-                        VStack(alignment: .leading) {
-                            Button(action: {
-                                withAnimation {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Button {
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                                     showOtherInput = false
                                 }
-                            }) {
-                                HStack {
+                            } label: {
+                                HStack(spacing: 8) {
                                     Image(systemName: "arrow.left")
                                     Text("Add new option")
+                                        .font(.system(size: 14, weight: .semibold))
                                 }
                                 .foregroundColor(.zinc400)
-                                .padding(.bottom, 16)
                             }
                             
                             TextField(placeholder, text: $customInput)
-                                .font(.system(size: 20))
+                                .font(.system(size: 22))
                                 .foregroundColor(.white)
-                                .padding(.vertical, 12)
-                                .overlay(Rectangle().frame(height: 1).padding(.top, 35).foregroundColor(.zinc800), alignment: .bottom)
-                                .accentColor(.white)
-                                .onSubmit {
-                                    if !customInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                        model.updateUserData(PartialUserData(identityDetail: customInput))
-                                        withAnimation {
-                                            showOtherInput = false
-                                        }
-                                    }
+                                .padding(.vertical, 16)
+                                .overlay(alignment: .bottom) {
+                                    Rectangle()
+                                        .frame(height: 1)
+                                        .foregroundColor(.zinc800)
                                 }
+                                .accentColor(.white)
+                                .onSubmit(addCustomIdentityDetail)
                             
                             Spacer()
-                            
-                            PrimaryButton(title: "Add Option", disabled: customInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
-                                model.updateUserData(PartialUserData(identityDetail: customInput))
-                                withAnimation {
-                                    showOtherInput = false
-                                }
+                            PrimaryButton(
+                                title: "Add Option",
+                                disabled: customInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                            ) {
+                                addCustomIdentityDetail()
                             }
-                            .padding(.bottom, 20)
                         }
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
@@ -273,5 +281,19 @@ struct PhaseTrustView: View {
             }
         )
     }
+    
+    private func submitIdentityDetail() {
+        guard !model.userData.identityDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        model.nextStep()
+    }
+    
+    private func addCustomIdentityDetail() {
+        let value = customInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty else { return }
+        model.updateUserData(PartialUserData(identityDetail: value))
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            showOtherInput = false
+        }
+        customInput = ""
+    }
 }
-

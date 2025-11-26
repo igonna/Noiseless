@@ -15,62 +15,23 @@ struct PhaseValueView: View {
     
     // Screen 18: Insights Preview
     var insightsPreviewView: some View {
-        StepLayout(title: "Here is what we found.", subtitle: "Based on your profile:") {
-            VStack(spacing: 24) {
-                // Insight Card 1
-                HStack(alignment: .top, spacing: 16) {
-                    Image(systemName: "lightbulb.fill")
-                        .font(.system(size: 24))
-                        .foregroundColor(.yellow)
-                        .padding(12)
-                        .background(Color.zinc800)
-                        .clipShape(Circle())
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("High Potential for Growth")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.white)
-                        Text("Your combination of skills and traits suggests you thrive in structured environments but need help with consistency.")
-                            .font(.system(size: 16))
-                            .foregroundColor(.zinc400)
-                            .fixedSize(horizontal: false, vertical: true)
+        StepLayout(title: "Save Your Progress", centerContent: true) {
+            VStack(spacing: 32) {
+                VStack(spacing: 16) {
+                    SignInButton(style: .apple) {
+                        model.nextStep()
+                    }
+                    SignInButton(style: .google) {
+                        model.nextStep()
                     }
                 }
-                .padding(20)
-                .background(Color.zinc900)
-                .cornerRadius(16)
-                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.zinc800, lineWidth: 1))
-                
-                // Insight Card 2
-                HStack(alignment: .top, spacing: 16) {
-                    Image(systemName: "chart.line.uptrend.xyaxis")
-                        .font(.system(size: 24))
-                        .foregroundColor(.blue)
-                        .padding(12)
-                        .background(Color.zinc800)
-                        .clipShape(Circle())
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Recommended Pace: \(model.userData.timeBudget.components(separatedBy: " — ").first ?? "Steady")")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.white)
-                        Text("We've adjusted your learning path to match your desired pace. Small daily actions will compound over time.")
-                            .font(.system(size: 16))
-                            .foregroundColor(.zinc400)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-                .padding(20)
-                .background(Color.zinc900)
-                .cornerRadius(16)
-                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.zinc800, lineWidth: 1))
+                .padding(.horizontal, 12)
                 
                 Spacer()
-                
-                PrimaryButton(title: "Unlock My Plan") {
-                    model.nextStep()
-                }
-                .padding(.bottom, 20)
+                Text("We'll sync your data securely.")
+                    .font(.system(size: 14))
+                    .foregroundColor(.zinc500)
+                    .padding(.bottom, 24)
             }
         }
     }
@@ -80,7 +41,8 @@ struct PhaseValueView: View {
         StepLayout(
             title: "Try Noiseless free for 3 days.",
             subtitle: "We'll send you a reminder before your free trial ends",
-            showProgressBar: false
+            showProgressBar: false,
+            centerTitle: true
         ) {
             VStack {
                 Spacer()
@@ -161,5 +123,102 @@ struct PhaseValueView: View {
                 .padding(.bottom, 20)
             }
         }
+    }
+}
+
+private struct SignInButton: View {
+    enum Style {
+        case apple
+        case google
+    }
+    
+    let style: Style
+    let action: () -> Void
+    
+    private var label: String {
+        switch style {
+        case .apple: return "Sign in with Apple"
+        case .google: return "Sign in with Google"
+        }
+    }
+    
+    private var background: Color {
+        switch style {
+        case .apple: return .white
+        case .google: return Color.zinc900
+        }
+    }
+    
+    private var foreground: Color {
+        style == .apple ? .black : .white
+    }
+    
+    private var borderColor: Color {
+        style == .apple ? Color.clear : Color.zinc700
+    }
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                icon
+                Text(label)
+                    .font(.system(size: 16, weight: .bold))
+            }
+            .foregroundColor(foreground)
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
+            .background(background)
+            .overlay(
+                RoundedRectangle(cornerRadius: 28)
+                    .stroke(borderColor, lineWidth: borderColor == .clear ? 0 : 1)
+            )
+            .cornerRadius(28)
+            .shadow(color: style == .apple ? Color.white.opacity(0.2) : Color.black.opacity(0.4), radius: 15, x: 0, y: 0)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    @ViewBuilder
+    private var icon: some View {
+        switch style {
+        case .apple:
+            Image(systemName: "apple.logo")
+                .font(.system(size: 22, weight: .bold))
+        case .google:
+            GoogleLogo()
+                .frame(width: 22, height: 22)
+        }
+    }
+}
+
+private struct GoogleLogo: View {
+    var body: some View {
+        ZStack {
+            GoogleArc(startAngle: .degrees(-45), endAngle: .degrees(45))
+                .stroke(Color(red: 0.91, green: 0.33, blue: 0.23), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+            GoogleArc(startAngle: .degrees(45), endAngle: .degrees(180))
+                .stroke(Color(red: 0.26, green: 0.52, blue: 0.96), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+            GoogleArc(startAngle: .degrees(180), endAngle: .degrees(225))
+                .stroke(Color(red: 0.95, green: 0.76, blue: 0.06), style: StrokeStyle(lineWidth: 4, lineCap: .butt))
+            GoogleArc(startAngle: .degrees(225), endAngle: .degrees(315))
+                .stroke(Color(red: 0.18, green: 0.64, blue: 0.32), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+            Rectangle()
+                .fill(Color(red: 0.26, green: 0.52, blue: 0.96))
+                .frame(width: 8, height: 4)
+                .offset(x: 6)
+        }
+    }
+}
+
+private struct GoogleArc: Shape {
+    let startAngle: Angle
+    let endAngle: Angle
+    
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let radius = min(rect.width, rect.height) / 2
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        path.addArc(center: center, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: false)
+        return path
     }
 }
