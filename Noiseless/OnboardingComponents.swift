@@ -33,40 +33,29 @@ struct OptionButton: View {
     
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 12) {
+            HStack(spacing: 8) {
                 if let iconName = icon {
                     Image(systemName: iconName)
                         .font(.system(size: 18))
                         .foregroundColor(selected ? .black : (isAdd ? .zinc500 : .zinc400))
-                        .padding(8)
-                        .background(
-                            selected ? Color.white.opacity(0.0) : Color.clear // Icon bg removed in React for selected? No, text is black.
-                            // React: selected ? 'text-black' : 'text-zinc-400'
-                            // React wrapper: selected ? 'bg-white' : 'bg-zinc-900'
-                        )
+                        // React doesn't have background on icon for standard state, only selected has 'text-black'
+                        // Wait, React: selected ? 'text-black' : ...
+                        // My code: selected ? .black : ...
+                        // React wrapper: selected ? 'bg-white' : 'bg-zinc-900'
                 }
                 
                 Text(label)
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(selected ? .black : (isAdd ? .zinc500 : .zinc400))
-                
-                Spacer()
-                
-                // Add icon for "Add" button if needed, or just text
-                if isAdd {
-                     Image(systemName: "plus")
-                        .font(.system(size: 16))
-                        .foregroundColor(.zinc500)
-                }
             }
             .padding(.horizontal, 20)
-            .padding(.vertical, 14)
+            .padding(.vertical, 12)
             .background(
                 Capsule()
                     .fill(selected ? Color.white : (isAdd ? Color.clear : Color.zinc900))
                     .overlay(
                         Capsule()
-                            .stroke(selected ? Color.white : (isAdd ? Color.zinc800 : Color.zinc800), lineWidth: 1)
+                            .stroke(selected ? Color.white : Color.zinc800, lineWidth: 1)
                     )
                     .shadow(color: selected ? Color.white.opacity(0.2) : Color.clear, radius: 15, x: 0, y: 0)
             )
@@ -199,4 +188,75 @@ extension Color {
     static let zinc800 = Color(red: 0.149, green: 0.149, blue: 0.153)
     static let zinc900 = Color(red: 0.094, green: 0.094, blue: 0.098)
     static let zinc950 = Color(red: 0.035, green: 0.035, blue: 0.039)
+}
+
+// Simple FlowLayout implementation for SwiftUI
+struct FlowLayout: Layout {
+    var spacing: CGFloat
+    
+    init(spacing: CGFloat = 8) {
+        self.spacing = spacing
+    }
+    
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let rows = computeRows(proposal: proposal, subviews: subviews)
+        let height = rows.last?.maxY ?? 0
+        return CGSize(width: proposal.width ?? 0, height: height)
+    }
+    
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let rows = computeRows(proposal: proposal, subviews: subviews)
+        
+        for row in rows {
+            for element in row.elements {
+                element.subview.place(at: CGPoint(x: bounds.minX + element.x, y: bounds.minY + element.y), proposal: .unspecified)
+            }
+        }
+    }
+    
+    struct Row {
+        var elements: [Element] = []
+        var maxY: CGFloat = 0
+    }
+    
+    struct Element {
+        var subview: LayoutSubview
+        var x: CGFloat
+        var y: CGFloat
+    }
+    
+    func computeRows(proposal: ProposedViewSize, subviews: Subviews) -> [Row] {
+        var rows: [Row] = []
+        var currentRow = Row()
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var maxHeightInRow: CGFloat = 0
+        
+        let maxWidth = proposal.width ?? 0
+        
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            
+            if x + size.width > maxWidth && !currentRow.elements.isEmpty {
+                // New row
+                currentRow.maxY = y + maxHeightInRow
+                rows.append(currentRow)
+                currentRow = Row()
+                x = 0
+                y += maxHeightInRow + spacing
+                maxHeightInRow = 0
+            }
+            
+            currentRow.elements.append(Element(subview: subview, x: x, y: y))
+            x += size.width + spacing
+            maxHeightInRow = max(maxHeightInRow, size.height)
+        }
+        
+        if !currentRow.elements.isEmpty {
+            currentRow.maxY = y + maxHeightInRow
+            rows.append(currentRow)
+        }
+        
+        return rows
+    }
 }
