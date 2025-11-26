@@ -103,7 +103,7 @@ private struct ProcessingStepsView: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white)
                 .frame(maxWidth: 320)
-                .padding(.top, 80)
+                .padding(.top, 120)
                 .padding(.bottom, 32)
                 .opacity(completedCount >= 0 ? 1 : 0)
                 .offset(y: completedCount >= 0 ? 0 : 10)
