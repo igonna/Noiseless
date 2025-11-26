@@ -521,7 +521,7 @@ struct TimeBudgetScreen: View {
         
         return StepLayout(title: "What kind of pace feels right for you?") {
             VStack {
-                Spacer()
+                Spacer(minLength: 0)
                 
                 VStack(spacing: 12) {
                     Text(currentOption.label)
@@ -539,8 +539,6 @@ struct TimeBudgetScreen: View {
                 .frame(height: 150)
                 .animation(.easeInOut(duration: 0.2), value: index)
                 
-                Spacer()
-                
                 VStack(spacing: 16) {
                     LiquidGlassSlider(index: $selectedIndex, steps: options.count)
                         .padding(.horizontal, 20)
@@ -557,6 +555,8 @@ struct TimeBudgetScreen: View {
                     .padding(.horizontal, 28)
                 }
                 .padding(.vertical, 20)
+
+                Spacer()
 
                 PrimaryButton(title: "Continue") {
                     model.nextStep()
