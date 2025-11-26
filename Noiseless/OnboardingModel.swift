@@ -24,31 +24,30 @@ enum ScreenStep: Int, CaseIterable, Comparable {
     // Part 5: Trust + Social Proof
     case socialProof = 12
     case privacy = 13
-    case encouragement = 14
 
     // Part 6: Personalization Ritual
-    case buildingModel = 15
-    case calibrating = 16
-    case pathReady = 17
+    case buildingModel = 14
+    case calibrating = 15
+    case pathReady = 16
 
     // Part 7: Value Preview
-    case insightsPreview = 18
-    case trialOffer = 19 // New Screen, Merged with Reminder
-    
+    case insightsPreview = 17
+    case trialOffer = 18 // New Screen, Merged with Reminder
+
     // Part 8: Hard Paywall + Trial
-    case paywall = 20
-    case discountOffer = 21
-    case subscriptionConfirm = 22
+    case paywall = 19
+    case discountOffer = 20
+    case subscriptionConfirm = 21
 
     // Part 9: Final Screens
-    case notifications = 23
-    case integrations = 24
-    case finalWelcome = 25
-    case firstSuggestion = 26
-    case habitLoop = 27
+    case notifications = 22
+    case integrations = 23
+    case finalWelcome = 24
+    case firstSuggestion = 25
+    case habitLoop = 26
 
     // Post-onboarding
-    case dashboard = 28
+    case dashboard = 27
     
     static func < (lhs: ScreenStep, rhs: ScreenStep) -> Bool {
         return lhs.rawValue < rhs.rawValue

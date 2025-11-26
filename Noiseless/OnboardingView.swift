@@ -78,23 +78,23 @@ struct OnboardingView: View {
         else if model.currentStep >= .location && model.currentStep <= .timeBudget {
             PhaseDataView()
         }
-        // Part 5: Trust + Social Proof (Screens 12-14)
-        else if model.currentStep >= .socialProof && model.currentStep <= .encouragement {
+        // Part 5: Trust + Social Proof (Screens 12-13)
+        else if model.currentStep >= .socialProof && model.currentStep <= .privacy {
             PhaseRewardView()
         }
-        // Part 6: Ritual (Screens 15-17)
+        // Part 6: Ritual (Screens 14-16)
         else if model.currentStep >= .buildingModel && model.currentStep <= .pathReady {
             PhaseRitualView()
         }
-        // Part 7: Value Preview (Screens 18-19)
+        // Part 7: Value Preview (Screens 17-18)
         else if model.currentStep >= .insightsPreview && model.currentStep <= .trialOffer {
             PhaseValueView()
         }
-        // Part 8: Hard Paywall + Trial (Screens 20-22)
+        // Part 8: Hard Paywall + Trial (Screens 19-21)
         else if model.currentStep >= .paywall && model.currentStep <= .subscriptionConfirm {
             PhasePaywallView()
         }
-        // Part 9: Final Screens (Screens 23-28)
+        // Part 9: Final Screens (Screens 22-27)
         else {
             PhaseFinalView()
         }
