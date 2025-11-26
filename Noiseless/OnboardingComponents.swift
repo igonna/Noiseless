@@ -181,7 +181,7 @@ struct StepLayout<Content: View>: View {
     }
 
     private var contentTopPadding: CGFloat {
-        96
+        72
     }
 
     var body: some View {
