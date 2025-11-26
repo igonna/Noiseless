@@ -419,8 +419,7 @@ struct SelectionScreen: View {
                                 icon: "plus",
                                 isAdd: true
                             ) {
-                                withAnimation {
-                                    isAdding = true
+                                toggleAdding(true) {
                                     customInput = ""
                                 }
                             }
@@ -439,9 +438,7 @@ struct SelectionScreen: View {
                 } else {
                     VStack(alignment: .leading) {
                         Button(action: {
-                            withAnimation {
-                                isAdding = false
-                            }
+                            toggleAdding(false)
                         }) {
                             HStack(spacing: 8) {
                                 Image(systemName: "arrow.left")
@@ -486,9 +483,19 @@ struct SelectionScreen: View {
                     onSelect(newSelection)
                 }
             }
-            withAnimation {
-                isAdding = false
-            }
+            toggleAdding(false)
+        }
+    }
+}
+
+extension SelectionScreen {
+    private func toggleAdding(_ flag: Bool, completion: (() -> Void)? = nil) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        transaction.animation = nil
+        withTransaction(transaction) {
+            isAdding = flag
+            completion?()
         }
     }
 }
