@@ -2,9 +2,7 @@ import SwiftUI
 
 struct PhaseTrustView: View {
     @EnvironmentObject var model: OnboardingModel
-    @State private var showOtherInput: Bool = false
-    @State private var customInput: String = ""
-    
+
     var body: some View {
         Group {
             if model.currentStep == .welcome {
@@ -13,12 +11,6 @@ struct PhaseTrustView: View {
                 identityView
             } else if model.currentStep == .identityDetails {
                 identityDetailsView
-            }
-        }
-        .onChange(of: model.currentStep) { step in
-            if step != .identityDetails {
-                showOtherInput = false
-                customInput = ""
             }
         }
     }
@@ -143,9 +135,9 @@ struct PhaseTrustView: View {
         var placeholder = ""
         var options: [String] = []
         var isDirectInput = false
-        
+
         if identity == "Working professional" {
-            title = "What’s your current role?"
+            title = "What's your current role?"
             placeholder = "Type your role…"
             isDirectInput = true
         } else if identity == "Student or learner" {
@@ -165,8 +157,8 @@ struct PhaseTrustView: View {
             options = ["AI & future tech", "Starting a business", "Earning more money", "Developing discipline", "Improving health", "Finding direction", "Creativity & art", "Personal development", "Relationships & social skills", "Learning new skills"]
             placeholder = "What are you curious about?"
         }
-        
-        // Direct Input Case
+
+        // Direct Input Case - Still custom since SelectionScreen doesn't support direct text input
         if isDirectInput {
             return AnyView(
                 StepLayout(title: title) {
@@ -194,90 +186,19 @@ struct PhaseTrustView: View {
                 }
             )
         }
-        
-        // Options Selection Case
-        let currentSelected = model.userData.identityDetail
-        let isCustom = !currentSelected.isEmpty && !options.contains(currentSelected)
-        let displayOptions = isCustom ? options + [currentSelected] : options
-        
+
+        // Options Selection Case - Use SelectionScreen for consistency
         return AnyView(
-            StepLayout(title: title) {
-                VStack(spacing: 24) {
-                    if !showOtherInput {
-                        ScrollView(showsIndicators: false) {
-                            FlowLayout(spacing: 12) {
-                                ForEach(displayOptions, id: \.self) { option in
-                                    OptionButton(
-                                        label: option,
-                                        selected: currentSelected == option
-                                    ) {
-                                        model.updateUserData(PartialUserData(identityDetail: option))
-                                    }
-                                }
-
-                                OptionButton(
-                                    label: "Add",
-                                    icon: "plus",
-                                    isAdd: true
-                                ) {
-                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                        showOtherInput = true
-                                        customInput = ""
-                                    }
-                                }
-                            }
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 2)
-                        }
-                        .clipped()
-
-
-                        Spacer()
-
-                        BottomActionSection(
-                            buttonDisabled: model.userData.identityDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                        ) {
-                            model.nextStep()
-                        }
-                    } else {
-                        VStack(alignment: .leading, spacing: 16) {
-                            Button {
-                                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                    showOtherInput = false
-                                }
-                            } label: {
-                                HStack(spacing: 8) {
-                                    Image(systemName: "arrow.left")
-                                    Text("Add new option")
-                                        .font(.system(size: 14, weight: .semibold))
-                                }
-                                .foregroundColor(.zinc400)
-                            }
-                            
-                            TextField(placeholder, text: $customInput)
-                                .font(.system(size: 22))
-                                .foregroundColor(.white)
-                                .padding(.vertical, 16)
-                                .overlay(alignment: .bottom) {
-                                    Rectangle()
-                                        .frame(height: 1)
-                                        .foregroundColor(.zinc800)
-                                }
-                                .accentColor(.white)
-                                .onSubmit(addCustomIdentityDetail)
-                            
-                            Spacer()
-                            PrimaryButton(
-                                title: "Add Option",
-                                disabled: customInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                            ) {
-                                addCustomIdentityDetail()
-                            }
-                        }
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                    }
-                }
-            }
+            IdentityDetailsSelectionScreen(
+                title: title,
+                options: options,
+                selected: model.userData.identityDetail,
+                onSelect: { newValue in
+                    model.updateUserData(PartialUserData(identityDetail: newValue))
+                },
+                onNext: { model.nextStep() },
+                placeholder: placeholder
+            )
         )
     }
     
@@ -285,14 +206,107 @@ struct PhaseTrustView: View {
         guard !model.userData.identityDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         model.nextStep()
     }
-    
-    private func addCustomIdentityDetail() {
-        let value = customInput.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !value.isEmpty else { return }
-        model.updateUserData(PartialUserData(identityDetail: value))
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-            showOtherInput = false
+}
+
+// Specialized selection screen for identity details (single selection)
+struct IdentityDetailsSelectionScreen: View {
+    let title: String
+    let options: [String]
+    let selected: String
+    let onSelect: (String) -> Void
+    let onNext: () -> Void
+    let placeholder: String
+
+    @State private var isAdding: Bool = false
+    @State private var customInput: String = ""
+
+    var body: some View {
+        // Merge default options with the selected option if it's custom
+        let isCustom = !selected.isEmpty && !options.contains(selected)
+        let displayOptions = isCustom ? options + [selected] : options
+
+        return StepLayout(title: title) {
+            VStack(alignment: .leading, spacing: 0) {
+                if !isAdding {
+                    ScrollView(showsIndicators: false) {
+                        FlowLayout(spacing: 12) {
+                            ForEach(displayOptions, id: \.self) { option in
+                                OptionButton(
+                                    label: option,
+                                    selected: selected == option
+                                ) {
+                                    onSelect(option)
+                                }
+                            }
+
+                            OptionButton(
+                                label: "Add",
+                                icon: "plus",
+                                isAdd: true
+                            ) {
+                                withAnimation {
+                                    isAdding = true
+                                    customInput = ""
+                                }
+                            }
+                        }
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 2)
+                    }
+                    .clipped()
+
+                    Spacer()
+
+                    BottomActionSection(buttonDisabled: selected.isEmpty) {
+                        onNext()
+                    }
+
+                } else {
+                    VStack(alignment: .leading) {
+                        Button(action: {
+                            withAnimation {
+                                isAdding = false
+                            }
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "arrow.left")
+                                Text("Add new option")
+                                    .font(.system(size: 14, weight: .semibold))
+                            }
+                            .foregroundColor(.zinc400)
+                            .padding(.bottom, 16)
+                        }
+
+                        TextField(placeholder, text: $customInput)
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                            .padding(.vertical, 12)
+                            .overlay(Rectangle().frame(height: 1).padding(.top, 35).foregroundColor(.zinc800), alignment: .bottom)
+                            .accentColor(.white)
+                            .onSubmit {
+                                addCustomOption()
+                            }
+
+                        Spacer()
+
+                        PrimaryButton(title: "Add Option", disabled: customInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
+                            addCustomOption()
+                        }
+                        .padding(.bottom, 20)
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
         }
-        customInput = ""
+    }
+
+    private func addCustomOption() {
+        let val = customInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !val.isEmpty {
+            onSelect(val)
+            withAnimation {
+                isAdding = false
+            }
+        }
     }
 }
