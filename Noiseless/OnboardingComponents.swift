@@ -131,8 +131,16 @@ struct OptionButton: View {
                             )
                     )
             )
+            .contentShape(Capsule())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(NoAnimationButtonStyle())
+    }
+}
+
+struct NoAnimationButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.7 : 1.0)
     }
 }
 
@@ -174,15 +182,12 @@ struct StepLayout<Content: View>: View {
     }
     
     private var contentTopPadding: CGFloat {
-        showProgressBar ? 96 : 80
+        96
     }
     
     var body: some View {
         GeometryReader { _ in
             ZStack(alignment: .top) {
-                Color.zinc950
-                    .ignoresSafeArea()
-                
                 VStack(alignment: stackAlignment, spacing: 16) {
                     if let title = title {
                         Text(title)
@@ -210,42 +215,8 @@ struct StepLayout<Content: View>: View {
                 .padding(.horizontal, 24)
                 .padding(.top, contentTopPadding)
                 .padding(.bottom, 32)
-                
-                headerView
             }
         }
-    }
-    
-    private var headerView: some View {
-        HStack(spacing: 16) {
-            if shouldShowBackButton {
-                let isMinimal = model.currentStep == .trialOffer || model.currentStep == .paywall
-                Button(action: model.prevStep) {
-                    Image(systemName: isMinimal ? "chevron.left" : "arrow.left")
-                        .font(.system(size: isMinimal ? 28 : 20, weight: .medium))
-                        .foregroundColor(isMinimal ? .zinc500 : .zinc400)
-                        .padding(8)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-            } else {
-                Color.clear.frame(width: 40, height: 40)
-            }
-            
-            if showProgressBar {
-                ProgressBar(currentStep: model.currentStep)
-            } else {
-                Spacer()
-            }
-        }
-        .padding(.horizontal, 24)
-        .padding(.top, 12)
-        .padding(.bottom, 8)
-        .background(Color.zinc950.opacity(0.001))
-    }
-    
-    private var shouldShowBackButton: Bool {
-        !hideBackButton && model.currentStep.rawValue > ScreenStep.welcome.rawValue
     }
 }
 
