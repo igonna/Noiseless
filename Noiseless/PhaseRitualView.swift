@@ -27,6 +27,7 @@ private struct ProcessingStepsView: View {
     @State private var violetGlowScale: CGFloat = 1.0
     @State private var blueGlowOpacity: Double = 0.3
     @State private var violetGlowOpacity: Double = 0.2
+    @State private var footerOpacity: Double = 0.6
 
     private let steps = [
         "Analyzing your strengths",
@@ -102,7 +103,7 @@ private struct ProcessingStepsView: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white)
                 .frame(maxWidth: 320)
-                .padding(.top, 32)
+                .padding(.top, 80)
                 .padding(.bottom, 32)
                 .opacity(completedCount >= 0 ? 1 : 0)
                 .offset(y: completedCount >= 0 ? 0 : 10)
@@ -141,7 +142,7 @@ private struct ProcessingStepsView: View {
             .padding(.horizontal, 8)
         }
         .frame(maxWidth: .infinity) // Center the container
-        .padding(.bottom, 40)
+        .padding(.bottom, 24)
     }
 
     private var checklistSection: some View {
@@ -168,14 +169,9 @@ private struct ProcessingStepsView: View {
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.zinc600)
                 .tracking(0.5)
-                .padding(.top, 10)
-                .opacity(pulsingOpacity)
+                .padding(.top, 24)
+                .opacity(footerOpacity)
         }
-    }
-
-    private var pulsingOpacity: Double {
-        // Simple pulsing effect
-        return 0.6
     }
 
 
@@ -206,6 +202,11 @@ private struct ProcessingStepsView: View {
                 violetGlowScale = 1.2
                 violetGlowOpacity = 0.4
             }
+        }
+
+        // Footer text blinking animation
+        withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+            footerOpacity = 0.2
         }
     }
     
@@ -263,7 +264,7 @@ private struct ChecklistRow: View {
                         .frame(width: 6, height: 6)
                 }
             }
-            .frame(width: 20, alignment: .center)
+            .frame(width: 20, height: 20, alignment: .center)
 
             // Text
             Text(title)
