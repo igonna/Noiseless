@@ -151,9 +151,9 @@ struct StepLayout<Content: View>: View {
     let hideBackButton: Bool
     let centerTitle: Bool
     let content: () -> Content
-    
+
     @EnvironmentObject var model: OnboardingModel
-    
+
     init(
         title: String? = nil,
         subtitle: String? = nil,
@@ -171,19 +171,19 @@ struct StepLayout<Content: View>: View {
         self.centerTitle = centerTitle
         self.content = content
     }
-    
+
     private var headingAlignment: TextAlignment {
         (centerContent || centerTitle) ? .center : .leading
     }
-    
+
     private var stackAlignment: HorizontalAlignment {
         centerContent ? .center : .leading
     }
-    
+
     private var contentTopPadding: CGFloat {
         96
     }
-    
+
     var body: some View {
         GeometryReader { _ in
             ZStack(alignment: .top) {
@@ -197,7 +197,7 @@ struct StepLayout<Content: View>: View {
                             .lineSpacing(4)
                             .frame(maxWidth: .infinity, alignment: centerContent ? .center : .leading)
                     }
-                    
+
                     if let subtitle = subtitle {
                         Text(subtitle)
                             .font(.system(size: 18))
@@ -206,16 +206,51 @@ struct StepLayout<Content: View>: View {
                             .lineSpacing(6)
                             .frame(maxWidth: .infinity, alignment: centerContent ? .center : .leading)
                     }
-                    
+
                     content()
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: centerContent ? .center : .top)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.horizontal, 24)
                 .padding(.top, contentTopPadding)
-                .padding(.bottom, 32)
+                .padding(.bottom, 0)
             }
         }
+    }
+}
+
+// Shared bottom section component for consistent button positioning
+struct BottomActionSection: View {
+    let buttonTitle: String
+    let buttonDisabled: Bool
+    let showDivider: Bool
+    let action: () -> Void
+
+    init(
+        buttonTitle: String = "Continue",
+        buttonDisabled: Bool = false,
+        showDivider: Bool = true,
+        action: @escaping () -> Void
+    ) {
+        self.buttonTitle = buttonTitle
+        self.buttonDisabled = buttonDisabled
+        self.showDivider = showDivider
+        self.action = action
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if showDivider {
+                Divider()
+                    .background(Color.zinc900)
+                    .padding(.bottom, 16)
+            }
+
+            PrimaryButton(title: buttonTitle, disabled: buttonDisabled) {
+                action()
+            }
+        }
+        .padding(.bottom, 10)
     }
 }
 

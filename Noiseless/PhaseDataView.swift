@@ -103,9 +103,10 @@ struct PhaseDataView: View {
                     }
                     .padding(.top, 24)
                 }
-                
+
+
                 Spacer()
-                
+
                 VStack(spacing: 12) {
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark.shield.fill")
@@ -116,13 +117,15 @@ struct PhaseDataView: View {
                             .foregroundColor(.zinc500)
                             .tracking(0.5)
                     }
-                    
-                    PrimaryButton(title: "Continue", disabled: locationQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
+
+                    BottomActionSection(
+                        buttonDisabled: locationQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                        showDivider: false
+                    ) {
                         model.updateUserData(PartialUserData(location: locationQuery))
                         model.nextStep()
                     }
                 }
-                .padding(.bottom, 20)
             }
         }
     }
@@ -318,10 +321,8 @@ struct PhaseDataView: View {
                     .padding(.vertical, 6)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                
-                Divider().background(Color.zinc900)
-                
-                PrimaryButton(title: "Continue", disabled: model.userData.vision.isEmpty) {
+
+                BottomActionSection(buttonDisabled: model.userData.vision.isEmpty) {
                     model.nextStep()
                 }
             }
@@ -426,16 +427,12 @@ struct SelectionScreen: View {
                         .padding(.horizontal, 2)
                     }
                     .clipped()
-                    
+
                     Spacer()
-                    
-                    Divider().background(Color.zinc900)
-                        .padding(.bottom, 16)
-                    
-                    PrimaryButton(title: "Continue", disabled: selected.isEmpty) {
+
+                    BottomActionSection(buttonDisabled: selected.isEmpty) {
                         onNext()
                     }
-                    .padding(.bottom, 20)
                     
                 } else {
                     VStack(alignment: .leading) {

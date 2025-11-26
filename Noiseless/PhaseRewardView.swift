@@ -35,7 +35,7 @@ struct PhaseRewardView: View {
                                         .frame(width: 40, height: 40)
                                         .background(review.color)
                                         .clipShape(Circle())
-                                    
+
                                     Text(review.name)
                                         .font(.system(size: 16, weight: .bold))
                                         .foregroundColor(.white)
@@ -49,7 +49,7 @@ struct PhaseRewardView: View {
                                         }
                                     }
                                 }
-                                
+
                                 Text(review.text)
                                     .font(.system(size: 15))
                                     .foregroundColor(.zinc300)
@@ -66,13 +66,10 @@ struct PhaseRewardView: View {
                     }
                     .padding(.vertical, 8)
                 }
-                
+
                 Spacer()
-                Divider().background(Color.zinc900)
-                    .padding(.top, 16)
-                    .padding(.bottom, 16)
-                
-                PrimaryButton(title: "Continue") {
+
+                BottomActionSection {
                     model.nextStep()
                 }
             }

@@ -182,13 +182,11 @@ struct PhaseTrustView: View {
                             }
                             .accentColor(.white)
                             .onSubmit(submitIdentityDetail)
-                        
+
                         Spacer()
-                        Divider().background(Color.zinc900)
-                        
-                        PrimaryButton(
-                            title: "Continue",
-                            disabled: model.userData.identityDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+
+                        BottomActionSection(
+                            buttonDisabled: model.userData.identityDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                         ) {
                             submitIdentityDetail()
                         }
@@ -232,13 +230,12 @@ struct PhaseTrustView: View {
                             .padding(.horizontal, 2)
                         }
                         .clipped()
-                        
+
+
                         Spacer()
-                        Divider().background(Color.zinc900)
-                        
-                        PrimaryButton(
-                            title: "Continue",
-                            disabled: model.userData.identityDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+
+                        BottomActionSection(
+                            buttonDisabled: model.userData.identityDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                         ) {
                             model.nextStep()
                         }
