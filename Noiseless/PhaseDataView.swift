@@ -165,6 +165,7 @@ struct PhaseDataView: View {
         @State private var pathProgress: CGFloat = 0.0
         @State private var nodeOpacity: Double = 0.0
         @State private var nodeScale: CGFloat = 0.0
+        @State private var animationFinished: Bool = false
         
         var body: some View {
             VStack {
@@ -265,6 +266,7 @@ struct PhaseDataView: View {
                 .frame(height: 256)
                 .padding(.vertical, 24)
                 .onAppear {
+                    animationFinished = false
                     withAnimation(.easeOut(duration: 1.5)) {
                         pathProgress = 1.0
                     }
@@ -272,11 +274,16 @@ struct PhaseDataView: View {
                         nodeOpacity = 1.0
                         nodeScale = 1.0
                     }
+                    let totalDuration = 2.0
+                    DispatchQueue.main.asyncAfter(deadline: .now() + totalDuration) {
+                        animationFinished = true
+                        HapticManager.lightTap()
+                    }
                 }
                 
                 Spacer()
                 
-                PrimaryButton(title: "Continue") {
+                PrimaryButton(title: "Continue", disabled: !animationFinished) {
                     model.nextStep()
                 }
                 .padding(.bottom, 20)
