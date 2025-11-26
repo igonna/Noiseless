@@ -102,7 +102,7 @@ struct OptionButton: View {
     var selected: Bool = false
     var isAdd: Bool = false
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 8) {
@@ -111,7 +111,7 @@ struct OptionButton: View {
                         .font(.system(size: 18, weight: .medium))
                         .foregroundColor(selected ? .black : (isAdd ? .zinc500 : .zinc400))
                 }
-                
+
                 Text(label)
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(selected ? .black : (isAdd ? .zinc500 : .zinc400))
@@ -131,9 +131,6 @@ struct OptionButton: View {
                             )
                     )
             )
-            // Hover effect simulation (scale)
-            .scaleEffect(selected ? 1.02 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: selected)
         }
         .buttonStyle(.plain)
     }
@@ -177,7 +174,7 @@ struct StepLayout<Content: View>: View {
     }
     
     private var contentTopPadding: CGFloat {
-        showProgressBar ? 120 : 96
+        showProgressBar ? 96 : 80
     }
     
     var body: some View {
