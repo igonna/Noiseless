@@ -328,6 +328,7 @@ struct PhaseDataView: View {
                         }
                     }
                     .padding(.vertical, 8)
+                    .padding(.horizontal, 2)
                 }
 
                 Spacer(minLength: 0)
@@ -650,7 +651,7 @@ extension VisionGoalOption {
         VisionGoalOption(label: "More income", detail: nil, icon: "dollarsign.circle.fill"),
         VisionGoalOption(label: "Learn powerful skills", detail: nil, icon: "bolt.fill"),
         VisionGoalOption(label: "More freedom", detail: nil, icon: "wind"),
-        VisionGoalOption(label: "Start a business", detail: nil, icon: "rocket.fill"),
+        VisionGoalOption(label: "Start a business", detail: nil, icon: "briefcase.fill"),
         VisionGoalOption(label: "More discipline", detail: nil, icon: "target"),
         VisionGoalOption(label: "Better well-being", detail: nil, icon: "heart.fill"),
         VisionGoalOption(label: "Multiple income streams", detail: nil, icon: "square.stack.3d.up.fill"),

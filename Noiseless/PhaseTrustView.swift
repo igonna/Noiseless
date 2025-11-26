@@ -101,6 +101,7 @@ struct PhaseTrustView: View {
                     }
                 }
                 .padding(.vertical, 8)
+                .padding(.horizontal, 2)
             }
         }
     }
