@@ -2,6 +2,7 @@ import SwiftUI
 
 struct PhaseTrustView: View {
     @EnvironmentObject var model: OnboardingModel
+    @State private var identityDetailInput: String = ""
 
     var body: some View {
         Group {
@@ -141,26 +142,25 @@ struct PhaseTrustView: View {
             return AnyView(
                 StepLayout(title: title) {
                     VStack(alignment: .leading, spacing: 24) {
-                        TextField(placeholder, text: $model.userData.identityDetail)
-                            .font(.system(size: 28, weight: .semibold))
-                            .foregroundColor(.white)
-                            .padding(.vertical, 20)
-                            .overlay(alignment: .bottom) {
-                                Rectangle()
-                                    .frame(height: 1)
-                                    .foregroundColor(.zinc800)
-                            }
-                            .accentColor(.white)
-                            .onSubmit(submitIdentityDetail)
+                        InlineApplyTextField(
+                            placeholder: placeholder,
+                            text: $identityDetailInput,
+                            autoFocus: true
+                        ) { value in
+                            applyIdentityDetail(with: value)
+                        }
 
                         Spacer()
 
                         BottomActionSection(
-                            buttonDisabled: model.userData.identityDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                            buttonDisabled: trimmedIdentityDetail.isEmpty
                         ) {
                             submitIdentityDetail()
                         }
                     }
+                }
+                .onAppear {
+                    identityDetailInput = model.userData.identityDetail
                 }
             )
         }
@@ -181,8 +181,27 @@ struct PhaseTrustView: View {
     }
     
     private func submitIdentityDetail() {
-        guard !model.userData.identityDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        let trimmed = trimmedIdentityDetail
+        guard !trimmed.isEmpty else { return }
+        applyIdentityDetail(with: trimmed, triggerHaptic: false)
         model.nextStep()
+    }
+}
+
+extension PhaseTrustView {
+    private var trimmedIdentityDetail: String {
+        identityDetailInput.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    private func applyIdentityDetail(with value: String? = nil, triggerHaptic: Bool = true) {
+        let inputValue = value ?? trimmedIdentityDetail
+        let trimmed = inputValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        model.updateUserData(PartialUserData(identityDetail: trimmed))
+        identityDetailInput = trimmed
+        if triggerHaptic {
+            HapticManager.lightTap()
+        }
     }
 }
 

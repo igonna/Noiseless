@@ -76,18 +76,26 @@ class OnboardingModel: ObservableObject {
     
     func nextStep() {
         if let next = ScreenStep(rawValue: currentStep.rawValue + 1) {
-            currentStep = next
+            updateStep(next)
         }
     }
 
     func prevStep() {
         if let prev = ScreenStep(rawValue: currentStep.rawValue - 1) {
-            currentStep = prev
+            updateStep(prev)
         }
     }
 
     func goToStep(_ step: ScreenStep) {
-        currentStep = step
+        updateStep(step)
+    }
+
+    private func updateStep(_ step: ScreenStep) {
+        var transaction = Transaction(animation: nil)
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            currentStep = step
+        }
     }
     
     func updateUserData(_ data: PartialUserData) {

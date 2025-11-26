@@ -53,9 +53,7 @@ struct PhaseDataView: View {
                         Spacer()
                         
                         Button(action: {
-                            withAnimation {
-                                isEditingLocation = true
-                            }
+                            isEditingLocation = true
                         }) {
                             Text("Change")
                                 .font(.system(size: 14, weight: .medium))
@@ -78,27 +76,17 @@ struct PhaseDataView: View {
                     )
                 } else {
                     VStack {
-                        ZStack(alignment: .trailing) {
-                            TextField("Enter city...", text: $locationQuery)
-                                .font(.system(size: 24))
-                                .foregroundColor(.white)
-                                .padding(.vertical, 12)
-                                .overlay(Rectangle().frame(height: 1).padding(.top, 35).foregroundColor(.zinc800), alignment: .bottom)
-                                .accentColor(.white)
-                                .onSubmit {
-                                    if !locationQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                        model.updateUserData(PartialUserData(location: locationQuery))
-                                        model.nextStep()
-                                    }
-                                }
-                            
-                            Button("Cancel") {
-                                withAnimation {
-                                    isEditingLocation = false
-                                }
-                            }
-                            .font(.system(size: 14))
-                            .foregroundColor(.zinc500)
+                        InlineApplyTextField(
+                            placeholder: "Enter city...",
+                            text: $locationQuery,
+                            autoFocus: true
+                        ) { value in
+                            let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                            guard !trimmed.isEmpty else { return }
+                            locationQuery = trimmed
+                            model.updateUserData(PartialUserData(location: trimmed))
+                            HapticManager.lightTap()
+                            isEditingLocation = false
                         }
                     }
                     .padding(.top, 24)
@@ -122,7 +110,10 @@ struct PhaseDataView: View {
                         buttonDisabled: locationQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                         showDivider: false
                     ) {
-                        model.updateUserData(PartialUserData(location: locationQuery))
+                        let trimmed = trimmedLocationQuery
+                        guard !trimmed.isEmpty else { return }
+                        model.updateUserData(PartialUserData(location: trimmed))
+                        locationQuery = trimmed
                         model.nextStep()
                     }
                 }
@@ -582,6 +573,12 @@ struct TimeBudgetScreen: View {
         guard options.indices.contains(index) else { return }
         let option = options[index]
         model.updateUserData(PartialUserData(timeBudget: "\(option.label) — \(option.desc)"))
+    }
+}
+
+extension PhaseDataView {
+    private var trimmedLocationQuery: String {
+        locationQuery.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 

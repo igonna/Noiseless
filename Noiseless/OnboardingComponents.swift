@@ -163,6 +163,68 @@ struct OptionButton: View {
     }
 }
 
+struct InlineApplyTextField: View {
+    let placeholder: String
+    @Binding var text: String
+    var fontSize: CGFloat = 24
+    var textColor: Color = .white
+    var underlineColor: Color = .zinc800
+    var autoFocus: Bool = false
+    let onApply: (String) -> Void
+
+    @FocusState private var isFocused: Bool
+
+    private var trimmedText: String {
+        text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var body: some View {
+        ZStack(alignment: .trailing) {
+            TextField(placeholder, text: $text)
+                .font(.system(size: fontSize))
+                .foregroundColor(textColor)
+                .padding(.vertical, 12)
+                .padding(.trailing, isFocused ? 60 : 0)
+                .overlay(alignment: .bottom) {
+                    Rectangle()
+                        .frame(height: 1)
+                        .foregroundColor(underlineColor)
+                }
+                .accentColor(.white)
+                .focused($isFocused)
+                .onSubmit(applyIfNeeded)
+
+            if isFocused {
+                Button(action: applyIfNeeded) {
+                    Text("Apply")
+                        .font(.system(size: 14))
+                        .foregroundColor(trimmedText.isEmpty ? .zinc700 : .zinc500)
+                        .padding(.leading, 16)
+                        .padding(.vertical, 12)
+                }
+                .contentShape(Rectangle())
+                .disabled(trimmedText.isEmpty)
+                .opacity(trimmedText.isEmpty ? 0.2 : 1)
+            }
+        }
+        .onAppear {
+            if autoFocus {
+                DispatchQueue.main.async {
+                    isFocused = true
+                }
+            }
+        }
+    }
+
+    private func applyIfNeeded() {
+        let value = trimmedText
+        guard !value.isEmpty else { return }
+        text = value
+        onApply(value)
+        isFocused = false
+    }
+}
+
 struct NoAnimationButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
