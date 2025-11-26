@@ -235,15 +235,23 @@ struct PhasePaywallView: View {
 
 struct FeatureRow: View {
     let text: String
-    
+
     var body: some View {
-        HStack(spacing: 16) {
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundColor(.green)
-                .font(.system(size: 20))
+        HStack(alignment: .top, spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(Color.white.opacity(0.1))
+                    .frame(width: 20, height: 20)
+                Image(systemName: "checkmark")
+                    .font(.system(size: 12, weight: .black))
+                    .foregroundColor(.white)
+            }
+            .padding(.top, 2)
+
             Text(text)
-                .font(.system(size: 16))
-                .foregroundColor(.zinc200)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.zinc100)
+                .lineSpacing(4)
         }
     }
 }

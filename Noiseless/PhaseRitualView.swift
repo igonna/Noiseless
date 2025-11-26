@@ -21,115 +21,166 @@ private struct ProcessingStepsView: View {
     @EnvironmentObject var model: OnboardingModel
     @State private var completedCount: Int = 0
     @State private var timer: Timer?
-    @State private var animateGlow = false
-    
+    @State private var blueGlowOffset: CGSize = CGSize(width: -140, height: -220)
+    @State private var violetGlowOffset: CGSize = CGSize(width: 160, height: 180)
+    @State private var blueGlowScale: CGFloat = 1.0
+    @State private var violetGlowScale: CGFloat = 1.0
+    @State private var blueGlowOpacity: Double = 0.3
+    @State private var violetGlowOpacity: Double = 0.2
+
     private let steps = [
         "Analyzing your strengths",
-        "Interpreting goals & values",
+        "Interpreting your goals & values",
         "Mapping your constraints",
         "Connecting skills & curiosity",
         "Reading local opportunities",
         "Designing your path forward"
     ]
-    
-    private var progress: CGFloat {
+
+    private var progress: Int {
         guard !steps.isEmpty else { return 0 }
-        return min(CGFloat(completedCount) / CGFloat(steps.count), 1)
+        return min(Int(round(Double(completedCount) / Double(steps.count) * 100)), 100)
     }
-    
+
     var body: some View {
-        StepLayout(showProgressBar: false, centerContent: true, hideBackButton: true) {
-            ZStack {
-                movingGlow
-                VStack(spacing: 24) {
-                    header
-                    checklist
-                    footer
-                }
+        ZStack {
+            Color.zinc950
+                .ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                Spacer()
+                headerSection
+                checklistSection
+                footerSection
+                Spacer()
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .onAppear(perform: startProcessing)
-        .onDisappear { timer?.invalidate() }
+        .onAppear {
+            startProcessing()
+            startBackgroundAnimations()
+        }
+        .onDisappear {
+            timer?.invalidate()
+        }
         .onChange(of: model.currentStep) { step in
             guard step == .buildingModel || step == .calibrating else { return }
             startProcessing()
         }
     }
-    
-    private var header: some View {
-        VStack(spacing: 20) {
+
+
+    // MARK: - UI Components
+
+    private var backgroundGlows: some View {
+        ZStack {
+            // Blue glow - top left
+            Circle()
+                .fill(Color.blue.opacity(blueGlowOpacity))
+                .frame(width: 500, height: 500)
+                .blur(radius: 100)
+                .offset(blueGlowOffset)
+                .scaleEffect(blueGlowScale)
+
+            // Violet glow - bottom right
+            Circle()
+                .fill(Color.purple.opacity(violetGlowOpacity))
+                .frame(width: 500, height: 500)
+                .blur(radius: 100)
+                .offset(violetGlowOffset)
+                .scaleEffect(violetGlowScale)
+        }
+        .allowsHitTesting(false)
+    }
+
+    private var headerSection: some View {
+        VStack(spacing: 0) {
+            // Title - centered, max-w-xs (320px)
             Text("We're setting everything up for you")
-                .font(.system(size: 28, weight: .bold))
+                .font(.system(size: 30, weight: .bold))
+                .tracking(-0.5)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white)
-                .padding(.horizontal)
-            
+                .frame(maxWidth: 320)
+                .padding(.top, 32)
+                .padding(.bottom, 32)
+                .opacity(completedCount >= 0 ? 1 : 0)
+                .offset(y: completedCount >= 0 ? 0 : 10)
+                .animation(.easeOut(duration: 0.6), value: completedCount)
+
+            // Progress section - max-w-xs (320px) centered with px-2 (8px horizontal padding)
             VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("Processing")
+                HStack(alignment: .bottom) {
+                    Text("PROCESSING")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.zinc500)
-                        .tracking(2)
+                        .tracking(1.5)
                     Spacer()
-                    Text("\(Int(progress * 100))%")
-                        .font(.system(size: 24, weight: .bold))
+                    Text("\(progress)%")
+                        .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.white)
                         .monospacedDigit()
                 }
-                progressBar
-            }
-        }
-        .padding(.top, 24)
-    }
-    
-    private var progressBar: some View {
-        GeometryReader { geo in
-            let width = geo.size.width
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(Color.zinc800)
-                    .frame(height: 8)
-                Capsule()
-                    .fill(Color.white)
-                    .frame(width: max(progress * width, 0), height: 8)
-                    .shadow(color: Color.white.opacity(0.4), radius: 6, x: 0, y: 0)
-                    .animation(.easeInOut(duration: 0.5), value: progress)
-            }
-        }
-        .frame(height: 8)
-    }
-    
-    private var checklist: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 20) {
-                ForEach(Array(steps.enumerated()), id: \.offset) { index, title in
-                    let state = stepState(for: index)
-                    HStack(spacing: 16) {
-                        icon(for: state)
-                        Text(title)
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(state == .pending ? .zinc600 : .white)
-                            .animation(.easeInOut(duration: 0.25), value: state)
-                        Spacer()
+
+                // Progress bar
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(Color.zinc800)
+                            .frame(height: 6)
+
+                        Capsule()
+                            .fill(Color.white)
+                            .frame(width: max(CGFloat(progress) / 100.0 * geo.size.width, 0), height: 6)
+                            .animation(.easeOut(duration: 0.5), value: progress)
                     }
                 }
+                .frame(height: 6)
             }
+            .frame(maxWidth: 320)
             .padding(.horizontal, 8)
         }
+        .frame(maxWidth: .infinity) // Center the container
+        .padding(.bottom, 40)
     }
-    
-    private var footer: some View {
-        VStack(spacing: 12) {
-            Divider().background(Color.zinc900)
-            Text("Building your personal model...")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(.zinc600)
-                .tracking(1)
-                .animation(.easeInOut(duration: 0.3).repeatForever(autoreverses: true), value: completedCount)
+
+    private var checklistSection: some View {
+        // Checklist - max-w-xs (320px) centered with pl-2 (8px left padding)
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 24) {
+                ForEach(Array(steps.enumerated()), id: \.offset) { index, title in
+                    ChecklistRow(
+                        title: title,
+                        state: stepState(for: index),
+                        index: index
+                    )
+                }
+            }
+            .frame(maxWidth: 320, alignment: .leading)
+            .padding(.leading, 8)
+            .frame(maxWidth: .infinity, alignment: .center) // Center the 320px container
         }
-        .padding(.bottom, 12)
     }
-    
+
+    private var footerSection: some View {
+        VStack(spacing: 0) {
+            Text("Building your personal model...")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.zinc600)
+                .tracking(0.5)
+                .padding(.top, 10)
+                .opacity(pulsingOpacity)
+        }
+    }
+
+    private var pulsingOpacity: Double {
+        // Simple pulsing effect
+        return 0.6
+    }
+
+
+    // MARK: - Helper Functions
+
     private func stepState(for index: Int) -> StepState {
         if index < completedCount {
             return .completed
@@ -139,52 +190,29 @@ private struct ProcessingStepsView: View {
             return .pending
         }
     }
-    
-    private func icon(for state: StepState) -> some View {
-        Group {
-            switch state {
-            case .completed:
-                Image(systemName: "checkmark")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(width: 24, height: 24)
-                    .background(Circle().fill(Color.white.opacity(0.15)))
-            case .active:
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: 10, height: 10)
-                    .shadow(color: Color.white.opacity(0.6), radius: 8, x: 0, y: 0)
-            case .pending:
-                Circle()
-                    .fill(Color.zinc700)
-                    .frame(width: 8, height: 8)
-            }
+
+    private func startBackgroundAnimations() {
+        // Blue glow animation
+        withAnimation(.easeInOut(duration: 10).repeatForever(autoreverses: true)) {
+            blueGlowOffset = CGSize(width: -80, height: -180)
+            blueGlowScale = 1.1
+            blueGlowOpacity = 0.5
         }
-    }
-    
-    private var movingGlow: some View {
-        ZStack {
-            Circle()
-                .fill(Color.blue.opacity(0.15))
-                .frame(width: 420, height: 420)
-                .offset(x: animateGlow ? -80 : -140, y: animateGlow ? -180 : -220)
-                .blur(radius: 80)
-                .animation(.easeInOut(duration: 10).repeatForever(autoreverses: true), value: animateGlow)
-            Circle()
-                .fill(Color.purple.opacity(0.12))
-                .frame(width: 380, height: 380)
-                .offset(x: animateGlow ? 120 : 160, y: animateGlow ? 140 : 180)
-                .blur(radius: 90)
-                .animation(.easeInOut(duration: 12).repeatForever(autoreverses: true), value: animateGlow)
+
+        // Violet glow animation (with delay)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation(.easeInOut(duration: 12).repeatForever(autoreverses: true)) {
+                violetGlowOffset = CGSize(width: 120, height: 140)
+                violetGlowScale = 1.2
+                violetGlowOpacity = 0.4
+            }
         }
     }
     
     private func startProcessing() {
         timer?.invalidate()
         completedCount = 0
-        if !animateGlow {
-            animateGlow = true
-        }
+
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
             if completedCount < steps.count {
                 completedCount += 1
@@ -196,9 +224,93 @@ private struct ProcessingStepsView: View {
             }
         }
     }
-    
-    private enum StepState {
+
+    enum StepState {
         case completed, active, pending
+    }
+}
+
+// MARK: - Checklist Row Component
+
+private struct ChecklistRow: View {
+    let title: String
+    let state: ProcessingStepsView.StepState
+    let index: Int
+
+    @State private var appeared = false
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 20) {
+            // Icon
+            ZStack {
+                switch state {
+                case .completed:
+                    CheckmarkIcon()
+                        .stroke(Color.white, style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                        .frame(width: 20, height: 20)
+                        .scaleEffect(appeared ? 1 : 0.5)
+                        .opacity(appeared ? 1 : 0)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: appeared)
+
+                case .active:
+                    Circle()
+                        .fill(Color.white)
+                        .frame(width: 8, height: 8)
+
+                case .pending:
+                    Circle()
+                        .fill(Color.zinc800)
+                        .frame(width: 6, height: 6)
+                }
+            }
+            .frame(width: 20, alignment: .center)
+
+            // Text
+            Text(title)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(state == .pending ? .zinc600 : .white)
+                .animation(.easeInOut(duration: 0.5), value: state)
+        }
+        .opacity(appeared ? 1 : 0)
+        .offset(x: appeared ? 0 : -10)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.4).delay(Double(index) * 0.1)) {
+                appeared = true
+            }
+        }
+        .onChange(of: state) { newState in
+            if newState == .completed {
+                // Trigger haptic feedback
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.impactOccurred()
+
+                appeared = true
+            }
+        }
+    }
+}
+
+// Custom checkmark shape to match Lucide's Check icon
+// Based on: <path d="M20 6 9 17l-5-5"/>
+private struct CheckmarkIcon: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let width = rect.width
+        let height = rect.height
+
+        // Scale from 24x24 viewBox to our rect
+        let scaleX = width / 24.0
+        let scaleY = height / 24.0
+
+        // Path: M20 6 L9 17 l-5-5
+        // M20 6
+        path.move(to: CGPoint(x: 20 * scaleX, y: 6 * scaleY))
+        // L9 17
+        path.addLine(to: CGPoint(x: 9 * scaleX, y: 17 * scaleY))
+        // l-5-5 (relative: move -5 in x, -5 in y from current point)
+        path.addLine(to: CGPoint(x: 4 * scaleX, y: 12 * scaleY))
+
+        return path
     }
 }
 
@@ -223,11 +335,11 @@ private struct PathReadyView: View {
                 }
                 
                 VStack(spacing: 16) {
-                    Text("Congratulations — your custom plan is ready!")
+                    Text("Congratulations your custom plan is ready!")
                         .font(.system(size: 34, weight: .bold))
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
-                    Text("Built from your strengths, goals, and context — optimized for results.")
+                    Text("Built from your strengths, goals, and real-world context — optimized for results.")
                         .font(.system(size: 18))
                         .foregroundColor(.zinc400)
                         .multilineTextAlignment(.center)

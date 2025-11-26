@@ -329,6 +329,9 @@ struct StepLayout<Content: View>: View {
     var body: some View {
         GeometryReader { _ in
             ZStack(alignment: .top) {
+                Color.zinc950
+                    .ignoresSafeArea()
+
                 VStack(alignment: stackAlignment, spacing: 16) {
                     if let title = title {
                         Text(title)

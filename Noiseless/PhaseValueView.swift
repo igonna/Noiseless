@@ -29,8 +29,8 @@ struct PhaseValueView: View {
                 
                 Spacer()
                 Text("We'll sync your data securely.")
-                    .font(.system(size: 14))
-                    .foregroundColor(.zinc500)
+                    .font(.system(size: 12))
+                    .foregroundColor(.zinc600)
                     .padding(.bottom, 24)
             }
         }
@@ -41,8 +41,7 @@ struct PhaseValueView: View {
         StepLayout(
             title: "Try Noiseless free for 3 days.",
             subtitle: "We'll send you a reminder before your free trial ends",
-            showProgressBar: false,
-            centerTitle: true
+            showProgressBar: false
         ) {
             VStack {
                 Spacer()
