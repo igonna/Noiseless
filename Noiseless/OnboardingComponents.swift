@@ -91,7 +91,7 @@ struct PrimaryButton: View {
             .shadow(color: shadowColor, radius: 15, x: 0, y: 0)
             .opacity(disabled ? 0.5 : 1.0)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(NoAnimationButtonStyle())
         .disabled(disabled)
     }
 }
@@ -140,7 +140,6 @@ struct OptionButton: View {
 struct NoAnimationButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .opacity(configuration.isPressed ? 0.7 : 1.0)
     }
 }
 

@@ -117,7 +117,7 @@ struct PhaseDataView: View {
                             .tracking(0.5)
                     }
                     
-                    PrimaryButton(title: "Confirm", disabled: locationQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
+                    PrimaryButton(title: "Continue", disabled: locationQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
                         model.updateUserData(PartialUserData(location: locationQuery))
                         model.nextStep()
                     }
