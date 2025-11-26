@@ -523,7 +523,7 @@ struct TimeBudgetScreen: View {
             VStack {
                 Spacer()
                 
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     Text(currentOption.label)
                         .font(.system(size: 48, weight: .bold))
                         .foregroundColor(.white)
@@ -541,10 +541,11 @@ struct TimeBudgetScreen: View {
                 
                 Spacer()
                 
-                VStack(spacing: 24) {
-                    DiscreteStepSlider(index: $selectedIndex, steps: options.count)
-                        .padding(.horizontal, 12)
-                    
+                VStack(spacing: 16) {
+                    LiquidGlassSlider(index: $selectedIndex, steps: options.count)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
+
                     HStack {
                         Text("GENTLE")
                         Spacer()
@@ -552,11 +553,11 @@ struct TimeBudgetScreen: View {
                     }
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(.zinc500)
-                    .tracking(2)
-                    .padding(.horizontal, 20)
+                    .tracking(1.5)
+                    .padding(.horizontal, 28)
                 }
-                .padding(.bottom, 40)
-                
+                .padding(.vertical, 20)
+
                 PrimaryButton(title: "Continue") {
                     model.nextStep()
                 }
@@ -584,56 +585,35 @@ struct TimeBudgetScreen: View {
     }
 }
 
-struct DiscreteStepSlider: View {
+struct LiquidGlassSlider: View {
     @Binding var index: Double
     let steps: Int
     
-    private var progress: CGFloat {
-        guard steps > 1 else { return 0 }
-        return CGFloat(index / Double(steps - 1))
+    private var sliderRange: ClosedRange<Double> {
+        let maxValue = max(Double(steps - 1), 1)
+        return 0...maxValue
     }
     
     var body: some View {
-        GeometryReader { geometry in
-            let width = max(geometry.size.width, 1)
-            let effectiveWidth = max(width - 8, 1)
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(Color.zinc800)
-                    .frame(height: 8)
-                Capsule()
-                    .fill(
-                        LinearGradient(colors: [.white, Color.zinc500], startPoint: .leading, endPoint: .trailing)
-                    )
-                    .frame(width: max(progress * width, 0), height: 8)
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: 24, height: 24)
-                    .shadow(color: Color.white.opacity(0.4), radius: 8, x: 0, y: 0)
-                    .offset(x: max(min(progress * width, width - 12), 0) - 12)
-            }
-            .frame(height: 32)
-            .padding(.horizontal, 4)
-            .contentShape(Rectangle())
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { value in
-                        let clampedX = min(max(0, value.location.x - 4), effectiveWidth)
-                        updateIndex(for: clampedX / effectiveWidth)
-                    }
-            )
-        }
-        .frame(height: 44)
+        Slider(
+            value: Binding(get: { index }, set: { updateIndex(with: $0) }),
+            in: sliderRange,
+            step: 1
+        )
+        .tint(.white)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
     }
     
-    private func updateIndex(for ratio: CGFloat) {
+    private func updateIndex(with newValue: Double) {
         guard steps > 1 else {
             index = 0
             return
         }
-        let raw = Double(ratio) * Double(steps - 1)
-        let stepped = min(max(round(raw), 0), Double(steps - 1))
-        withAnimation(.easeInOut(duration: 0.15)) {
+        let stepped = min(max(round(newValue), 0), Double(steps - 1))
+        guard stepped != index else { return }
+        HapticManager.tap()
+        withAnimation(.easeInOut(duration: 0.12)) {
             index = stepped
         }
     }
