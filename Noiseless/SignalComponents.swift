@@ -291,7 +291,9 @@ struct SignalCard: View {
                 
                 Spacer()
                 
-                Button(action: onToggleSave) {
+                Button(action: {
+                    onToggleSave()
+                }) {
                     Image(systemName: isSaved ? "bookmark.fill" : "bookmark")
                         .font(.system(size: 20))
                         .foregroundColor(isSaved ? .primary : .secondary)

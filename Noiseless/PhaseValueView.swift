@@ -158,7 +158,7 @@ private struct SignInButton: View {
     }
     
     var body: some View {
-        Button(action: action) {
+        Button(action: triggerAction) {
             HStack(spacing: 12) {
                 icon
                 Text(label)
@@ -176,6 +176,11 @@ private struct SignInButton: View {
             .shadow(color: style == .apple ? Color.white.opacity(0.2) : Color.black.opacity(0.4), radius: 15, x: 0, y: 0)
         }
         .buttonStyle(.plain)
+    }
+
+    private func triggerAction() {
+        HapticManager.tap()
+        action()
     }
     
     @ViewBuilder

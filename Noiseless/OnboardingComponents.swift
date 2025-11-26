@@ -70,7 +70,7 @@ struct PrimaryButton: View {
     }
     
     var body: some View {
-        Button(action: action) {
+        Button(action: triggerAction) {
             HStack(spacing: 8) {
                 if let iconSystemName {
                     Image(systemName: iconSystemName)
@@ -94,6 +94,16 @@ struct PrimaryButton: View {
         .buttonStyle(NoAnimationButtonStyle())
         .disabled(disabled)
     }
+
+    private func triggerAction() {
+        guard !disabled else { return }
+        if variant == .primary {
+            HapticManager.trigger(.impact(.soft))
+        } else {
+            HapticManager.trigger(.selection)
+        }
+        action()
+    }
 }
 
 struct OptionButton: View {
@@ -104,7 +114,7 @@ struct OptionButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button(action: triggerInstantAction) {
             HStack(spacing: 8) {
                 if let iconName = icon {
                     Image(systemName: iconName)
@@ -134,6 +144,22 @@ struct OptionButton: View {
             .contentShape(Capsule())
         }
         .buttonStyle(NoAnimationButtonStyle())
+        .transaction { transaction in
+            transaction.animation = nil
+            transaction.disablesAnimations = true
+        }
+        .animation(nil, value: selected)
+    }
+
+    private func triggerInstantAction() {
+        triggerActionWithHaptic()
+    }
+
+    private func triggerActionWithHaptic() {
+        HapticManager.lightTap()
+        withAnimation(nil) {
+            action()
+        }
     }
 }
 

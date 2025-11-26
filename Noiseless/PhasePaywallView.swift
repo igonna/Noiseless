@@ -41,6 +41,7 @@ struct PhasePaywallView: View {
                 HStack(spacing: 12) {
                     // Monthly Plan
                     Button(action: {
+                        HapticManager.lightTap()
                         selectedPlan = .monthly
                     }) {
                         VStack(spacing: 4) {
@@ -71,6 +72,7 @@ struct PhasePaywallView: View {
                     
                     // Yearly Plan
                     Button(action: {
+                        HapticManager.lightTap()
                         selectedPlan = .yearly
                     }) {
                         ZStack {

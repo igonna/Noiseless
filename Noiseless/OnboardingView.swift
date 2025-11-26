@@ -25,7 +25,9 @@ struct OnboardingView: View {
         HStack(spacing: 16) {
             if shouldShowBackButton {
                 let isMinimal = model.currentStep == .trialOffer || model.currentStep == .paywall
-                Button(action: model.prevStep) {
+                Button(action: {
+                    model.prevStep()
+                }) {
                     Image(systemName: isMinimal ? "chevron.left" : "arrow.left")
                         .font(.system(size: isMinimal ? 28 : 20, weight: .medium))
                         .foregroundColor(isMinimal ? .zinc500 : .zinc400)

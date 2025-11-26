@@ -656,7 +656,7 @@ struct VisionOptionCard: View {
     let action: () -> Void
     
     var body: some View {
-        Button(action: action) {
+        Button(action: triggerAction) {
             HStack(spacing: 16) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 14)
@@ -696,6 +696,11 @@ struct VisionOptionCard: View {
         .opacity(isDisabled ? 0.45 : 1)
         .scaleEffect(isSelected ? 1.01 : 1)
         .animation(.spring(response: 0.4, dampingFraction: 0.85), value: isSelected)
+    }
+
+    private func triggerAction() {
+        HapticManager.tap()
+        action()
     }
 }
 

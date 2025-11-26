@@ -94,6 +94,7 @@ struct PhaseTrustView: View {
                 LazyVStack(spacing: 12) {
                     ForEach(identities, id: \.id) { item in
                         Button {
+                            HapticManager.tap()
                             model.updateUserData(PartialUserData(identity: item.label))
                             model.nextStep()
                         } label: {
