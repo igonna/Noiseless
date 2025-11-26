@@ -169,6 +169,60 @@ struct NoAnimationButtonStyle: ButtonStyle {
     }
 }
 
+struct IconOptionButton: View {
+    let title: String
+    var subtitle: String? = nil
+    let iconName: String
+    var showSelectionIndicator: Bool = false
+    var isSelected: Bool = false
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                Image(systemName: iconName)
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(.zinc200)
+                    .frame(width: 48, height: 48)
+                    .background(Color.zinc800)
+                    .cornerRadius(12)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundColor(.zinc200)
+                    if let subtitle {
+                        Text(subtitle)
+                            .font(.system(size: 14))
+                            .foregroundColor(.zinc500)
+                    }
+                }
+
+                Spacer()
+
+                if showSelectionIndicator {
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundColor(isSelected ? .white : .zinc600)
+                        .scaleEffect(isSelected ? 1.05 : 1.0)
+                        .animation(.easeInOut(duration: 0.15), value: isSelected)
+                }
+            }
+            .padding(20)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.zinc900.opacity(showSelectionIndicator && isSelected ? 0.85 : 0.65))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(showSelectionIndicator && isSelected ? Color.white : Color.zinc800.opacity(0.8), lineWidth: 1)
+                    )
+            )
+            .contentShape(RoundedRectangle(cornerRadius: 16))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 struct StepLayout<Content: View>: View {
     let title: String?
     let subtitle: String?

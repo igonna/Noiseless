@@ -93,35 +93,11 @@ struct PhaseTrustView: View {
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: 12) {
                     ForEach(identities, id: \.id) { item in
-                        Button {
+                        IconOptionButton(title: item.label, iconName: item.icon) {
                             HapticManager.tap()
                             model.updateUserData(PartialUserData(identity: item.label))
                             model.nextStep()
-                        } label: {
-                            HStack(spacing: 16) {
-                                Image(systemName: item.icon)
-                                    .font(.system(size: 20, weight: .semibold))
-                                    .foregroundColor(.zinc200)
-                                    .frame(width: 48, height: 48)
-                                    .background(Color.zinc800)
-                                    .cornerRadius(12)
-                                
-                                Text(item.label)
-                                    .font(.system(size: 18, weight: .medium))
-                                    .foregroundColor(.zinc200)
-                                Spacer()
-                            }
-                            .padding(20)
-                            .background(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color.zinc900.opacity(0.5))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 16)
-                                            .stroke(Color.zinc800.opacity(0.6), lineWidth: 1)
-                                    )
-                            )
                         }
-                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.vertical, 8)

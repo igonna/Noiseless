@@ -295,35 +295,44 @@ struct PhaseDataView: View {
     
     // Screen 8: Vision
     var visionView: some View {
-        let options = VisionOption.sampleOptions
+        let options = VisionGoalOption.sampleOptions
+        let maxSelection = 3
+        let selected = model.userData.vision
         
         return StepLayout(title: "What do you want to achieve?", subtitle: "Select up to 3") {
             VStack(alignment: .leading, spacing: 0) {
                 ScrollView(showsIndicators: false) {
-                    LazyVStack(spacing: 14) {
+                    LazyVStack(spacing: 12) {
                         ForEach(options) { option in
-                            let isSelected = model.userData.vision.contains(option.label)
-                            let isMaxReached = !isSelected && model.userData.vision.count >= 3
-
-                            VisionOptionCard(option: option, isSelected: isSelected, isDisabled: isMaxReached) {
-                                withAnimation(.spring(response: 0.45, dampingFraction: 0.85)) {
-                                    var current = model.userData.vision
-                                    if isSelected {
-                                        current.removeAll { $0 == option.label }
-                                    } else if current.count < 3 {
-                                        current.append(option.label)
-                                    }
-                                    model.updateUserData(PartialUserData(vision: current))
+                            let isSelected = selected.contains(option.label)
+                            let isMaxReached = !isSelected && selected.count >= maxSelection
+                            
+                            IconOptionButton(
+                                title: option.label,
+                                subtitle: option.detail,
+                                iconName: option.icon,
+                                showSelectionIndicator: true,
+                                isSelected: isSelected
+                            ) {
+                                HapticManager.tap()
+                                var current = selected
+                                if isSelected {
+                                    current.removeAll { $0 == option.label }
+                                } else if current.count < maxSelection {
+                                    current.append(option.label)
                                 }
+                                model.updateUserData(PartialUserData(vision: current))
                             }
+                            .disabled(isMaxReached)
+                            .opacity(isMaxReached ? 0.45 : 1)
                         }
                     }
-                    .padding(.vertical, 6)
+                    .padding(.vertical, 8)
                 }
 
-                Spacer()
+                Spacer(minLength: 0)
 
-                BottomActionSection(buttonDisabled: model.userData.vision.isEmpty) {
+                BottomActionSection(buttonDisabled: selected.isEmpty) {
                     model.nextStep()
                 }
             }
@@ -629,79 +638,25 @@ struct DiscreteStepSlider: View {
     }
 }
 
-struct VisionOption: Identifiable {
+struct VisionGoalOption: Identifiable {
     let label: String
+    let detail: String?
     let icon: String
     var id: String { label }
 }
 
-extension VisionOption {
-    static let sampleOptions: [VisionOption] = [
-        VisionOption(label: "More income", icon: "dollarsign.circle.fill"),
-        VisionOption(label: "Learn powerful skills", icon: "bolt.fill"),
-        VisionOption(label: "More freedom", icon: "wind"),
-        VisionOption(label: "Start a business", icon: "rocket.fill"),
-        VisionOption(label: "More discipline", icon: "target"),
-        VisionOption(label: "Better well-being", icon: "heart.fill"),
-        VisionOption(label: "Multiple income streams", icon: "square.stack.3d.up.fill"),
-        VisionOption(label: "Find clarity", icon: "lightbulb"),
-        VisionOption(label: "New career path", icon: "safari")
+extension VisionGoalOption {
+    static let sampleOptions: [VisionGoalOption] = [
+        VisionGoalOption(label: "More income", detail: nil, icon: "dollarsign.circle.fill"),
+        VisionGoalOption(label: "Learn powerful skills", detail: nil, icon: "bolt.fill"),
+        VisionGoalOption(label: "More freedom", detail: nil, icon: "wind"),
+        VisionGoalOption(label: "Start a business", detail: nil, icon: "rocket.fill"),
+        VisionGoalOption(label: "More discipline", detail: nil, icon: "target"),
+        VisionGoalOption(label: "Better well-being", detail: nil, icon: "heart.fill"),
+        VisionGoalOption(label: "Multiple income streams", detail: nil, icon: "square.stack.3d.up.fill"),
+        VisionGoalOption(label: "Find clarity", detail: nil, icon: "lightbulb"),
+        VisionGoalOption(label: "New career path", detail: nil, icon: "safari")
     ]
-}
-
-struct VisionOptionCard: View {
-    let option: VisionOption
-    let isSelected: Bool
-    let isDisabled: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: triggerAction) {
-            HStack(spacing: 16) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(isSelected ? Color.white : Color.zinc900)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(isSelected ? Color.white : Color.zinc800, lineWidth: isSelected ? 0 : 1)
-                        )
-                        .frame(width: 56, height: 56)
-                        .shadow(color: isSelected ? Color.white.opacity(0.25) : Color.clear, radius: 12, x: 0, y: 0)
-                    Image(systemName: option.icon)
-                        .font(.system(size: 22, weight: .semibold))
-                        .foregroundColor(isSelected ? .black : .white)
-                }
-                
-                Text(option.label)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.white)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.leading)
-                
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 16)
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(isSelected ? Color.zinc900.opacity(0.9) : Color.zinc900.opacity(0.55))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(isSelected ? Color.zinc500 : Color.zinc800.opacity(0.6), lineWidth: 1)
-                    )
-            )
-            .contentShape(RoundedRectangle(cornerRadius: 20))
-        }
-        .buttonStyle(.plain)
-        .opacity(isDisabled ? 0.45 : 1)
-        .scaleEffect(isSelected ? 1.01 : 1)
-        .animation(.spring(response: 0.4, dampingFraction: 0.85), value: isSelected)
-    }
-
-    private func triggerAction() {
-        HapticManager.tap()
-        action()
-    }
 }
 
 extension Array where Element: Hashable {
