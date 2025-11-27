@@ -252,7 +252,6 @@ struct PlanSelectionCard: View {
                 )
                 .shadow(color: isSelected ? Color.black.opacity(0.5) : Color.clear, radius: 10, x: 0, y: 5)
         )
-        .scaleEffect(isSelected ? 1.02 : 1.0)
     }
     
     private func badge(text: String) -> some View {
