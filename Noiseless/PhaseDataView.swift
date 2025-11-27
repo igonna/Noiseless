@@ -565,7 +565,8 @@ struct TimeBudgetScreen: View {
                     .tracking(1.5)
                     .padding(.horizontal, 28)
                 }
-                .padding(.vertical, 20)
+                .padding(.top, 0)
+                .padding(.bottom, 20)
 
                 Spacer()
 

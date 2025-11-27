@@ -95,20 +95,22 @@ struct PhaseRewardView: View {
                 }
                 
                 Spacer()
-                HStack(spacing: 6) {
-                    Image(systemName: "checkmark.shield")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(.zinc500)
-                    Text("Your information remains private and secure.")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.zinc500)
-                        .tracking(0.5)
+
+                VStack(spacing: 12) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "checkmark.shield.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(.zinc500)
+                        Text("Your information remains private and secure.")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.zinc500)
+                            .tracking(0.5)
+                    }
+
+                    BottomActionSection(showDivider: false) {
+                        model.goToStep(.buildingModel)
+                    }
                 }
-                
-                PrimaryButton(title: "Continue") {
-                    model.goToStep(.buildingModel)
-                }
-                .padding(.bottom, 20)
             }
         }
     }
