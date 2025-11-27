@@ -28,7 +28,6 @@ private struct ProcessingStepsView: View {
     @State private var violetGlowScale: CGFloat = 1.0
     @State private var blueGlowOpacity: Double = 0.3
     @State private var violetGlowOpacity: Double = 0.2
-    @State private var footerOpacity: Double = 0.6
 
     private let steps = [
         "Analyzing your strengths",
@@ -57,7 +56,6 @@ private struct ProcessingStepsView: View {
                 Spacer()
                 headerSection
                 checklistSection
-                footerSection
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -169,18 +167,6 @@ private struct ProcessingStepsView: View {
         }
     }
 
-    private var footerSection: some View {
-        VStack(spacing: 0) {
-            Text("Building your personal model...")
-                .font(.system(size: 11, weight: .medium))
-                .foregroundColor(.zinc600)
-                .tracking(0.5)
-                .padding(.top, 12)
-                .opacity(footerOpacity)
-        }
-    }
-
-
     // MARK: - Helper Functions
 
     private func stepState(for index: Int) -> StepState {
@@ -208,11 +194,6 @@ private struct ProcessingStepsView: View {
                 violetGlowScale = 1.2
                 violetGlowOpacity = 0.4
             }
-        }
-
-        // Footer text blinking animation
-        withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
-            footerOpacity = 0.2
         }
     }
     
