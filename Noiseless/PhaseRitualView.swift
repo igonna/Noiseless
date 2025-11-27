@@ -221,17 +221,17 @@ private struct ProcessingStepsView: View {
         completedCount = 0
         smoothProgress = 0.0
 
-        // Calculate total time for checklist (6 items × 0.75s = 4.5s)
-        let checklistDuration = Double(steps.count) * 0.75
+        // Calculate total time for checklist (6 items × 1.0s = 6s)
+        let checklistDuration = Double(steps.count) * 1.0
 
-        // Smooth progress animation to 95% - sync with checklist completion
+        // Smooth progress animation to 97% - sync with checklist completion
         withAnimation(.linear(duration: checklistDuration)) {
-            smoothProgress = 95.0
+            smoothProgress = 97.0
         }
 
         // Checklist items appear at regular intervals
         var currentIndex = 0
-        timer = Timer.scheduledTimer(withTimeInterval: 0.75, repeats: true) { timer in
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
             if currentIndex < steps.count {
                 completedCount += 1
                 currentIndex += 1
@@ -240,24 +240,21 @@ private struct ProcessingStepsView: View {
                 if currentIndex == steps.count {
                     timer.invalidate()
 
-                    // Pause at 95% for 0.8 seconds (slowdown)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                        // Strong haptic at completion
-                        let generator = UIImpactFeedbackGenerator(style: .heavy)
-                        generator.impactOccurred()
+                    // Update completedCount to show 100% FIRST
+                    completedCount = steps.count + 1
 
-                        // Update completedCount to show 100% FIRST
-                        completedCount = steps.count + 1
+                    // Strong haptic at completion
+                    let generator = UIImpactFeedbackGenerator(style: .heavy)
+                    generator.impactOccurred()
 
-                        // Then animate progress bar to catch up to 100%
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            smoothProgress = 100.0
-                        }
+                    // Then animate progress bar slowly from 97% to 100% (last 3%)
+                    withAnimation(.easeOut(duration: 0.5)) {
+                        smoothProgress = 100.0
+                    }
 
-                        // Navigate to next screen after animation completes
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                            model.goToStep(.pathReady)
-                        }
+                    // Navigate to next screen after animation completes
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        model.goToStep(.pathReady)
                     }
                 }
             }
