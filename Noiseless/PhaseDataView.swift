@@ -170,7 +170,7 @@ struct PhaseDataView: View {
         var body: some View {
             VStack {
                 Spacer()
-                
+
                 // Graph Container
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)
@@ -264,7 +264,8 @@ struct PhaseDataView: View {
                     }
                 }
                 .frame(height: 256)
-                .padding(.vertical, 24)
+                .padding(.top, 0)
+                .padding(.bottom, 16)
                 .onAppear {
                     animationFinished = false
                     withAnimation(.easeOut(duration: 1.5)) {
@@ -280,13 +281,13 @@ struct PhaseDataView: View {
                         HapticManager.lightTap()
                     }
                 }
-                
-                Spacer()
-                
+
+                Spacer(minLength: 20)
+
                 PrimaryButton(title: "Continue", disabled: !animationFinished) {
                     model.nextStep()
                 }
-                .padding(.bottom, 20)
+                .padding(.bottom, 10)
             }
         }
     }
