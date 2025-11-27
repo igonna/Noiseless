@@ -116,26 +116,27 @@ struct PhaseValueView: View {
                 
                 Spacer()
                 
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     HStack(spacing: 8) {
-                        Image(systemName: "checkmark.shield.fill")
-                            .font(.system(size: 16))
-                            .foregroundColor(.zinc400)
-                        
+                        Image("shield_check_icon")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 16, height: 16)
+
                         Text("No Payment Due Now")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.zinc300)
                     }
-                    
+
                     PrimaryButton(title: "Continue for FREE") {
                         model.nextStep()
                     }
-                    
+
                     Text("Just 46,99 US$ per year (3,91 US$/mo)")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.zinc500)
                 }
-                .padding(.bottom, 20)
+                .padding(.bottom, 12)
             }
         }
     }
