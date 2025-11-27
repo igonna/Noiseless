@@ -50,56 +50,69 @@ struct PhaseValueView: View {
                 Spacer()
                 
                 // Notification Visual
-                ZStack {
-                    // Glow behind
-                    RoundedRectangle(cornerRadius: 24)
-                        .fill(
-                            LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.purple.opacity(0.2)]), startPoint: .leading, endPoint: .trailing)
-                        )
-                        .blur(radius: 20)
-                        .padding(-16)
-                    
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack(alignment: .top, spacing: 12) {
-                            Image(systemName: "bell.fill")
-                                .font(.system(size: 24))
-                                .foregroundColor(.white)
-                                .padding(8)
-                                .background(Color.zinc800)
-                                .cornerRadius(12)
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    Text("Noiseless")
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(.white)
-                                    Spacer()
-                                    Text("now")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.zinc500)
-                                }
-                                
-                                Text("Your 3-day trial is ending soon.")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(.zinc200)
-                                
-                                Text("We'll remind you 24h before you're charged so you have full control.")
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image("bell_icon")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 26, height: 26)
+                            .frame(width: 40, height: 40)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.zinc800)
+                            )
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text("Noiseless")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Text("now")
                                     .font(.system(size: 12))
-                                    .foregroundColor(.zinc400)
-                                    .fixedSize(horizontal: false, vertical: true)
+                                    .foregroundColor(.zinc500)
                             }
+
+                            Text("Your 3-day trial is ending soon.")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.zinc200)
+
+                            Text("We'll remind you 24h before you're charged so you have full control.")
+                                .font(.system(size: 12))
+                                .foregroundColor(.zinc400)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                     }
-                    .padding(16)
-                    .background(Color.zinc900.opacity(0.8))
-                    .cornerRadius(16)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.zinc800, lineWidth: 1)
-                    )
-                    .shadow(color: Color.black.opacity(0.5), radius: 20, x: 0, y: 10)
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 16)
+                .frame(maxWidth: .infinity)
+                .background(Color.zinc900.opacity(0.35))
+                .cornerRadius(16)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.zinc800.opacity(0.35), lineWidth: 1)
+                )
+                .background(
+                    RoundedRectangle(cornerRadius: 24)
+                        .fill(
+                            RadialGradient(
+                                gradient: Gradient(colors: [
+                                    Color.blue.opacity(0.4),
+                                    Color.purple.opacity(0.3),
+                                    Color.blue.opacity(0.15),
+                                    Color.clear
+                                ]),
+                                center: .center,
+                                startRadius: 20,
+                                endRadius: 180
+                            )
+                        )
+                        .blur(radius: 50)
+                        .scaleEffect(x: 1.3, y: 1.0)
+                )
+                .shadow(color: Color.black.opacity(0.3), radius: 20, x: 0, y: 10)
+                .padding(.horizontal, 4)
                 
                 Spacer()
                 
