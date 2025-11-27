@@ -41,6 +41,16 @@ struct PhaseValueView: View {
     
     // Screen 19: Trial Offer
     var trialOfferView: some View {
+        TrialOfferContent()
+    }
+}
+
+struct TrialOfferContent: View {
+    @EnvironmentObject var model: OnboardingModel
+    @State private var bellRotation: Double = 0
+    @State private var isAnimating: Bool = true
+
+    var body: some View {
         StepLayout(
             title: "Try Noiseless free for 3 days.",
             subtitle: "We'll send you a reminder before your free trial ends",
@@ -48,19 +58,22 @@ struct PhaseValueView: View {
         ) {
             VStack {
                 Spacer()
-                
+
                 // Notification Visual
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(alignment: .top, spacing: 12) {
-                        Image("bell_icon")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 26, height: 26)
-                            .frame(width: 40, height: 40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.zinc800)
-                            )
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.zinc800)
+                                .frame(width: 40, height: 40)
+
+                            Image("bell_icon")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 26, height: 26)
+                                .rotationEffect(.degrees(bellRotation), anchor: .top)
+                        }
+                        .frame(width: 40, height: 40)
 
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
@@ -137,6 +150,70 @@ struct PhaseValueView: View {
                         .foregroundColor(.zinc500)
                 }
                 .padding(.bottom, 1)
+            }
+            .onAppear {
+                startPeriodicSwing()
+            }
+            .onDisappear {
+                isAnimating = false
+            }
+        }
+    }
+
+    private func startPeriodicSwing() {
+        guard isAnimating else { return }
+
+        // Swing right
+        withAnimation(.easeInOut(duration: 0.30)) {
+            bellRotation = 8
+        }
+
+        // Swing sequence
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.30) {
+            guard self.isAnimating else { return }
+            withAnimation(.easeInOut(duration: 0.30)) {
+                self.bellRotation = -8
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.60) {
+            guard self.isAnimating else { return }
+            withAnimation(.easeInOut(duration: 0.30)) {
+                self.bellRotation = 8
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.90) {
+            guard self.isAnimating else { return }
+            withAnimation(.easeInOut(duration: 0.30)) {
+                self.bellRotation = -8
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.20) {
+            guard self.isAnimating else { return }
+            withAnimation(.easeInOut(duration: 0.30)) {
+                self.bellRotation = 8
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.50) {
+            guard self.isAnimating else { return }
+            withAnimation(.easeInOut(duration: 0.30)) {
+                self.bellRotation = -8
+            }
+        }
+
+        // Final return to center
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.80) {
+            guard self.isAnimating else { return }
+            withAnimation(.easeOut(duration: 0.6)) {
+                self.bellRotation = 0
+            }
+
+            // Wait for a pause, then swing again
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.startPeriodicSwing()
             }
         }
     }
