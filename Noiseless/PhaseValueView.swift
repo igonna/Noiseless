@@ -165,42 +165,42 @@ struct TrialOfferContent: View {
 
         // Swing right
         withAnimation(.easeInOut(duration: 0.30)) {
-            bellRotation = 8
+            bellRotation = -8
         }
 
         // Swing sequence
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.30) {
             guard self.isAnimating else { return }
             withAnimation(.easeInOut(duration: 0.30)) {
-                self.bellRotation = -8
+                self.bellRotation = 8
             }
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.60) {
             guard self.isAnimating else { return }
             withAnimation(.easeInOut(duration: 0.30)) {
-                self.bellRotation = 8
+                self.bellRotation = -8
             }
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.90) {
             guard self.isAnimating else { return }
             withAnimation(.easeInOut(duration: 0.30)) {
-                self.bellRotation = -8
+                self.bellRotation = 8
             }
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.20) {
             guard self.isAnimating else { return }
             withAnimation(.easeInOut(duration: 0.30)) {
-                self.bellRotation = 8
+                self.bellRotation = -8
             }
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.50) {
             guard self.isAnimating else { return }
             withAnimation(.easeInOut(duration: 0.30)) {
-                self.bellRotation = -8
+                self.bellRotation = 8
             }
         }
 
