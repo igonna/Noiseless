@@ -40,80 +40,21 @@ struct PhasePaywallView: View {
                 VStack(spacing: 12) {
                     // Plan Selection
                     HStack(spacing: 16) {
-                        // Monthly Plan
-                        Button(action: {
+                        PlanSelectionCard(
+                            title: "MONTHLY",
+                            price: "11,99 US$/mo",
+                            isSelected: selectedPlan == .monthly
+                        ) {
                             selectedPlan = .monthly
-                        }) {
-                            VStack(spacing: 6) {
-                                Text("MONTHLY")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .tracking(1) // uppercase tracking-wide
-                                    .foregroundColor(.white)
-
-                                Text("11,99 US$/mo")
-                                    .font(.system(size: 18, weight: .bold))
-                                    .foregroundColor(.white)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .padding(.horizontal, 16)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(selectedPlan == .monthly ? Color.zinc900 : Color.clear)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(selectedPlan == .monthly ? Color.white : Color.zinc800, lineWidth: 1)
-                                    )
-                                    .shadow(color: selectedPlan == .monthly ? Color.black.opacity(0.5) : Color.clear, radius: 10, x: 0, y: 5)
-                            )
-                            .scaleEffect(selectedPlan == .monthly ? 1.02 : 1.0)
-                            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedPlan)
                         }
 
-                        // Yearly Plan
-                        Button(action: {
+                        PlanSelectionCard(
+                            title: "YEARLY",
+                            price: "3,91 US$/mo",
+                            isSelected: selectedPlan == .yearly,
+                            badgeText: "3 DAYS FREE"
+                        ) {
                             selectedPlan = .yearly
-                        }) {
-                            ZStack {
-                                VStack(spacing: 6) {
-                                    Text("YEARLY")
-                                        .font(.system(size: 14, weight: .bold))
-                                        .tracking(1)
-                                        .foregroundColor(.white)
-
-                                    Text("3,91 US$/mo")
-                                        .font(.system(size: 18, weight: .bold))
-                                        .foregroundColor(.white)
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .padding(.horizontal, 16)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(selectedPlan == .yearly ? Color.zinc900 : Color.clear)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .stroke(selectedPlan == .yearly ? Color.white : Color.zinc800, lineWidth: 1)
-                                        )
-                                        .shadow(color: selectedPlan == .yearly ? Color.black.opacity(0.5) : Color.clear, radius: 10, x: 0, y: 5)
-                                )
-                                .scaleEffect(selectedPlan == .yearly ? 1.02 : 1.0)
-                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedPlan)
-
-                                // Badge
-                                VStack {
-                                    Text("3 DAYS FREE")
-                                        .font(.system(size: 9, weight: .black))
-                                        .tracking(1) // tracking-wider
-                                        .foregroundColor(.black)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 2)
-                                        .background(Capsule().fill(Color.white))
-                                        .shadow(radius: 4)
-                                        .offset(y: -6)
-                                    Spacer()
-                                }
-                            }
                         }
                     }
 
@@ -231,6 +172,86 @@ struct PhasePaywallView: View {
                 .padding(.bottom, 20)
             }
         }
+    }
+}
+
+struct PlanSelectionCard: View {
+    let title: String
+    let price: String
+    let isSelected: Bool
+    let badgeText: String?
+    let action: () -> Void
+    
+    init(
+        title: String,
+        price: String,
+        isSelected: Bool,
+        badgeText: String? = nil,
+        action: @escaping () -> Void
+    ) {
+        self.title = title
+        self.price = price
+        self.isSelected = isSelected
+        self.badgeText = badgeText
+        self.action = action
+    }
+    
+    var body: some View {
+        Button(action: action) {
+            cardContents
+                .overlay(alignment: .top) {
+                    if let badgeText {
+                        badge(text: badgeText)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .contentShape(RoundedRectangle(cornerRadius: 12))
+                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+        }
+        .buttonStyle(PressScaleButtonStyle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(title.capitalized) plan")
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
+        .accessibilityAddTraits(.isButton)
+    }
+    
+    private var cardContents: some View {
+        VStack(spacing: 6) {
+            Text(title)
+                .font(.system(size: 14, weight: .bold))
+                .tracking(1)
+                .foregroundColor(.white)
+            
+            Text(price)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundColor(.white)
+        }
+        .animation(nil, value: isSelected)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 16)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(isSelected ? Color.zinc900 : Color.clear)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(isSelected ? Color.white : Color.zinc800, lineWidth: 1)
+                )
+                .shadow(color: isSelected ? Color.black.opacity(0.5) : Color.clear, radius: 10, x: 0, y: 5)
+        )
+        .scaleEffect(isSelected ? 1.02 : 1.0)
+    }
+    
+    private func badge(text: String) -> some View {
+        Text(text)
+            .font(.system(size: 9, weight: .black))
+            .tracking(1)
+            .foregroundColor(.black)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 2)
+            .background(Capsule().fill(Color.white))
+            .shadow(radius: 4)
+            .offset(y: -12)
     }
 }
 
