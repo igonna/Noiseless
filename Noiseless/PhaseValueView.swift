@@ -207,7 +207,7 @@ struct TrialOfferContent: View {
         // Final return to center
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.80) {
             guard self.isAnimating else { return }
-            withAnimation(.easeOut(duration: 0.6)) {
+            withAnimation(.easeOut(duration: 0.3)) {
                 self.bellRotation = 0
             }
 
