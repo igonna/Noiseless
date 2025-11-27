@@ -572,7 +572,7 @@ struct TimeBudgetScreen: View {
                 PrimaryButton(title: "Continue") {
                     model.nextStep()
                 }
-                .padding(.bottom, 20)
+                .padding(.bottom, 10)
             }
         }
         .onAppear {
