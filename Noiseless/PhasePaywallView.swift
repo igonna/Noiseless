@@ -181,6 +181,7 @@ struct PlanSelectionCard: View {
     let isSelected: Bool
     let badgeText: String?
     let action: () -> Void
+    @State private var badgeHeight: CGFloat = 0
     
     init(
         title: String,
@@ -202,6 +203,18 @@ struct PlanSelectionCard: View {
                 .overlay(alignment: .top) {
                     if let badgeText {
                         badge(text: badgeText)
+                            .background(
+                                GeometryReader { proxy in
+                                    Color.clear
+                                        .onAppear {
+                                            badgeHeight = proxy.size.height
+                                        }
+                                        .onChange(of: proxy.size.height) { newValue in
+                                            badgeHeight = newValue
+                                        }
+                                }
+                            )
+                            .offset(y: -(badgeHeight / 2))
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -244,14 +257,13 @@ struct PlanSelectionCard: View {
     
     private func badge(text: String) -> some View {
         Text(text)
-            .font(.system(size: 9, weight: .black))
+            .font(.system(size: 11, weight: .semibold))
             .tracking(1)
             .foregroundColor(.black)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 2)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 4)
             .background(Capsule().fill(Color.white))
             .shadow(radius: 4)
-            .offset(y: -12)
     }
 }
 
