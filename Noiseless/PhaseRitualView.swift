@@ -21,6 +21,7 @@ private struct ProcessingStepsView: View {
     @EnvironmentObject var model: OnboardingModel
     @State private var completedCount: Int = 0
     @State private var timer: Timer?
+    @State private var smoothProgress: Double = 0.0
     @State private var blueGlowOffset: CGSize = CGSize(width: -140, height: -220)
     @State private var violetGlowOffset: CGSize = CGSize(width: 160, height: 180)
     @State private var blueGlowScale: CGFloat = 1.0
@@ -40,7 +41,11 @@ private struct ProcessingStepsView: View {
 
     private var progress: Int {
         guard !steps.isEmpty else { return 0 }
-        return min(Int(round(Double(completedCount) / Double(steps.count) * 100)), 100)
+        if completedCount >= steps.count {
+            return 100
+        }
+        // Show progress up to 99% until all complete
+        return min(Int(round(Double(completedCount) / Double(steps.count) * 99)), 99)
     }
 
     var body: some View {
@@ -121,6 +126,8 @@ private struct ProcessingStepsView: View {
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.white)
                         .monospacedDigit()
+                        .contentTransition(.numericText())
+                        .animation(.linear(duration: 0.1), value: progress)
                 }
 
                 // Progress bar
@@ -132,8 +139,7 @@ private struct ProcessingStepsView: View {
 
                         Capsule()
                             .fill(Color.white)
-                            .frame(width: max(CGFloat(progress) / 100.0 * geo.size.width, 0), height: 6)
-                            .animation(.easeOut(duration: 0.5), value: progress)
+                            .frame(width: max(smoothProgress / 100.0 * geo.size.width, 0), height: 6)
                     }
                 }
                 .frame(height: 6)
@@ -169,7 +175,7 @@ private struct ProcessingStepsView: View {
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.zinc600)
                 .tracking(0.5)
-                .padding(.top, 24)
+                .padding(.top, 12)
                 .opacity(footerOpacity)
         }
     }
@@ -213,14 +219,46 @@ private struct ProcessingStepsView: View {
     private func startProcessing() {
         timer?.invalidate()
         completedCount = 0
+        smoothProgress = 0.0
 
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
-            if completedCount < steps.count {
+        // Calculate total time for checklist (6 items × 0.75s = 4.5s)
+        let checklistDuration = Double(steps.count) * 0.75
+
+        // Smooth progress animation to 95% - sync with checklist completion
+        withAnimation(.linear(duration: checklistDuration)) {
+            smoothProgress = 95.0
+        }
+
+        // Checklist items appear at regular intervals
+        var currentIndex = 0
+        timer = Timer.scheduledTimer(withTimeInterval: 0.75, repeats: true) { timer in
+            if currentIndex < steps.count {
                 completedCount += 1
-            } else {
-                timer.invalidate()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                    model.goToStep(.pathReady)
+                currentIndex += 1
+
+                // When all items are checked, pause then complete
+                if currentIndex == steps.count {
+                    timer.invalidate()
+
+                    // Pause at 95% for 0.8 seconds (slowdown)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        // Strong haptic at completion
+                        let generator = UIImpactFeedbackGenerator(style: .heavy)
+                        generator.impactOccurred()
+
+                        // Update completedCount to show 100% FIRST
+                        completedCount = steps.count + 1
+
+                        // Then animate progress bar to catch up to 100%
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            smoothProgress = 100.0
+                        }
+
+                        // Navigate to next screen after animation completes
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                            model.goToStep(.pathReady)
+                        }
+                    }
                 }
             }
         }
