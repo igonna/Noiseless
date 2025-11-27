@@ -31,10 +31,13 @@ struct OnboardingView: View {
                     Image(systemName: isMinimal ? "chevron.left" : "arrow.left")
                         .font(.system(size: isMinimal ? 28 : 20, weight: .medium))
                         .foregroundColor(isMinimal ? .zinc500 : .zinc400)
-                        .padding(8)
+                        .padding(isMinimal ? 0 : 8)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .scaleEffect(isMinimal ? 0.8 : 1.0)
+                .opacity(isMinimal ? 0.5 : 1.0)
+                .frame(width: 40, height: 40, alignment: .leading)
             } else {
                 Color.clear.frame(width: 40, height: 40)
             }
