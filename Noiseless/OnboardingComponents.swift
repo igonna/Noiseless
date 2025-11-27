@@ -15,8 +15,10 @@ struct PrimaryButton: View {
     var height: CGFloat = 56
     var fontSize: CGFloat = 16
     var iconSystemName: String? = nil
+    var enableHaptics: Bool = true
+    var enablePressAnimation: Bool = false
     let action: () -> Void
-    
+
     init(
         title: String,
         disabled: Bool = false,
@@ -25,6 +27,8 @@ struct PrimaryButton: View {
         height: CGFloat = 56,
         fontSize: CGFloat = 16,
         iconSystemName: String? = nil,
+        enableHaptics: Bool = true,
+        enablePressAnimation: Bool = false,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -34,6 +38,8 @@ struct PrimaryButton: View {
         self.height = height
         self.fontSize = fontSize
         self.iconSystemName = iconSystemName
+        self.enableHaptics = enableHaptics
+        self.enablePressAnimation = enablePressAnimation
         self.action = action
     }
     
@@ -91,16 +97,18 @@ struct PrimaryButton: View {
             .shadow(color: shadowColor, radius: 15, x: 0, y: 0)
             .opacity(disabled ? 0.5 : 1.0)
         }
-        .buttonStyle(NoAnimationButtonStyle())
+        .buttonStyle(enablePressAnimation ? AnyButtonStyle(PressScaleButtonStyle()) : AnyButtonStyle(NoAnimationButtonStyle()))
         .disabled(disabled)
     }
 
     private func triggerAction() {
         guard !disabled else { return }
-        if variant == .primary {
-            HapticManager.trigger(.impact(.soft))
-        } else {
-            HapticManager.trigger(.selection)
+        if enableHaptics {
+            if variant == .primary {
+                HapticManager.trigger(.impact(.soft))
+            } else {
+                HapticManager.trigger(.selection)
+            }
         }
         action()
     }
@@ -228,6 +236,28 @@ struct InlineApplyTextField: View {
 struct NoAnimationButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+    }
+}
+
+struct PressScaleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .animation(.spring(response: 0.2, dampingFraction: 0.8), value: configuration.isPressed)
+    }
+}
+
+struct AnyButtonStyle: ButtonStyle {
+    private let _makeBody: (Configuration) -> AnyView
+
+    init<S: ButtonStyle>(_ style: S) {
+        _makeBody = { configuration in
+            AnyView(style.makeBody(configuration: configuration))
+        }
+    }
+
+    func makeBody(configuration: Configuration) -> some View {
+        _makeBody(configuration)
     }
 }
 

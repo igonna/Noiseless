@@ -42,7 +42,6 @@ struct PhasePaywallView: View {
                     HStack(spacing: 16) {
                         // Monthly Plan
                         Button(action: {
-                            HapticManager.lightTap()
                             selectedPlan = .monthly
                         }) {
                             VStack(spacing: 6) {
@@ -73,7 +72,6 @@ struct PhasePaywallView: View {
 
                         // Yearly Plan
                         Button(action: {
-                            HapticManager.lightTap()
                             selectedPlan = .yearly
                         }) {
                             ZStack {
@@ -134,7 +132,9 @@ struct PhasePaywallView: View {
 
                         PrimaryButton(
                             title: selectedPlan == .yearly ? "Start My 3-Day Free Trial" : "Unlock Full Access",
-                            height: 56
+                            height: 56,
+                            enableHaptics: false,
+                            enablePressAnimation: true
                         ) {
                             model.goToStep(.notifications)
                         }

@@ -141,7 +141,7 @@ struct TrialOfferContent: View {
                             .foregroundColor(.zinc300)
                     }
 
-                    PrimaryButton(title: "Continue for FREE") {
+                    PrimaryButton(title: "Continue for FREE", enableHaptics: false, enablePressAnimation: true) {
                         model.nextStep()
                     }
 
