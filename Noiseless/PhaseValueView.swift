@@ -136,7 +136,7 @@ struct PhaseValueView: View {
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.zinc500)
                 }
-                .padding(.bottom, 12)
+                .padding(.bottom, 1)
             }
         }
     }

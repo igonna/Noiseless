@@ -145,7 +145,7 @@ struct PhasePaywallView: View {
                             .foregroundColor(.zinc500)
                     }
                 }
-                .padding(.bottom, 12)
+                .padding(.bottom, 1)
             }
         }
     }
