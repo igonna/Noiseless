@@ -24,65 +24,34 @@ struct PhasePaywallView: View {
     // Screen 20: Hard Paywall + Trial
     var paywallView: some View {
         StepLayout(title: "Unlock Your Noiseless Advantage", showProgressBar: false, centerTitle: true) {
-            VStack {
+            VStack(spacing: 0) {
                 // Features List
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 16) {
                     FeatureRow(text: "Daily insights tailored to your goals")
                     FeatureRow(text: "Smart opportunities matched to your skills")
                     FeatureRow(text: "Clear next steps you can act on immediately")
                     FeatureRow(text: "Real shifts that actually affect your future")
                     FeatureRow(text: "Always adapting as you grow")
                 }
-                .padding(.top, 32)
-                
-                Spacer()
-                
-                // Plan Selection
-                HStack(spacing: 16) {
-                    // Monthly Plan
-                    Button(action: {
-                        HapticManager.lightTap()
-                        selectedPlan = .monthly
-                    }) {
-                        VStack(spacing: 6) {
-                            Text("MONTHLY")
-                                .font(.system(size: 14, weight: .bold))
-                                .tracking(1) // uppercase tracking-wide
-                                .foregroundColor(.white)
+                .padding(.top, 20)
 
-                            Text("11,99 US$/mo")
-                                .font(.system(size: 18, weight: .bold))
-                                .foregroundColor(.white)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .padding(.horizontal, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(selectedPlan == .monthly ? Color.zinc900 : Color.clear)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(selectedPlan == .monthly ? Color.white : Color.zinc800, lineWidth: 1)
-                                )
-                                .shadow(color: selectedPlan == .monthly ? Color.black.opacity(0.5) : Color.clear, radius: 10, x: 0, y: 5)
-                        )
-                        .scaleEffect(selectedPlan == .monthly ? 1.02 : 1.0)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedPlan)
-                    }
+                Spacer(minLength: 24)
 
-                    // Yearly Plan
-                    Button(action: {
-                        HapticManager.lightTap()
-                        selectedPlan = .yearly
-                    }) {
-                        ZStack {
+                VStack(spacing: 12) {
+                    // Plan Selection
+                    HStack(spacing: 16) {
+                        // Monthly Plan
+                        Button(action: {
+                            HapticManager.lightTap()
+                            selectedPlan = .monthly
+                        }) {
                             VStack(spacing: 6) {
-                                Text("YEARLY")
+                                Text("MONTHLY")
                                     .font(.system(size: 14, weight: .bold))
-                                    .tracking(1)
+                                    .tracking(1) // uppercase tracking-wide
                                     .foregroundColor(.white)
 
-                                Text("3,91 US$/mo")
+                                Text("11,99 US$/mo")
                                     .font(.system(size: 18, weight: .bold))
                                     .foregroundColor(.white)
                             }
@@ -91,58 +60,90 @@ struct PhasePaywallView: View {
                             .padding(.horizontal, 16)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(selectedPlan == .yearly ? Color.zinc900 : Color.clear)
+                                    .fill(selectedPlan == .monthly ? Color.zinc900 : Color.clear)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .stroke(selectedPlan == .yearly ? Color.white : Color.zinc800, lineWidth: 1)
+                                            .stroke(selectedPlan == .monthly ? Color.white : Color.zinc800, lineWidth: 1)
                                     )
-                                    .shadow(color: selectedPlan == .yearly ? Color.black.opacity(0.5) : Color.clear, radius: 10, x: 0, y: 5)
+                                    .shadow(color: selectedPlan == .monthly ? Color.black.opacity(0.5) : Color.clear, radius: 10, x: 0, y: 5)
                             )
-                            .scaleEffect(selectedPlan == .yearly ? 1.02 : 1.0)
+                            .scaleEffect(selectedPlan == .monthly ? 1.02 : 1.0)
                             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedPlan)
+                        }
 
-                            // Badge
-                            VStack {
-                                Text("3 DAYS FREE")
-                                    .font(.system(size: 9, weight: .black))
-                                    .tracking(1) // tracking-wider
-                                    .foregroundColor(.black)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 2)
-                                    .background(Capsule().fill(Color.white))
-                                    .shadow(radius: 4)
-                                    .offset(y: -6)
-                                Spacer()
+                        // Yearly Plan
+                        Button(action: {
+                            HapticManager.lightTap()
+                            selectedPlan = .yearly
+                        }) {
+                            ZStack {
+                                VStack(spacing: 6) {
+                                    Text("YEARLY")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .tracking(1)
+                                        .foregroundColor(.white)
+
+                                    Text("3,91 US$/mo")
+                                        .font(.system(size: 18, weight: .bold))
+                                        .foregroundColor(.white)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .padding(.horizontal, 16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(selectedPlan == .yearly ? Color.zinc900 : Color.clear)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(selectedPlan == .yearly ? Color.white : Color.zinc800, lineWidth: 1)
+                                        )
+                                        .shadow(color: selectedPlan == .yearly ? Color.black.opacity(0.5) : Color.clear, radius: 10, x: 0, y: 5)
+                                )
+                                .scaleEffect(selectedPlan == .yearly ? 1.02 : 1.0)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedPlan)
+
+                                // Badge
+                                VStack {
+                                    Text("3 DAYS FREE")
+                                        .font(.system(size: 9, weight: .black))
+                                        .tracking(1) // tracking-wider
+                                        .foregroundColor(.black)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 2)
+                                        .background(Capsule().fill(Color.white))
+                                        .shadow(radius: 4)
+                                        .offset(y: -6)
+                                    Spacer()
+                                }
                             }
                         }
                     }
-                }
-                .padding(.bottom, 16)
-                
-                // Bottom section
-                VStack(spacing: 12) {
-                    HStack(spacing: 8) {
-                        Image("shield_check_icon")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 16, height: 16)
 
-                        Text(selectedPlan == .yearly ? "No Payment Due Now" : "Cancel Anytime")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.zinc300)
+                    // Bottom section
+                    VStack(spacing: 12) {
+                        HStack(spacing: 8) {
+                            Image("shield_check_icon")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 16, height: 16)
+
+                            Text(selectedPlan == .yearly ? "No Payment Due Now" : "Cancel Anytime")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.zinc300)
+                        }
+
+                        PrimaryButton(
+                            title: selectedPlan == .yearly ? "Start My 3-Day Free Trial" : "Unlock Full Access",
+                            height: 56
+                        ) {
+                            model.goToStep(.notifications)
+                        }
+                        .shadow(color: Color.white.opacity(0.1), radius: 20, x: 0, y: 10)
+
+                        Text(selectedPlan == .yearly ? "3 days free, then 46,99 US$ per year (3,91US$/mo)" : "Just 11,99 US$ per month")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.zinc500)
                     }
-
-                    PrimaryButton(
-                        title: selectedPlan == .yearly ? "Start My 3-Day Free Trial" : "Unlock Full Access",
-                        height: 56
-                    ) {
-                        model.goToStep(.notifications)
-                    }
-                    .shadow(color: Color.white.opacity(0.1), radius: 20, x: 0, y: 10)
-
-                    Text(selectedPlan == .yearly ? "3 days free, then 46,99 US$ per year (3,91US$/mo)" : "Just 11,99 US$ per month")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.zinc500)
                 }
                 .padding(.bottom, 12)
             }
@@ -237,21 +238,21 @@ struct FeatureRow: View {
     let text: String
 
     var body: some View {
-        HStack(alignment: .top, spacing: 16) {
+        HStack(alignment: .top, spacing: 12) {
             ZStack {
                 Circle()
                     .fill(Color.white.opacity(0.1))
-                    .frame(width: 20, height: 20)
+                    .frame(width: 18, height: 18)
                 Image(systemName: "checkmark")
-                    .font(.system(size: 12, weight: .black))
+                    .font(.system(size: 10, weight: .black))
                     .foregroundColor(.white)
             }
-            .padding(.top, 2)
+            .padding(.top, 1)
 
             Text(text)
-                .font(.system(size: 16, weight: .medium))
+                .font(.system(size: 15, weight: .medium))
                 .foregroundColor(.zinc100)
-                .lineSpacing(4)
+                .lineSpacing(2)
         }
     }
 }
