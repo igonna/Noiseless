@@ -38,25 +38,25 @@ struct PhasePaywallView: View {
                 Spacer()
                 
                 // Plan Selection
-                HStack(spacing: 12) {
+                HStack(spacing: 16) {
                     // Monthly Plan
                     Button(action: {
                         HapticManager.lightTap()
                         selectedPlan = .monthly
                     }) {
-                        VStack(spacing: 4) {
+                        VStack(spacing: 6) {
                             Text("MONTHLY")
                                 .font(.system(size: 14, weight: .bold))
                                 .tracking(1) // uppercase tracking-wide
                                 .foregroundColor(.white)
-                            
+
                             Text("11,99 US$/mo")
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(.white)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 12)
+                        .padding(.vertical, 16)
+                        .padding(.horizontal, 16)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(selectedPlan == .monthly ? Color.zinc900 : Color.clear)
@@ -69,26 +69,26 @@ struct PhasePaywallView: View {
                         .scaleEffect(selectedPlan == .monthly ? 1.02 : 1.0)
                         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedPlan)
                     }
-                    
+
                     // Yearly Plan
                     Button(action: {
                         HapticManager.lightTap()
                         selectedPlan = .yearly
                     }) {
                         ZStack {
-                            VStack(spacing: 4) {
+                            VStack(spacing: 6) {
                                 Text("YEARLY")
                                     .font(.system(size: 14, weight: .bold))
                                     .tracking(1)
                                     .foregroundColor(.white)
-                                
+
                                 Text("3,91 US$/mo")
                                     .font(.system(size: 18, weight: .bold))
                                     .foregroundColor(.white)
                             }
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 12)
+                            .padding(.vertical, 16)
+                            .padding(.horizontal, 16)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
                                     .fill(selectedPlan == .yearly ? Color.zinc900 : Color.clear)
@@ -100,7 +100,7 @@ struct PhasePaywallView: View {
                             )
                             .scaleEffect(selectedPlan == .yearly ? 1.02 : 1.0)
                             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedPlan)
-                            
+
                             // Badge
                             VStack {
                                 Text("3 DAYS FREE")
@@ -111,40 +111,40 @@ struct PhasePaywallView: View {
                                     .padding(.vertical, 2)
                                     .background(Capsule().fill(Color.white))
                                     .shadow(radius: 4)
-                                    .offset(y: -10) // -top-2.5
+                                    .offset(y: -6)
                                 Spacer()
                             }
                         }
                     }
                 }
-                .padding(.bottom, 24)
-                
-                // Shield Label
-                HStack(spacing: 8) {
-                    Image(systemName: "checkmark.shield.fill") // ShieldCheck
-                        .font(.system(size: 16))
-                        .foregroundColor(.zinc400)
-                    
-                    Text(selectedPlan == .yearly ? "No Payment Due Now" : "Cancel Anytime")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.zinc300)
-                }
                 .padding(.bottom, 16)
                 
-                // Main Button
-                PrimaryButton(
-                    title: selectedPlan == .yearly ? "Start My 3-Day Free Trial" : "Unlock Full Access",
-                    height: 56
-                ) {
-                    model.goToStep(.notifications)
+                // Bottom section
+                VStack(spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image("shield_check_icon")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 16, height: 16)
+
+                        Text(selectedPlan == .yearly ? "No Payment Due Now" : "Cancel Anytime")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.zinc300)
+                    }
+
+                    PrimaryButton(
+                        title: selectedPlan == .yearly ? "Start My 3-Day Free Trial" : "Unlock Full Access",
+                        height: 56
+                    ) {
+                        model.goToStep(.notifications)
+                    }
+                    .shadow(color: Color.white.opacity(0.1), radius: 20, x: 0, y: 10)
+
+                    Text(selectedPlan == .yearly ? "3 days free, then 46,99 US$ per year (3,91US$/mo)" : "Just 11,99 US$ per month")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.zinc500)
                 }
-                .shadow(color: Color.white.opacity(0.1), radius: 20, x: 0, y: 10)
-                
-                // Small text
-                Text(selectedPlan == .yearly ? "3 days free, then 46,99 US$ per year (3,91US$/mo)" : "Just 11,99 US$ per month")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.zinc500)
-                    .padding(.top, 12)
+                .padding(.bottom, 12)
             }
         }
     }
