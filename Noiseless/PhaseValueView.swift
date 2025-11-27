@@ -16,7 +16,9 @@ struct PhaseValueView: View {
     // Screen 18: Insights Preview
     var insightsPreviewView: some View {
         StepLayout(title: "Save Your Progress", centerContent: true) {
-            VStack(spacing: 32) {
+            VStack(spacing: 0) {
+                Spacer()
+
                 VStack(spacing: 16) {
                     SignInButton(style: .apple) {
                         model.nextStep()
@@ -26,8 +28,9 @@ struct PhaseValueView: View {
                     }
                 }
                 .padding(.horizontal, 12)
-                
+
                 Spacer()
+
                 Text("We'll sync your data securely.")
                     .font(.system(size: 12))
                     .foregroundColor(.zinc600)
@@ -186,43 +189,17 @@ private struct SignInButton: View {
     private var icon: some View {
         switch style {
         case .apple:
-            Image(systemName: "apple.logo")
-                .font(.system(size: 22, weight: .bold))
+            Image("apple_icon")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 26, height: 26)
+                .offset(y: -2)
         case .google:
-            GoogleLogo()
-                .frame(width: 22, height: 22)
+            Image("google_icon")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 24, height: 24)
         }
     }
 }
 
-private struct GoogleLogo: View {
-    var body: some View {
-        ZStack {
-            GoogleArc(startAngle: .degrees(-45), endAngle: .degrees(45))
-                .stroke(Color(red: 0.91, green: 0.33, blue: 0.23), style: StrokeStyle(lineWidth: 4, lineCap: .round))
-            GoogleArc(startAngle: .degrees(45), endAngle: .degrees(180))
-                .stroke(Color(red: 0.26, green: 0.52, blue: 0.96), style: StrokeStyle(lineWidth: 4, lineCap: .round))
-            GoogleArc(startAngle: .degrees(180), endAngle: .degrees(225))
-                .stroke(Color(red: 0.95, green: 0.76, blue: 0.06), style: StrokeStyle(lineWidth: 4, lineCap: .butt))
-            GoogleArc(startAngle: .degrees(225), endAngle: .degrees(315))
-                .stroke(Color(red: 0.18, green: 0.64, blue: 0.32), style: StrokeStyle(lineWidth: 4, lineCap: .round))
-            Rectangle()
-                .fill(Color(red: 0.26, green: 0.52, blue: 0.96))
-                .frame(width: 8, height: 4)
-                .offset(x: 6)
-        }
-    }
-}
-
-private struct GoogleArc: Shape {
-    let startAngle: Angle
-    let endAngle: Angle
-    
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let radius = min(rect.width, rect.height) / 2
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-        path.addArc(center: center, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: false)
-        return path
-    }
-}
