@@ -448,27 +448,42 @@ struct ScrollableContentLayout<Content: View>: View {
 
 struct ProgressBar: View {
     let currentStep: ScreenStep
-    
-    var progress: Double {
-        let total = Double(ScreenStep.allCases.count)
-        let current = Double(currentStep.rawValue)
-        return min((current / total), 1.0)
+    @State private var animatedProgress: CGFloat = 0
+
+    private var targetProgress: CGFloat {
+        let total = CGFloat(ScreenStep.allCases.count)
+        let current = CGFloat(currentStep.rawValue)
+        return min(max(current / total, 0), 1)
     }
-    
+
+    private func animationDuration(for delta: CGFloat) -> Double {
+        let base: Double = 0.25
+        let scaled = Double(delta) * 0.6
+        return min(base + scaled, 0.75)
+    }
+
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
                 Capsule()
                     .fill(Color.zinc900)
-                    .frame(height: 6) // React: h-1.5 (6px)
-                
+                    .frame(height: 6)
+
                 Capsule()
                     .fill(Color.white)
-                    .frame(width: geometry.size.width * progress, height: 6)
-                    .animation(.linear(duration: 0.3), value: progress)
+                    .frame(width: geometry.size.width * animatedProgress, height: 6)
             }
         }
         .frame(height: 6)
+        .onAppear {
+            animatedProgress = targetProgress
+        }
+        .onChange(of: targetProgress) { newValue in
+            let delta = abs(newValue - animatedProgress)
+            withAnimation(.easeInOut(duration: animationDuration(for: delta))) {
+                animatedProgress = newValue
+            }
+        }
     }
 }
 
