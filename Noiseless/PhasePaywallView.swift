@@ -25,74 +25,90 @@ struct PhasePaywallView: View {
     var paywallView: some View {
         StepLayout(title: "Unlock Your Noiseless Advantage", showProgressBar: false, centerTitle: true) {
             VStack(spacing: 0) {
-                Spacer()
+                VStack(spacing: 0) {
+                    Spacer(minLength: 0)
 
-                // Features List
-                HStack {
-                    Spacer()
-                    VStack(alignment: .leading, spacing: 24) {
-                        FeatureRow(text: "Daily insights tailored to your goals")
-                        FeatureRow(text: "Smart opportunities matched to your skills")
-                        FeatureRow(text: "Clear next steps you can act on immediately")
-                        FeatureRow(text: "Real shifts that actually affect your future")
-                        FeatureRow(text: "Always adapting as you grow")
-                    }
-                    Spacer()
+                    featureChecklist
+
+                    Spacer(minLength: 0)
+
+                    planSelectionOptions
+                        .padding(.top, 24)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .padding(.top, -24) // tighten space between title and checklist by one spacing unit
 
-                Spacer()
-
-                VStack(spacing: 12) {
-                    // Plan Selection
-                    HStack(spacing: 19.2) {
-                        PlanSelectionCard(
-                            title: "MONTHLY",
-                            price: "11,99 US$/mo",
-                            isSelected: selectedPlan == .monthly
-                        ) {
-                            selectedPlan = .monthly
-                        }
-
-                        PlanSelectionCard(
-                            title: "YEARLY",
-                            price: "3,91 US$/mo",
-                            isSelected: selectedPlan == .yearly,
-                            badgeText: "3 DAYS FREE"
-                        ) {
-                            selectedPlan = .yearly
-                        }
-                    }
-
-                    // Bottom section
-                    VStack(spacing: 12) {
-                        HStack(spacing: 8) {
-                            Image("shield_check_icon")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 16, height: 16)
-
-                            Text(selectedPlan == .yearly ? "No Payment Due Now" : "Cancel Anytime")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.zinc300)
-                        }
-
-                        PrimaryButton(
-                            title: selectedPlan == .yearly ? "Start My 3-Day Free Trial" : "Unlock Full Access",
-                            height: 56,
-                            enableHaptics: false,
-                            enablePressAnimation: true
-                        ) {
-                            model.goToStep(.notifications)
-                        }
-                        .shadow(color: Color.white.opacity(0.1), radius: 20, x: 0, y: 10)
-
-                        Text(selectedPlan == .yearly ? "3 days free, then 46,99 US$ per year (3,91US$/mo)" : "Just 11,99 US$ per month")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.zinc500)
-                    }
-                }
-                .padding(.bottom, 1)
+                paywallActionSection
+                    .padding(.top, 12)
+                    .padding(.bottom, 1)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private var featureChecklist: some View {
+        HStack {
+            Spacer()
+
+            VStack(alignment: .leading, spacing: 24) {
+                FeatureRow(text: "Daily insights tailored to your goals")
+                FeatureRow(text: "Smart opportunities matched to your skills")
+                FeatureRow(text: "Clear next steps you can act on immediately")
+                FeatureRow(text: "Real shifts that actually affect your future")
+                FeatureRow(text: "Always adapting as you grow")
+            }
+
+            Spacer()
+        }
+    }
+
+    private var planSelectionOptions: some View {
+        HStack(spacing: 19.2) {
+            PlanSelectionCard(
+                title: "MONTHLY",
+                price: "11,99 US$/mo",
+                isSelected: selectedPlan == .monthly
+            ) {
+                selectedPlan = .monthly
+            }
+
+            PlanSelectionCard(
+                title: "YEARLY",
+                price: "3,91 US$/mo",
+                isSelected: selectedPlan == .yearly,
+                badgeText: "3 DAYS FREE"
+            ) {
+                selectedPlan = .yearly
+            }
+        }
+    }
+
+    private var paywallActionSection: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 8) {
+                Image("shield_check_icon")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 16, height: 16)
+
+                Text(selectedPlan == .yearly ? "No Payment Due Now" : "Cancel Anytime")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.zinc300)
+            }
+
+            PrimaryButton(
+                title: selectedPlan == .yearly ? "Start My 3-Day Free Trial" : "Unlock Full Access",
+                height: 56,
+                enableHaptics: false,
+                enablePressAnimation: true
+            ) {
+                model.goToStep(.notifications)
+            }
+            .shadow(color: Color.white.opacity(0.1), radius: 20, x: 0, y: 10)
+
+            Text(selectedPlan == .yearly ? "3 days free, then 46,99 US$ per year (3,91US$/mo)" : "Just 11,99 US$ per month")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.zinc500)
         }
     }
     
