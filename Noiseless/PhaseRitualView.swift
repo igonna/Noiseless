@@ -345,13 +345,14 @@ private struct PathReadyView: View {
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
                         .lineSpacing(2)
+                        .padding(.horizontal, 24)
                     Text("Built from your strengths, goals, and real-world context — optimized for results.")
                         .font(.system(size: 16))
                         .foregroundColor(.zinc400)
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
+                        .padding(.horizontal, 32)
                 }
-                .padding(.horizontal, 24)
 
                 Spacer(minLength: 0)
 
