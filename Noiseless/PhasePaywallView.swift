@@ -26,14 +26,17 @@ struct PhasePaywallView: View {
         StepLayout(title: "Unlock Your Noiseless Advantage", showProgressBar: false, centerTitle: true) {
             VStack(spacing: 0) {
                 // Features List
-                VStack(alignment: .leading, spacing: 24) {
-                    FeatureRow(text: "Daily insights tailored to your goals")
-                    FeatureRow(text: "Smart opportunities matched to your skills")
-                    FeatureRow(text: "Clear next steps you can act on immediately")
-                    FeatureRow(text: "Real shifts that actually affect your future")
-                    FeatureRow(text: "Always adapting as you grow")
+                HStack {
+                    Spacer()
+                    VStack(alignment: .leading, spacing: 24) {
+                        FeatureRow(text: "Daily insights tailored to your goals")
+                        FeatureRow(text: "Smart opportunities matched to your skills")
+                        FeatureRow(text: "Clear next steps you can act on immediately")
+                        FeatureRow(text: "Real shifts that actually affect your future")
+                        FeatureRow(text: "Always adapting as you grow")
+                    }
+                    Spacer()
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 20)
 
                 Spacer(minLength: 24)
