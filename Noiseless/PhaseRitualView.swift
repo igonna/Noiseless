@@ -368,42 +368,52 @@ private struct AnimatedCircleCheckView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showCircle = false
     @State private var drawCheck = false
-    @State private var pulse = false
+    @State private var circleFilled = false
+    @State private var showWave = false
 
     var body: some View {
         ZStack {
             Circle()
                 .fill(Color.zinc800.opacity(0.4))
-                .frame(width: 140, height: 140)
-                .blur(radius: 30)
+                .frame(width: 112, height: 112)
+                .blur(radius: 24)
                 .opacity(showCircle ? 1 : 0)
                 .scaleEffect(showCircle ? 1 : 0.85)
 
+            // Main circle - changes from stroke to filled
             Circle()
-                .stroke(Color.white.opacity(0.25), lineWidth: 4)
-                .frame(width: 120, height: 120)
+                .fill(circleFilled ? Color.white : Color.clear)
+                .frame(width: 96, height: 96)
                 .scaleEffect(showCircle ? 1 : 0.9)
                 .opacity(showCircle ? 1 : 0)
 
             Circle()
-                .stroke(Color.white.opacity(0.12), lineWidth: 8)
-                .frame(width: 120, height: 120)
-                .scaleEffect(pulse ? 1.35 : 1)
-                .opacity(pulse ? 0 : 0.35)
+                .stroke(Color.white.opacity(circleFilled ? 0 : 0.25), lineWidth: 3.2)
+                .frame(width: 96, height: 96)
+                .scaleEffect(showCircle ? 1 : 0.9)
+                .opacity(showCircle ? 1 : 0)
+
+            // Wave effect - only appears once when circle fills
+            Circle()
+                .stroke(Color.white.opacity(0.3), lineWidth: 6.4)
+                .frame(width: 96, height: 96)
+                .scaleEffect(showWave ? 1.5 : 1)
+                .opacity(showWave ? 0 : 1)
 
             CheckmarkIcon()
                 .trim(from: 0, to: drawCheck ? 1 : 0)
-                .stroke(Color.white, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
-                .frame(width: 90, height: 90)
+                .stroke(circleFilled ? Color.zinc950 : Color.white, style: StrokeStyle(lineWidth: 5.5, lineCap: .round, lineJoin: .round))
+                .frame(width: 72, height: 72)
                 .opacity(drawCheck ? 1 : 0)
                 .scaleEffect(drawCheck ? 1 : 0.95)
         }
-        .frame(width: 160, height: 160)
+        .frame(width: 128, height: 128)
         .onAppear(perform: startAnimation)
         .onDisappear {
             showCircle = false
             drawCheck = false
-            pulse = false
+            circleFilled = false
+            showWave = false
         }
         .accessibilityHidden(true)
     }
@@ -411,19 +421,18 @@ private struct AnimatedCircleCheckView: View {
     private func startAnimation() {
         showCircle = false
         drawCheck = false
-        pulse = false
+        circleFilled = false
+        showWave = false
 
         if reduceMotion {
             showCircle = true
             drawCheck = true
+            circleFilled = true
             return
         }
 
         let circleAnimation = Animation.spring(response: 0.7, dampingFraction: 0.75)
-        let checkAnimation = Animation.easeOut(duration: 0.45).delay(0.2)
-        let pulseAnimation = Animation.easeOut(duration: 1.2)
-            .delay(0.6)
-            .repeatForever(autoreverses: false)
+        let checkAnimation = Animation.easeOut(duration: 0.297).delay(0.132)
 
         withAnimation(circleAnimation) {
             showCircle = true
@@ -433,8 +442,20 @@ private struct AnimatedCircleCheckView: View {
             drawCheck = true
         }
 
-        withAnimation(pulseAnimation) {
-            pulse = true
+        // After checkmark finishes (0.132 delay + 0.297 duration = 0.429), fill circle and show wave
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.462) {
+            // Haptic feedback
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                circleFilled = true
+            }
+
+            // Trigger wave effect once
+            withAnimation(.easeOut(duration: 0.8)) {
+                showWave = true
+            }
         }
     }
 }
