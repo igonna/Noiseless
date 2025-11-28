@@ -65,7 +65,7 @@ struct PhasePaywallView: View {
     private var planSelectionOptions: some View {
         HStack(spacing: 19.2) {
             PlanSelectionCard(
-                title: "MONTHLY",
+                title: "Monthly",
                 price: "11,99 US$/mo",
                 isSelected: selectedPlan == .monthly
             ) {
@@ -73,7 +73,7 @@ struct PhasePaywallView: View {
             }
 
             PlanSelectionCard(
-                title: "YEARLY",
+                title: "Yearly",
                 price: "3,91 US$/mo",
                 isSelected: selectedPlan == .yearly,
                 badgeText: "3 DAYS FREE"
@@ -252,12 +252,12 @@ struct PlanSelectionCard: View {
     private var cardContents: some View {
         VStack(spacing: 6) {
             Text(title)
-                .font(.system(size: 14, weight: .bold))
+                .font(.system(size: 16, weight: .bold))
                 .tracking(1)
                 .foregroundColor(.white)
-            
+
             Text(price)
-                .font(.system(size: 18, weight: .bold))
+                .font(.system(size: 16, weight: .medium))
                 .foregroundColor(.white)
         }
         .animation(nil, value: isSelected)
