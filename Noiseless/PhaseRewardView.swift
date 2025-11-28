@@ -79,20 +79,9 @@ struct PhaseRewardView: View {
         StepLayout(title: "Time to generate your custom plan!", centerContent: true) {
             VStack(spacing: 32) {
                 Spacer()
-                
-                ZStack {
-                    Circle()
-                        .fill(Color.white.opacity(0.12))
-                        .frame(width: 160, height: 160)
-                        .blur(radius: 10)
-                    Circle()
-                        .stroke(Color.zinc800, lineWidth: 1)
-                        .frame(width: 160, height: 160)
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 64))
-                        .foregroundColor(.white)
-                }
-                
+
+                PulsingStarView()
+
                 Spacer()
 
                 VStack(spacing: 12) {
@@ -110,6 +99,37 @@ struct PhaseRewardView: View {
                         model.goToStep(.buildingModel)
                     }
                 }
+            }
+        }
+    }
+}
+
+struct PulsingStarView: View {
+    @State private var hasAppeared = false
+
+    var body: some View {
+        ZStack {
+            // Subtle glow behind star
+            Circle()
+                .fill(Color.white.opacity(hasAppeared ? 0.08 : 0.0))
+                .frame(width: 160, height: 160)
+                .blur(radius: 20)
+
+            // Circle border
+            Circle()
+                .stroke(Color.zinc800, lineWidth: 1)
+                .frame(width: 160, height: 160)
+
+            // Star icon
+            Image(systemName: "sparkles")
+                .font(.system(size: 64))
+                .foregroundColor(.white)
+                .scaleEffect(hasAppeared ? 1.0 : 0.8)
+                .opacity(hasAppeared ? 1.0 : 0.0)
+        }
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.8)) {
+                hasAppeared = true
             }
         }
     }
