@@ -215,14 +215,14 @@ private struct NotificationPrompt: View {
                 Divider().background(Color.zinc900)
                 HStack(spacing: 0) {
                     Text("Don't Allow")
-                        .font(.system(size: 16))
+                        .font(.system(size: 18))
                         .foregroundColor(.zinc500)
                         .frame(maxWidth: .infinity)
                         .padding(14)
                         .overlay(Rectangle().stroke(Color.zinc900, lineWidth: 0.5))
                     Button(action: onAllow) {
                         Text("Allow")
-                            .font(.system(size: 16, weight: .medium))
+                            .font(.system(size: 18, weight: .medium))
                             .foregroundColor(.black)
                             .frame(maxWidth: .infinity)
                             .padding(14)
@@ -242,7 +242,7 @@ private struct NotificationPrompt: View {
             Text("👉")
                 .font(.system(size: 40))
                 .rotationEffect(.degrees(-90))
-                .offset(x: -60, y: 65 + pointingOffset)
+                .offset(x: -50, y: 65 + pointingOffset)
                 .onAppear {
                     withAnimation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true)) {
                         pointingOffset = -8
