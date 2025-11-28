@@ -26,20 +26,23 @@ struct PhasePaywallView: View {
         StepLayout(title: "Unlock Your Noiseless Advantage", showProgressBar: false, centerTitle: true) {
             VStack(spacing: 0) {
                 // Features List
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(spacing: 24) {
                     FeatureRow(text: "Daily insights tailored to your goals")
                     FeatureRow(text: "Smart opportunities matched to your skills")
                     FeatureRow(text: "Clear next steps you can act on immediately")
                     FeatureRow(text: "Real shifts that actually affect your future")
                     FeatureRow(text: "Always adapting as you grow")
                 }
+                .frame(maxWidth: 320, alignment: .leading)
+                .padding(.horizontal, 8)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.top, 20)
 
                 Spacer(minLength: 24)
 
                 VStack(spacing: 12) {
                     // Plan Selection
-                    HStack(spacing: 16) {
+                    HStack(spacing: 19.2) {
                         PlanSelectionCard(
                             title: "MONTHLY",
                             price: "11,99 US$/mo",
@@ -270,21 +273,35 @@ struct FeatureRow: View {
     let text: String
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(Color.white.opacity(0.1))
-                    .frame(width: 18, height: 18)
-                Image(systemName: "checkmark")
-                    .font(.system(size: 10, weight: .black))
-                    .foregroundColor(.white)
-            }
-            .padding(.top, 1)
-
+        HStack(alignment: .center, spacing: 20) {
+            PaywallCheckmarkIcon()
+                .stroke(
+                    Color.white,
+                    style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round)
+                )
+                .frame(width: 20, height: 20)
+            
             Text(text)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundColor(.zinc100)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.white)
                 .lineSpacing(2)
         }
+    }
+}
+
+struct PaywallCheckmarkIcon: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let width = rect.width
+        let height = rect.height
+
+        let scaleX = width / 24.0
+        let scaleY = height / 24.0
+
+        path.move(to: CGPoint(x: 20 * scaleX, y: 6 * scaleY))
+        path.addLine(to: CGPoint(x: 9 * scaleX, y: 17 * scaleY))
+        path.addLine(to: CGPoint(x: 4 * scaleX, y: 12 * scaleY))
+
+        return path
     }
 }
