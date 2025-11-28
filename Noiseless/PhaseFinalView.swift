@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 struct PhaseFinalView: View {
     @EnvironmentObject var model: OnboardingModel
@@ -20,26 +21,36 @@ struct PhaseFinalView: View {
     // Screen 23: Notifications
     var notificationsView: some View {
         StepLayout(
-            title: "Reach your goals with notifications",
-            subtitle: "Stay on track with daily insights tailored to your journey.",
             showProgressBar: false,
             centerContent: true,
-            hideBackButton: true,
-            centerTitle: true
+            hideBackButton: true
         ) {
-            VStack(spacing: 32) {
+            VStack(spacing: 0) {
                 Spacer()
-                NotificationPrompt()
-                Spacer()
-                VStack(spacing: 12) {
-                    PrimaryButton(title: "Continue") {
-                        model.goToStep(.finalWelcome)
-                    }
-                    PrimaryButton(title: "Not Now", variant: .ghost) {
-                        model.goToStep(.finalWelcome)
-                    }
+                    .frame(height: 156)
+
+                VStack(spacing: 24) {
+                    Text("Reach your goals with notifications")
+                        .font(.system(size: 32, weight: .bold))
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 24)
+
+                    NotificationPrompt(onAllow: {
+                        requestNotificationPermission()
+                    })
                 }
-                .padding(.bottom, 20)
+
+                Spacer()
+            }
+        }
+    }
+
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+            DispatchQueue.main.async {
+                // Navigate to next screen after permission request
+                model.goToStep(.finalWelcome)
             }
         }
     }
@@ -186,16 +197,14 @@ struct PhaseFinalView: View {
 }
 
 private struct NotificationPrompt: View {
+    let onAllow: () -> Void
+
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 12) {
-                Text("\"Noiseless\" Would Like to Send You Notifications")
+                Text("Noiseless would like to send you Notifications")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                Text("Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.")
-                    .font(.system(size: 14))
-                    .foregroundColor(.zinc500)
                     .multilineTextAlignment(.center)
             }
             .padding(.horizontal, 20)
@@ -209,11 +218,14 @@ private struct NotificationPrompt: View {
                     .frame(maxWidth: .infinity)
                     .padding(14)
                     .overlay(Rectangle().stroke(Color.zinc900, lineWidth: 0.5))
-                Text("Allow")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(14)
+                Button(action: onAllow) {
+                    Text("Allow")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(14)
+                        .background(Color.white)
+                }
             }
         }
         .background(Color.zinc900)
