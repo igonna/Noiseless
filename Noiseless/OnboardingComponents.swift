@@ -370,7 +370,7 @@ struct StepLayout<Content: View>: View {
                             .foregroundColor(.white)
                             .multilineTextAlignment(headingAlignment)
                             .lineSpacing(4)
-                            .frame(maxWidth: .infinity, alignment: centerContent ? .center : .leading)
+                            .frame(maxWidth: .infinity, alignment: (centerContent || centerTitle) ? .center : .leading)
                     }
 
                     if let subtitle = subtitle {
@@ -379,7 +379,7 @@ struct StepLayout<Content: View>: View {
                             .foregroundColor(.zinc400)
                             .multilineTextAlignment(headingAlignment)
                             .lineSpacing(6)
-                            .frame(maxWidth: .infinity, alignment: centerContent ? .center : .leading)
+                            .frame(maxWidth: .infinity, alignment: (centerContent || centerTitle) ? .center : .leading)
                     }
 
                     content()

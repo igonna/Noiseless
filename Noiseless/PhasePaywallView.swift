@@ -26,16 +26,14 @@ struct PhasePaywallView: View {
         StepLayout(title: "Unlock Your Noiseless Advantage", showProgressBar: false, centerTitle: true) {
             VStack(spacing: 0) {
                 // Features List
-                VStack(spacing: 24) {
+                VStack(alignment: .leading, spacing: 24) {
                     FeatureRow(text: "Daily insights tailored to your goals")
                     FeatureRow(text: "Smart opportunities matched to your skills")
                     FeatureRow(text: "Clear next steps you can act on immediately")
                     FeatureRow(text: "Real shifts that actually affect your future")
                     FeatureRow(text: "Always adapting as you grow")
                 }
-                .frame(maxWidth: 320, alignment: .leading)
-                .padding(.horizontal, 8)
-                .frame(maxWidth: .infinity, alignment: .center)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 20)
 
                 Spacer(minLength: 24)
@@ -273,14 +271,14 @@ struct FeatureRow: View {
     let text: String
 
     var body: some View {
-        HStack(alignment: .center, spacing: 20) {
+        HStack(alignment: .top, spacing: 20) {
             PaywallCheckmarkIcon()
                 .stroke(
                     Color.white,
                     style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round)
                 )
                 .frame(width: 20, height: 20)
-            
+
             Text(text)
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(.white)
