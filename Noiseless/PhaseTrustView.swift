@@ -82,19 +82,19 @@ struct PhaseTrustView: View {
     // Screen 2: Identity Fork
     var identityView: some View {
         let identities: [(id: String, label: String, icon: String)] = [
-            ("pro", "Working professional", "briefcase"),
-            ("student", "Student or learner", "graduationcap"),
-            ("career_change", "Changing careers", "arrow.triangle.2.circlepath"),
-            ("freelance", "Freelancer / self-employed", "laptopcomputer"),
-            ("figuring", "Figuring things out", "questionmark.circle"),
-            ("improving", "Just improving myself", "person")
+            ("pro", "Working professional", "identity_working_professional"),
+            ("student", "Student or learner", "identity_student"),
+            ("career_change", "Changing careers", "identity_career_change"),
+            ("freelance", "Freelancer / self-employed", "identity_freelancer"),
+            ("figuring", "Figuring things out", "identity_figuring"),
+            ("improving", "Just improving myself", "identity_improving")
         ]
         
         return StepLayout(title: "Which describes you best?") {
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: 12) {
                     ForEach(identities, id: \.id) { item in
-                        IconOptionButton(title: item.label, iconName: item.icon) {
+                        IconOptionButton(title: item.label, iconName: item.icon, useSystemIcon: false) {
                             HapticManager.tap()
                             model.updateUserData(PartialUserData(identity: item.label))
                             model.nextStep()

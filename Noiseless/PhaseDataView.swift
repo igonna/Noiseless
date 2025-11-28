@@ -310,6 +310,7 @@ struct PhaseDataView: View {
                                 title: option.label,
                                 subtitle: option.detail,
                                 iconName: option.icon,
+                                useSystemIcon: option.useSystemIcon,
                                 showSelectionIndicator: true,
                                 isSelected: isSelected
                             ) {
@@ -641,20 +642,28 @@ struct VisionGoalOption: Identifiable {
     let label: String
     let detail: String?
     let icon: String
+    let useSystemIcon: Bool
     var id: String { label }
+
+    init(label: String, detail: String? = nil, icon: String, useSystemIcon: Bool = true) {
+        self.label = label
+        self.detail = detail
+        self.icon = icon
+        self.useSystemIcon = useSystemIcon
+    }
 }
 
 extension VisionGoalOption {
     static let sampleOptions: [VisionGoalOption] = [
-        VisionGoalOption(label: "More income", detail: nil, icon: "dollarsign.circle.fill"),
-        VisionGoalOption(label: "Learn powerful skills", detail: nil, icon: "bolt.fill"),
-        VisionGoalOption(label: "More freedom", detail: nil, icon: "wind"),
-        VisionGoalOption(label: "Start a business", detail: nil, icon: "briefcase.fill"),
-        VisionGoalOption(label: "More discipline", detail: nil, icon: "target"),
-        VisionGoalOption(label: "Better well-being", detail: nil, icon: "heart.fill"),
-        VisionGoalOption(label: "Multiple income streams", detail: nil, icon: "square.stack.3d.up.fill"),
-        VisionGoalOption(label: "Find clarity", detail: nil, icon: "lightbulb"),
-        VisionGoalOption(label: "New career path", detail: nil, icon: "safari")
+        VisionGoalOption(label: "More income", detail: nil, icon: "vision_more_income", useSystemIcon: false),
+        VisionGoalOption(label: "Learn powerful skills", detail: nil, icon: "vision_learn_skills", useSystemIcon: false),
+        VisionGoalOption(label: "More freedom", detail: nil, icon: "vision_more_freedom", useSystemIcon: false),
+        VisionGoalOption(label: "Start a business", detail: nil, icon: "vision_start_business", useSystemIcon: false),
+        VisionGoalOption(label: "More discipline", detail: nil, icon: "vision_more_discipline", useSystemIcon: false),
+        VisionGoalOption(label: "Better well-being", detail: nil, icon: "vision_better_wellbeing", useSystemIcon: false),
+        VisionGoalOption(label: "Multiple income streams", detail: nil, icon: "vision_multiple_income", useSystemIcon: false),
+        VisionGoalOption(label: "Find clarity", detail: nil, icon: "vision_find_clarity", useSystemIcon: false),
+        VisionGoalOption(label: "New career path", detail: nil, icon: "vision_new_career", useSystemIcon: false)
     ]
 }
 

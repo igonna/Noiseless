@@ -265,6 +265,7 @@ struct IconOptionButton: View {
     let title: String
     var subtitle: String? = nil
     let iconName: String
+    var useSystemIcon: Bool = true
     var showSelectionIndicator: Bool = false
     var isSelected: Bool = false
     let action: () -> Void
@@ -272,8 +273,7 @@ struct IconOptionButton: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 16) {
-                Image(systemName: iconName)
-                    .font(.system(size: 20, weight: .semibold))
+                iconView
                     .foregroundColor(.zinc200)
                     .frame(width: 48, height: 48)
                     .background(Color.zinc800)
@@ -312,6 +312,20 @@ struct IconOptionButton: View {
             .contentShape(RoundedRectangle(cornerRadius: 16))
         }
         .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var iconView: some View {
+        if useSystemIcon {
+            Image(systemName: iconName)
+                .font(.system(size: 20, weight: .semibold))
+        } else {
+            Image(iconName)
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+        }
     }
 }
 
