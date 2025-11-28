@@ -338,6 +338,7 @@ private struct PathReadyView: View {
         StepLayout(showProgressBar: false, centerContent: false, hideBackButton: true) {
             VStack(spacing: 32) {
                 AnimatedCircleCheckView()
+                    .padding(.top, 48)
 
                 VStack(spacing: 16) {
                     Text("Congratulations your custom plan is ready!")
