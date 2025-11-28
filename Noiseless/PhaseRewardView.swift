@@ -15,12 +15,12 @@ struct PhaseRewardView: View {
     
     // Screen 12: Social Proof
     var socialProofView: some View {
-        let reviews: [(name: String, initial: String, text: String, color: Color)] = [
-            ("Alex Richardson", "A", "I finally got clarity on what I should actually focus on. No fluff — just straight direction I wish I had years ago.", Color.blue),
-            ("Jena Porter", "J", "This thing keeps surfacing opportunities I would’ve completely missed on my own. Honestly wasn’t expecting it to be this accurate :)", Color.green),
-            ("Marcus Delaney", "M", "I thought this would be another ‘motivation’ app. Nope. It actually shows me what to do next, which is all I needed.", Color.purple)
+        let reviews: [(name: String, imageName: String, text: String)] = [
+            ("Alex Richardson", "alex-richardson", "I finally got clarity on what I should actually focus on. No fluff — just straight direction I wish I had years ago."),
+            ("Jena Porter", "jena-porter", "This thing keeps surfacing opportunities I would've completely missed on my own. Honestly wasn't expecting it to be this accurate :)"),
+            ("Marcus Delaney", "marcus-delaney", "I thought this would be another 'motivation' app. Nope. It actually shows me what to do next, which is all I needed.")
         ]
-        
+
         return StepLayout(title: "Trusted by people improving their lives every day") {
             VStack(alignment: .leading, spacing: 0) {
                 ScrollView(showsIndicators: false) {
@@ -28,11 +28,10 @@ struct PhaseRewardView: View {
                         ForEach(reviews, id: \.name) { review in
                             VStack(alignment: .leading, spacing: 12) {
                                 HStack(spacing: 12) {
-                                    Text(review.initial)
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(.white)
+                                    Image(review.imageName)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
                                         .frame(width: 40, height: 40)
-                                        .background(review.color)
                                         .clipShape(Circle())
 
                                     Text(review.name)
@@ -44,7 +43,7 @@ struct PhaseRewardView: View {
                                         ForEach(0..<5, id: \.self) { _ in
                                             Image(systemName: "star.fill")
                                                 .font(.system(size: 12))
-                                                .foregroundColor(.yellow)
+                                                .foregroundColor(Color(hex: "EA965F"))
                                         }
                                     }
                                 }
