@@ -252,7 +252,7 @@ struct PlanSelectionCard: View {
     private var cardContents: some View {
         VStack(spacing: 6) {
             Text(title)
-                .font(.system(size: 16, weight: .bold))
+                .font(.system(size: 18, weight: .bold))
                 .tracking(1)
                 .foregroundColor(.white)
 
