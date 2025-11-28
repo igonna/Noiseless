@@ -25,6 +25,8 @@ struct PhasePaywallView: View {
     var paywallView: some View {
         StepLayout(title: "Unlock Your Noiseless Advantage", showProgressBar: false, centerTitle: true) {
             VStack(spacing: 0) {
+                Spacer()
+
                 // Features List
                 HStack {
                     Spacer()
@@ -37,9 +39,8 @@ struct PhasePaywallView: View {
                     }
                     Spacer()
                 }
-                .padding(.top, 20)
 
-                Spacer(minLength: 24)
+                Spacer()
 
                 VStack(spacing: 12) {
                     // Plan Selection
