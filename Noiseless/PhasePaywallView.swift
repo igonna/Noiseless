@@ -262,7 +262,7 @@ struct PlanSelectionCard: View {
         }
         .animation(nil, value: isSelected)
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
+        .padding(.vertical, 19.2)
         .padding(.horizontal, 16)
         .background(
             RoundedRectangle(cornerRadius: 12)
