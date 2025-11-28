@@ -198,43 +198,57 @@ struct PhaseFinalView: View {
 
 private struct NotificationPrompt: View {
     let onAllow: () -> Void
+    @State private var pointingOffset: CGFloat = 0
 
     var body: some View {
-        VStack(spacing: 0) {
-            VStack(spacing: 12) {
-                Text("Noiseless would like to send you Notifications")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 24)
-            .padding(.bottom, 16)
-            Divider().background(Color.zinc900)
-            HStack(spacing: 0) {
-                Text("Don't Allow")
-                    .font(.system(size: 16))
-                    .foregroundColor(.zinc500)
-                    .frame(maxWidth: .infinity)
-                    .padding(14)
-                    .overlay(Rectangle().stroke(Color.zinc900, lineWidth: 0.5))
-                Button(action: onAllow) {
-                    Text("Allow")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.black)
+        ZStack(alignment: .bottomTrailing) {
+            VStack(spacing: 0) {
+                VStack(spacing: 12) {
+                    Text("Noiseless would like to send you Notifications")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 24)
+                .padding(.bottom, 16)
+                Divider().background(Color.zinc900)
+                HStack(spacing: 0) {
+                    Text("Don't Allow")
+                        .font(.system(size: 16))
+                        .foregroundColor(.zinc500)
                         .frame(maxWidth: .infinity)
                         .padding(14)
-                        .background(Color.white)
+                        .overlay(Rectangle().stroke(Color.zinc900, lineWidth: 0.5))
+                    Button(action: onAllow) {
+                        Text("Allow")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity)
+                            .padding(14)
+                            .background(Color.white)
+                    }
                 }
             }
+            .background(Color.zinc900)
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.zinc800, lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.4), radius: 30, x: 0, y: 10)
+
+            // Pointing hand animation
+            Text("👉")
+                .font(.system(size: 40))
+                .rotationEffect(.degrees(-90))
+                .offset(x: -60, y: 65 + pointingOffset)
+                .onAppear {
+                    withAnimation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true)) {
+                        pointingOffset = -8
+                    }
+                }
         }
-        .background(Color.zinc900)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.zinc800, lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(0.4), radius: 30, x: 0, y: 10)
         .padding(.horizontal)
     }
 }
