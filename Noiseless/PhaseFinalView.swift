@@ -211,7 +211,7 @@ private struct NotificationPrompt: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 24)
-                .padding(.bottom, 16)
+                .padding(.bottom, 24)
                 Divider().background(Color.zinc900)
                 HStack(spacing: 0) {
                     Text("Don't Allow")
