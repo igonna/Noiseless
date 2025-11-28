@@ -333,42 +333,108 @@ private struct CheckmarkIcon: Shape {
 
 private struct PathReadyView: View {
     @EnvironmentObject var model: OnboardingModel
-    
+
     var body: some View {
-        StepLayout(showProgressBar: false, centerContent: true, hideBackButton: true) {
+        StepLayout(showProgressBar: false, centerContent: false, hideBackButton: true) {
             VStack(spacing: 32) {
-                Spacer(minLength: 40)
-                ZStack {
-                    Circle()
-                        .fill(Color.zinc800.opacity(0.4))
-                        .frame(width: 240, height: 240)
-                        .blur(radius: 60)
-                    Circle()
-                        .stroke(Color.zinc700, lineWidth: 1)
-                        .frame(width: 180, height: 180)
-                    Image(systemName: "checkmark.seal")
-                        .font(.system(size: 72))
-                        .foregroundColor(.white)
-                }
-                
+                AnimatedCircleCheckView()
+
                 VStack(spacing: 16) {
                     Text("Congratulations your custom plan is ready!")
-                        .font(.system(size: 34, weight: .bold))
+                        .font(.system(size: 32, weight: .bold))
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
+                        .lineSpacing(2)
                     Text("Built from your strengths, goals, and real-world context — optimized for results.")
-                        .font(.system(size: 18))
+                        .font(.system(size: 16))
                         .foregroundColor(.zinc400)
                         .multilineTextAlignment(.center)
+                        .lineSpacing(4)
                 }
-                .padding(.horizontal)
-                
-                Spacer()
-                PrimaryButton(title: "Let's get started!") {
+                .padding(.horizontal, 24)
+
+                Spacer(minLength: 0)
+
+                BottomActionSection(buttonTitle: "Let's get started!", showDivider: false) {
                     model.nextStep()
                 }
-                .padding(.bottom, 24)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        }
+    }
+}
+
+private struct AnimatedCircleCheckView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var showCircle = false
+    @State private var drawCheck = false
+    @State private var pulse = false
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.zinc800.opacity(0.4))
+                .frame(width: 140, height: 140)
+                .blur(radius: 30)
+                .opacity(showCircle ? 1 : 0)
+                .scaleEffect(showCircle ? 1 : 0.85)
+
+            Circle()
+                .stroke(Color.white.opacity(0.25), lineWidth: 4)
+                .frame(width: 120, height: 120)
+                .scaleEffect(showCircle ? 1 : 0.9)
+                .opacity(showCircle ? 1 : 0)
+
+            Circle()
+                .stroke(Color.white.opacity(0.12), lineWidth: 8)
+                .frame(width: 120, height: 120)
+                .scaleEffect(pulse ? 1.35 : 1)
+                .opacity(pulse ? 0 : 0.35)
+
+            CheckmarkIcon()
+                .trim(from: 0, to: drawCheck ? 1 : 0)
+                .stroke(Color.white, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
+                .frame(width: 90, height: 90)
+                .opacity(drawCheck ? 1 : 0)
+                .scaleEffect(drawCheck ? 1 : 0.95)
+        }
+        .frame(width: 160, height: 160)
+        .onAppear(perform: startAnimation)
+        .onDisappear {
+            showCircle = false
+            drawCheck = false
+            pulse = false
+        }
+        .accessibilityHidden(true)
+    }
+
+    private func startAnimation() {
+        showCircle = false
+        drawCheck = false
+        pulse = false
+
+        if reduceMotion {
+            showCircle = true
+            drawCheck = true
+            return
+        }
+
+        let circleAnimation = Animation.spring(response: 0.7, dampingFraction: 0.75)
+        let checkAnimation = Animation.easeOut(duration: 0.45).delay(0.2)
+        let pulseAnimation = Animation.easeOut(duration: 1.2)
+            .delay(0.6)
+            .repeatForever(autoreverses: false)
+
+        withAnimation(circleAnimation) {
+            showCircle = true
+        }
+
+        withAnimation(checkAnimation) {
+            drawCheck = true
+        }
+
+        withAnimation(pulseAnimation) {
+            pulse = true
         }
     }
 }
