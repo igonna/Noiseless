@@ -337,6 +337,8 @@ struct StepLayout<Content: View>: View {
     let hideBackButton: Bool
     let centerTitle: Bool
     let content: () -> Content
+    let horizontalPadding: CGFloat
+    let contentTopPadding: CGFloat
 
     @EnvironmentObject var model: OnboardingModel
 
@@ -347,6 +349,8 @@ struct StepLayout<Content: View>: View {
         centerContent: Bool = false,
         hideBackButton: Bool = false,
         centerTitle: Bool = false,
+        horizontalPadding: CGFloat = 24,
+        topPadding: CGFloat = 72,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.title = title
@@ -356,6 +360,8 @@ struct StepLayout<Content: View>: View {
         self.hideBackButton = hideBackButton
         self.centerTitle = centerTitle
         self.content = content
+        self.horizontalPadding = horizontalPadding
+        self.contentTopPadding = topPadding
     }
 
     private var headingAlignment: TextAlignment {
@@ -364,10 +370,6 @@ struct StepLayout<Content: View>: View {
 
     private var stackAlignment: HorizontalAlignment {
         centerContent ? .center : .leading
-    }
-
-    private var contentTopPadding: CGFloat {
-        72
     }
 
     var body: some View {
@@ -400,7 +402,7 @@ struct StepLayout<Content: View>: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: centerContent ? .center : .top)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.horizontal, 24)
+                .padding(.horizontal, horizontalPadding)
                 .padding(.top, contentTopPadding)
                 .padding(.bottom, 0)
             }

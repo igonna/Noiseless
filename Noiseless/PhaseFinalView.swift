@@ -57,81 +57,43 @@ struct PhaseFinalView: View {
     
     // Screen 25: Final Welcome
     var finalWelcomeView: some View {
-        StepLayout(showProgressBar: false, centerContent: true, hideBackButton: true) {
-            ZStack {
-                LinearGradient(colors: [.zinc950, Color.zinc900.opacity(0.4), .zinc950], startPoint: .top, endPoint: .bottom)
-                    .ignoresSafeArea()
-                VStack(spacing: 32) {
-                    Spacer()
-                    ZStack {
-                        Circle()
-                            .fill(Color.white.opacity(0.15))
-                            .frame(width: 220, height: 220)
-                            .blur(radius: 60)
-                        RoundedRectangle(cornerRadius: 32)
-                            .fill(Color.white)
-                            .frame(width: 120, height: 120)
-                            .overlay(Circle().fill(Color.black).frame(width: 60, height: 60))
-                    }
-                    
-                    VStack(spacing: 16) {
-                        Text("Welcome to Noiseless.")
-                            .font(.system(size: 36, weight: .bold))
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.white)
-                        Text("Your personal model is ready — your first insight is waiting.")
-                            .font(.system(size: 18))
-                            .foregroundColor(.zinc400)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding(.horizontal)
-                    Spacer()
-                    PrimaryButton(title: "See My Insight") {
-                        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-                        model.goToStep(.dashboard)
-                    }
-                    .padding(.bottom, 24)
-                }
-            }
+        StepLayout(
+            showProgressBar: false,
+            centerContent: true,
+            hideBackButton: true,
+            horizontalPadding: 0,
+            topPadding: 0
+        ) {
+            FinalWelcomeContent(onContinue: {
+                UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+                model.goToStep(.dashboard)
+            })
         }
     }
     
     private var dashboardView: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
-            VStack(spacing: 24) {
+            Color.zinc950.ignoresSafeArea()
+
+            FinalGlowBackdrop()
+
+            VStack(spacing: 32) {
+                Spacer()
+
                 Text("Welcome to Noiseless")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.zinc400)
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Today's Focus")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(.zinc500)
-                        .textCase(.uppercase)
-                    Text("Review your career transition strategy.")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(.white)
-                }
-                .padding()
-                .background(Color.zinc900)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.zinc800, lineWidth: 1)
-                )
-                
-                Text("This is where the actual application begins. The onboarding flow is complete.")
-                    .font(.system(size: 15))
-                    .foregroundColor(.zinc400)
+                    .font(.system(size: 36, weight: .bold))
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-                
+                    .foregroundColor(.white)
+
+                Spacer()
+
                 PrimaryButton(title: "Restart Demo", variant: .secondary, fullWidth: false) {
                     UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
                     model.goToStep(.welcome)
                 }
+                .padding(.bottom, 40)
             }
-            .padding()
+            .padding(.horizontal, 32)
         }
     }
 
@@ -250,5 +212,155 @@ private struct NotificationPrompt: View {
                 }
         }
         .padding(.horizontal)
+    }
+}
+
+private struct FinalWelcomeContent: View {
+    let onContinue: () -> Void
+    @State private var showWelcomeLine = false
+    @State private var showNoiselessLine = false
+    @State private var showButton = false
+
+    var body: some View {
+        ZStack {
+            Color.zinc950
+                .ignoresSafeArea()
+
+            VStack(spacing: 32) {
+                Spacer()
+
+                VStack(spacing: 8) {
+                    Text("Welcome to")
+                        .font(.system(size: 22, weight: .medium))
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.white.opacity(0.85))
+                        .opacity(showWelcomeLine ? 1 : 0)
+
+                    Text("Noiseless.")
+                        .font(.system(size: 40, weight: .bold))
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.white)
+                        .opacity(showNoiselessLine ? 1 : 0)
+                }
+                .padding(.horizontal, 32)
+
+                Spacer()
+
+                PrimaryButton(title: "See My Insight", enableHaptics: false) {
+                    HapticManager.trigger(.impact(.soft))
+                    onContinue()
+                }
+                    .padding(.bottom, 40)
+                    .opacity(showButton ? 1 : 0)
+            }
+            .padding(.horizontal, 32)
+        }
+        .onAppear {
+            showWelcomeLine = false
+            showNoiselessLine = false
+            showButton = false
+
+            withAnimation(.easeInOut(duration: 0.6)) {
+                showWelcomeLine = true
+            }
+            withAnimation(.easeInOut(duration: 0.6).delay(0.5)) {
+                showNoiselessLine = true
+            }
+            withAnimation(.easeInOut(duration: 0.6).delay(1.1)) {
+                showButton = true
+            }
+        }
+    }
+}
+
+private struct FinalGlowBackdrop: View {
+    var body: some View {
+        GeometryReader { proxy in
+            let width = proxy.size.width
+            let height = proxy.size.height
+
+            ZStack {
+                Color.zinc950
+                    .ignoresSafeArea()
+
+                GlowOrb(
+                    size: width * 0.9,
+                    color: Color(hex: "#8FD3FF"),
+                    blur: 120,
+                    xOffset: -width * 0.2,
+                    yOffset: -height * 0.25,
+                    animationDuration: 3.8
+                )
+
+                GlowOrb(
+                    size: width * 0.75,
+                    color: Color(hex: "#C5A3FF"),
+                    blur: 140,
+                    xOffset: width * 0.35,
+                    yOffset: height * 0.1,
+                    animationDuration: 4.6
+                )
+
+                GlowOrb(
+                    size: width * 0.6,
+                    color: Color(hex: "#6AD2C9"),
+                    blur: 110,
+                    xOffset: -width * 0.05,
+                    yOffset: height * 0.35,
+                    animationDuration: 4.1
+                )
+
+                GlowOrb(
+                    size: width * 0.4,
+                    color: Color.white.opacity(0.4),
+                    blur: 90,
+                    xOffset: width * 0.25,
+                    yOffset: height * 0.45,
+                    animationDuration: 3.2,
+                    animationRange: 0.05
+                )
+            }
+            .frame(width: width, height: height)
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+private struct GlowOrb: View {
+    let size: CGFloat
+    let color: Color
+    let blur: CGFloat
+    let xOffset: CGFloat
+    let yOffset: CGFloat
+    var animationDuration: Double = 4.0
+    var animationRange: CGFloat = 0.12
+
+    @State private var isGlowing = false
+
+    var body: some View {
+        Circle()
+            .fill(
+                RadialGradient(
+                    colors: [
+                        color.opacity(isGlowing ? 0.45 : 0.2),
+                        color.opacity(0.01)
+                    ],
+                    center: .center,
+                    startRadius: 0,
+                    endRadius: size * 0.5
+                )
+            )
+            .frame(width: size, height: size)
+            .blur(radius: blur)
+            .scaleEffect(isGlowing ? 1 + animationRange : 1 - animationRange)
+            .offset(x: xOffset, y: yOffset)
+            .onAppear {
+                withAnimation(
+                    .easeInOut(duration: animationDuration)
+                        .repeatForever(autoreverses: true)
+                ) {
+                    isGlowing = true
+                }
+            }
     }
 }
