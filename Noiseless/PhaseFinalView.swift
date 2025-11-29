@@ -190,6 +190,7 @@ private struct NotificationPrompt: View {
                             .padding(14)
                             .background(Color.white)
                     }
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
             .background(Color.zinc900)
