@@ -262,13 +262,13 @@ private struct FinalWelcomeContent: View {
             showNoiselessLine = false
             showButton = false
 
-            withAnimation(.easeInOut(duration: 1.5)) {
+            withAnimation(.easeInOut(duration: 1.5).delay(0.5)) {
                 showWelcomeLine = true
             }
-            withAnimation(.easeInOut(duration: 1.5).delay(2.0)) {
+            withAnimation(.easeInOut(duration: 1.5).delay(2.5)) {
                 showNoiselessLine = true
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4.5) {
                 HapticManager.trigger(.impact(.soft))
                 showButton = true
             }
