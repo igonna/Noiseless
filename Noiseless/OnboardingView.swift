@@ -17,7 +17,6 @@ struct OnboardingView: View {
             persistentHeader
                 .environmentObject(model)
         }
-        .statusBar(hidden: true)
     }
 
     @ViewBuilder
