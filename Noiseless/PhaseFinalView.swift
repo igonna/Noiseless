@@ -253,6 +253,7 @@ private struct FinalWelcomeContent: View {
                 }
                     .padding(.bottom, 40)
                     .opacity(showButton ? 1 : 0)
+                    .animation(nil, value: showButton)
             }
             .padding(.horizontal, 32)
         }
@@ -261,13 +262,14 @@ private struct FinalWelcomeContent: View {
             showNoiselessLine = false
             showButton = false
 
-            withAnimation(.easeInOut(duration: 0.6)) {
+            withAnimation(.easeInOut(duration: 1.5)) {
                 showWelcomeLine = true
             }
-            withAnimation(.easeInOut(duration: 0.6).delay(0.5)) {
+            withAnimation(.easeInOut(duration: 1.5).delay(2.0)) {
                 showNoiselessLine = true
             }
-            withAnimation(.easeInOut(duration: 0.6).delay(1.1)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+                HapticManager.trigger(.impact(.soft))
                 showButton = true
             }
         }
