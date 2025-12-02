@@ -413,7 +413,7 @@ private struct DualWaveChart: View {
                                 .fill(backgroundColor)
                                 .overlay(
                                     Circle()
-                                        .stroke(noiselessColor, lineWidth: 1)
+                                        .stroke(noiselessColor, lineWidth: 1.4)
                                 )
                                 .frame(width: markerSize, height: markerSize)
                                 .position(
