@@ -356,7 +356,7 @@ private struct DualWaveChart: View {
                         .offset(x: leftPadding)
 
                         // Bottom section with timeline and stats
-                        VStack(alignment: .leading, spacing: 10) {
+                        VStack(alignment: .leading, spacing: 16) {
                             Rectangle()
                                 .fill(Color.white.opacity(0.12))
                                 .frame(height: 1)
@@ -384,6 +384,7 @@ private struct DualWaveChart: View {
                                 .fixedSize(horizontal: false, vertical: true)
                                 .multilineTextAlignment(.center)
                                 .frame(maxWidth: .infinity)
+                                .padding(.bottom, 16)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.top, chartHeight + 8)
