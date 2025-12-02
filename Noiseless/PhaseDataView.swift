@@ -343,7 +343,7 @@ private struct DualWaveChart: View {
                 chartTitle
 
                 legend
-                    .padding(.bottom, -14)
+                    .padding(.bottom, -6)
 
                 GeometryReader { geo in
                     let markerSize: CGFloat = 12
@@ -355,7 +355,7 @@ private struct DualWaveChart: View {
                     let timelineTopPadding: CGFloat = chartHeight + 8
                     let chartVerticalShift: CGFloat = timelineTopPadding - (chartHeight * startBase)
                     let guidelineCount: Int = 2
-                    let guidelineSpacing = (startBase * 1.98) / CGFloat(guidelineCount + 1)
+                    let guidelineSpacing = (startBase * 2.0) / CGFloat(guidelineCount + 1)
                     let guidelineFactors: [CGFloat] = (1...guidelineCount).map { index in
                         max(min(startBase - (guidelineSpacing * CGFloat(index)), 1), 0)
                     }
