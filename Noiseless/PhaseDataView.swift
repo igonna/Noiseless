@@ -340,13 +340,13 @@ private struct DualWaveChart: View {
                         .shadow(color: Color(red: 0x37/255, green: 0x96/255, blue: 0xEF/255).opacity(0.4), radius: 16, x: 0, y: 0)
                         .offset(x: leftPadding)
 
-                        // Gray declining line (Traditional)
+                        // Gray stagnating line (Traditional)
                         WaveLine(
-                            amplitude: 0.08,
+                            amplitude: 0.12,
                             base: startBase,
-                            trend: -0.35,
+                            trend: 0.15,
                             phase: 0.0,
-                            curveExponent: 1.2,
+                            curveExponent: 0.35,
                             progress: normalizedProgress,
                             containerHeight: chartHeight
                         )
