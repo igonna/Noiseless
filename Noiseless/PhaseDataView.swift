@@ -155,7 +155,7 @@ struct PhaseDataView: View {
     
     // Screen 7: Graph
     var graphView: some View {
-        StepLayout(title: "People who stay informed grow faster.", subtitle: "The right insights at the right time create long-term momentum.") {
+        StepLayout(title: "People who stay informed grow faster.") {
             GraphContent()
         }
     }
@@ -170,7 +170,7 @@ struct PhaseDataView: View {
                 DualWaveChart(progress: drawProgress)
                     .frame(height: 250)
                     .padding(.horizontal, 4)
-                    .padding(.top, 60)
+                    .padding(.top, 68)
                 
                 Spacer(minLength: 36)
                 
@@ -378,7 +378,7 @@ private struct DualWaveChart: View {
                             .foregroundColor(.white.opacity(0.9))
 
                             Text("82% of users achieve faster progress with guided daily insights.")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.system(size: 18))
                                 .foregroundColor(.zinc400)
                                 .lineLimit(2)
                                 .fixedSize(horizontal: false, vertical: true)
