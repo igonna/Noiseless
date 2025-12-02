@@ -343,7 +343,23 @@ private struct DualWaveChart: View {
                     let leftPadding: CGFloat = 0
 
                     ZStack(alignment: .topLeading) {
-                        // Blue upward trend line (Noiseless) with glow
+                        // Gray stagnating line (Traditional)
+                        WaveLine(
+                            amplitude: traditionalWave.amplitude,
+                            base: traditionalWave.base,
+                            trend: traditionalWave.trend,
+                            phase: traditionalWave.phase,
+                            curveExponent: traditionalWave.curveExponent,
+                            progress: normalizedProgress,
+                            containerHeight: chartHeight
+                        )
+                        .stroke(
+                            traditionalColor,
+                            style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round)
+                        )
+                        .offset(x: leftPadding)
+
+                        // Blue upward trend line (Noiseless) with glow (on top)
                         WaveLine(
                             amplitude: noiselessWave.amplitude,
                             base: noiselessWave.base,
@@ -359,22 +375,6 @@ private struct DualWaveChart: View {
                         )
                         .shadow(color: noiselessColor.opacity(0.6), radius: 8, x: 0, y: 0)
                         .shadow(color: noiselessColor.opacity(0.4), radius: 16, x: 0, y: 0)
-                        .offset(x: leftPadding)
-
-                        // Gray stagnating line (Traditional)
-                        WaveLine(
-                            amplitude: traditionalWave.amplitude,
-                            base: traditionalWave.base,
-                            trend: traditionalWave.trend,
-                            phase: traditionalWave.phase,
-                            curveExponent: traditionalWave.curveExponent,
-                            progress: normalizedProgress,
-                            containerHeight: chartHeight
-                        )
-                        .stroke(
-                            traditionalColor,
-                            style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round)
-                        )
                         .offset(x: leftPadding)
 
                         // Bottom section with timeline and stats
