@@ -343,6 +343,7 @@ private struct DualWaveChart: View {
                 chartTitle
 
                 legend
+                    .padding(.bottom, -16)
 
                 GeometryReader { geo in
                     let markerSize: CGFloat = 12
@@ -475,7 +476,7 @@ private struct DualWaveChart: View {
     }
 
     private var legend: some View {
-        HStack(spacing: 20) {
+        VStack(alignment: .leading, spacing: 6) {
             LegendItem(color: noiselessColor, label: "Noiseless")
             LegendItem(color: traditionalColor, label: "Traditional")
         }
