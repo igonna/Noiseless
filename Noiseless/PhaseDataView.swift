@@ -374,11 +374,11 @@ private struct DualWaveChart: View {
                                 Spacer()
                                 Text("Month 6")
                             }
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.white.opacity(0.9))
 
                             Text("82% of users achieve faster progress with guided daily insights.")
-                                .font(.system(size: 18))
+                                .font(.system(size: 14))
                                 .foregroundColor(.zinc400)
                                 .lineLimit(2)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -417,7 +417,7 @@ private struct DualWaveChart: View {
 
     private var chartTitle: some View {
         Text("Your growth")
-            .font(.system(size: 18, weight: .semibold))
+            .font(.system(size: 24, weight: .medium))
             .foregroundColor(.white.opacity(0.95))
             .tracking(0.8)
     }
@@ -433,14 +433,14 @@ private struct DualWaveChart: View {
 private struct LegendItem: View {
     let color: Color
     let label: String
-    
+
     var body: some View {
         HStack(spacing: 6) {
             Circle()
                 .fill(color)
                 .frame(width: 10, height: 10)
             Text(label)
-                .font(.system(size: 12, weight: .medium))
+                .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.white.opacity(0.85))
         }
     }
