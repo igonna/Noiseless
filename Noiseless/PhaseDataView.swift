@@ -343,7 +343,7 @@ private struct DualWaveChart: View {
                 chartTitle
 
                 legend
-                    .padding(.bottom, -16)
+                    .padding(.bottom, -14)
 
                 GeometryReader { geo in
                     let markerSize: CGFloat = 12
