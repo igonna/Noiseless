@@ -285,14 +285,21 @@ var timeBudgetView: some View {
     }
 }
 
+private struct Month1WidthKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
 private struct DualWaveChart: View {
     var progress: CGFloat
-    private let startBase: CGFloat = 0.78
-    
+    private let startBase: CGFloat = 0.75
+
     private var normalizedProgress: CGFloat {
         min(max(progress, 0), 1)
     }
-    
+
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 24)
@@ -302,91 +309,115 @@ private struct DualWaveChart: View {
                         .stroke(Color.white.opacity(0.04), lineWidth: 1)
                 )
                 .shadow(color: Color.black.opacity(0.25), radius: 18, x: 0, y: 10)
-            
+
             VStack(alignment: .leading, spacing: 18) {
                 chartTitle
-                
+
                 legend
-                
+
                 GeometryReader { geo in
-                    let markerSize: CGFloat = 14
-                    let startY = geo.size.height * startBase
-                    let baselineY = min(geo.size.height - 44, startY + markerSize * 0.25)
-                    
-                    ZStack {
+                    let markerSize: CGFloat = 12
+                    let bottomPadding: CGFloat = 80
+                    let chartHeight = geo.size.height - bottomPadding
+                    let leftPadding: CGFloat = 0
+
+                    ZStack(alignment: .topLeading) {
+                        // Blue upward trend line (Noiseless)
                         WaveLine(
-                            amplitude: 0.32,
+                            amplitude: 0.25,
                             base: startBase,
-                            trend: 1.05,
+                            trend: 0.95,
                             phase: 0.0,
-                            curveExponent: 3.1,
-                            progress: normalizedProgress
+                            curveExponent: 2.8,
+                            progress: normalizedProgress,
+                            containerHeight: chartHeight
                         )
                         .stroke(
                             LinearGradient(
                                 colors: [
                                     Color(red: 0x24/255, green: 0x71/255, blue: 0xC7/255),
-                                    Color(red: 0x24/255, green: 0x71/255, blue: 0xC7/255).opacity(0.65)
+                                    Color(red: 0x24/255, green: 0x71/255, blue: 0xC7/255).opacity(0.7)
                                 ],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             ),
-                            style: StrokeStyle(lineWidth: 2.2, lineCap: .round, lineJoin: .round)
+                            style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round)
                         )
-                        .shadow(color: Color(red: 0x24/255, green: 0x71/255, blue: 0xC7/255).opacity(0.35), radius: 14, x: 0, y: 10)
-                        
+                        .shadow(color: Color(red: 0x24/255, green: 0x71/255, blue: 0xC7/255).opacity(0.3), radius: 12, x: 0, y: 8)
+                        .offset(x: leftPadding)
+
+                        // Red declining line (Traditional)
                         WaveLine(
-                            amplitude: 0.08,
+                            amplitude: 0.06,
                             base: startBase,
-                            trend: -0.18,
+                            trend: -0.15,
                             phase: 0.0,
-                            curveExponent: 0.6,
-                            progress: normalizedProgress
+                            curveExponent: 0.7,
+                            progress: normalizedProgress,
+                            containerHeight: chartHeight
                         )
                         .stroke(
                             LinearGradient(
-                                colors: [Color.red.opacity(0.9), Color.red.opacity(0.6)],
+                                colors: [Color.red.opacity(0.85), Color.red.opacity(0.55)],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             ),
-                            style: StrokeStyle(lineWidth: 2.2, lineCap: .round, lineJoin: .round)
+                            style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round)
                         )
-                        
-                        Circle()
-                            .fill(Color(red: 0x11/255, green: 0x11/255, blue: 0x13/255))
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.white.opacity(0.95), lineWidth: 2.2)
-                            )
-                            .frame(width: markerSize, height: markerSize)
-                            .allowsHitTesting(false)
-                            .position(x: 0, y: startY)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .overlay(alignment: .topLeading) {
+                        .offset(x: leftPadding)
+
+                        // Bottom section with timeline and stats
                         VStack(alignment: .leading, spacing: 10) {
                             Rectangle()
                                 .fill(Color.white.opacity(0.12))
                                 .frame(height: 1)
-                            
+
                             HStack {
                                 Text("Month 1")
+                                    .background(
+                                        GeometryReader { textGeo in
+                                            Color.clear.preference(
+                                                key: Month1WidthKey.self,
+                                                value: textGeo.size.width / 2
+                                            )
+                                        }
+                                    )
                                 Spacer()
                                 Text("Month 6")
                             }
                             .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.zinc500)
-                            
+                            .foregroundColor(.white.opacity(0.9))
+
                             Text("82% of users achieve faster progress with guided daily insights.")
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.9))
-                                .lineLimit(nil)
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.zinc400)
+                                .lineLimit(2)
                                 .fixedSize(horizontal: false, vertical: true)
-                                .multilineTextAlignment(.leading)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.top, baselineY)
-                        .allowsHitTesting(false)
+                        .padding(.top, chartHeight + 8)
+                        .onPreferenceChange(Month1WidthKey.self) { _ in }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .overlay(alignment: .topLeading) {
+                        // Start marker positioned at Month 1
+                        if normalizedProgress > 0 {
+                            GeometryReader { overlayGeo in
+                                Circle()
+                                    .fill(Color(red: 0x11/255, green: 0x11/255, blue: 0x13/255))
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.white.opacity(0.9), lineWidth: 2.5)
+                                    )
+                                    .frame(width: markerSize, height: markerSize)
+                                    .position(
+                                        x: leftPadding,
+                                        y: chartHeight * startBase
+                                    )
+                            }
+                        }
                     }
                 }
                 .frame(height: 185)
@@ -394,17 +425,17 @@ private struct DualWaveChart: View {
             .padding(24)
         }
     }
-    
+
     private var chartTitle: some View {
         Text("Your growth")
             .font(.system(size: 18, weight: .semibold))
             .foregroundColor(.white.opacity(0.95))
             .tracking(0.8)
     }
-    
+
     private var legend: some View {
         HStack(spacing: 20) {
-            LegendItem(color: Color.green, label: "Noiseless")
+            LegendItem(color: Color(red: 0x24/255, green: 0x71/255, blue: 0xC7/255), label: "Noiseless")
             LegendItem(color: Color.red, label: "Traditional")
         }
     }
@@ -433,43 +464,48 @@ private struct WaveLine: Shape {
     var phase: CGFloat
     var curveExponent: CGFloat
     var progress: CGFloat
-    
+    var containerHeight: CGFloat
+
     var animatableData: CGFloat {
         get { progress }
         set { progress = newValue }
     }
-    
+
     func path(in rect: CGRect) -> Path {
         var path = Path()
         let clampedProgress = min(max(progress, 0), 1)
         guard clampedProgress > 0 else { return path }
-        
-        let steps = 120
-        let endIndex = max(1, Int(clampedProgress * CGFloat(steps)))
-        
-        for i in 0...endIndex {
-            let pct = CGFloat(i) / CGFloat(steps)
-            let clampedPct = min(max(pct, 0), 1)
-            let easedTrendPct: CGFloat
-            if curveExponent == 1 {
-                easedTrendPct = clampedPct
-            } else {
-                easedTrendPct = CGFloat(pow(Double(clampedPct), Double(max(curveExponent, 0.1))))
-            }
-            let x = clampedPct * rect.width
-            let wave = sin((clampedPct + phase) * .pi * 1.35)
-            let baseHeight = rect.height * base
-            let trendOffset = rect.height * trend * easedTrendPct
-            let y = baseHeight - wave * (rect.height * amplitude) - trendOffset
+
+        let steps = 100
+        let maxIndex = Int(clampedProgress * CGFloat(steps))
+
+        for i in 0...maxIndex {
+            let t = CGFloat(i) / CGFloat(steps)
+
+            // Apply curve exponent for non-linear trend
+            let easedT = curveExponent == 1.0 ? t : pow(t, curveExponent)
+
+            // Calculate x position
+            let x = t * rect.width
+
+            // Calculate wave oscillation
+            let wave = sin((t + phase) * .pi * 1.5)
+
+            // Calculate y position
+            let baseY = containerHeight * base
+            let waveOffset = wave * containerHeight * amplitude
+            let trendOffset = containerHeight * trend * easedT
+            let y = baseY - waveOffset - trendOffset
+
             let point = CGPoint(x: x, y: y)
-            
+
             if i == 0 {
                 path.move(to: point)
             } else {
                 path.addLine(to: point)
             }
         }
-        
+
         return path
     }
 }
