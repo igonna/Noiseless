@@ -294,7 +294,7 @@ private struct Month1WidthKey: PreferenceKey {
 
 private struct DualWaveChart: View {
     var progress: CGFloat
-    private let startBase: CGFloat = 0.75
+    private let startBase: CGFloat = 0.85
 
     private var normalizedProgress: CGFloat {
         min(max(progress, 0), 1)
@@ -322,46 +322,36 @@ private struct DualWaveChart: View {
                     let leftPadding: CGFloat = 0
 
                     ZStack(alignment: .topLeading) {
-                        // Blue upward trend line (Noiseless)
+                        // Blue upward trend line (Noiseless) with glow
                         WaveLine(
-                            amplitude: 0.25,
+                            amplitude: 0.35,
                             base: startBase,
-                            trend: 0.95,
+                            trend: 1.45,
                             phase: 0.0,
-                            curveExponent: 2.8,
+                            curveExponent: 2.2,
                             progress: normalizedProgress,
                             containerHeight: chartHeight
                         )
                         .stroke(
-                            LinearGradient(
-                                colors: [
-                                    Color(red: 0x24/255, green: 0x71/255, blue: 0xC7/255),
-                                    Color(red: 0x24/255, green: 0x71/255, blue: 0xC7/255).opacity(0.7)
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            ),
+                            Color(red: 0x37/255, green: 0x96/255, blue: 0xEF/255),
                             style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round)
                         )
-                        .shadow(color: Color(red: 0x24/255, green: 0x71/255, blue: 0xC7/255).opacity(0.3), radius: 12, x: 0, y: 8)
+                        .shadow(color: Color(red: 0x37/255, green: 0x96/255, blue: 0xEF/255).opacity(0.6), radius: 8, x: 0, y: 0)
+                        .shadow(color: Color(red: 0x37/255, green: 0x96/255, blue: 0xEF/255).opacity(0.4), radius: 16, x: 0, y: 0)
                         .offset(x: leftPadding)
 
-                        // Red declining line (Traditional)
+                        // Gray declining line (Traditional)
                         WaveLine(
-                            amplitude: 0.06,
+                            amplitude: 0.08,
                             base: startBase,
-                            trend: -0.15,
+                            trend: -0.35,
                             phase: 0.0,
-                            curveExponent: 0.7,
+                            curveExponent: 1.2,
                             progress: normalizedProgress,
                             containerHeight: chartHeight
                         )
                         .stroke(
-                            LinearGradient(
-                                colors: [Color.red.opacity(0.85), Color.red.opacity(0.55)],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            ),
+                            Color(red: 0x52/255, green: 0x52/255, blue: 0x5C/255),
                             style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round)
                         )
                         .offset(x: leftPadding)
@@ -435,8 +425,8 @@ private struct DualWaveChart: View {
 
     private var legend: some View {
         HStack(spacing: 20) {
-            LegendItem(color: Color(red: 0x24/255, green: 0x71/255, blue: 0xC7/255), label: "Noiseless")
-            LegendItem(color: Color.red, label: "Traditional")
+            LegendItem(color: Color(red: 0x37/255, green: 0x96/255, blue: 0xEF/255), label: "Noiseless")
+            LegendItem(color: Color(red: 0x52/255, green: 0x52/255, blue: 0x5C/255), label: "Traditional")
         }
     }
 }
