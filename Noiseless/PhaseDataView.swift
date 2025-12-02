@@ -308,7 +308,9 @@ private struct DualWaveChart: View {
             base: startBase,
             trend: 1.45,
             phase: 0.0,
-            curveExponent: 2.2
+            curveExponent: 2.2,
+            startOffset: 0,
+            startOffsetFade: 0
         )
     }
 
@@ -318,7 +320,9 @@ private struct DualWaveChart: View {
             base: startBase,
             trend: 0.15,
             phase: 0.0,
-            curveExponent: 0.35
+            curveExponent: 0.35,
+            startOffset: 0.02,
+            startOffsetFade: 0.2
         )
     }
 
@@ -461,6 +465,8 @@ private struct WaveLineConfig {
     let trend: CGFloat
     let phase: CGFloat
     let curveExponent: CGFloat
+    let startOffset: CGFloat
+    let startOffsetFade: CGFloat
 
     func point(for progress: CGFloat, chartHeight: CGFloat, chartWidth: CGFloat, leftPadding: CGFloat) -> CGPoint {
         let clamped = min(max(progress, 0), 1)
@@ -471,7 +477,15 @@ private struct WaveLineConfig {
         let baseY = chartHeight * base
         let waveOffset = wave * chartHeight * amplitude
         let trendOffset = chartHeight * trend * easedT
-        let y = baseY - waveOffset - trendOffset
+        var y = baseY - waveOffset - trendOffset
+
+        if startOffset > 0 {
+            let fadeRange = max(startOffsetFade, 0.0001)
+            let fadeFactor = max(0, 1 - (clamped / fadeRange))
+            let initialOffset = chartHeight * startOffset * fadeFactor
+            y += initialOffset
+        }
+
         return CGPoint(x: x, y: y)
     }
 }
