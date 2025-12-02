@@ -351,6 +351,8 @@ private struct DualWaveChart: View {
                     let leftPadding: CGFloat = 0
                     let timelineSpacing: CGFloat = 20
                     let statsBottomPadding: CGFloat = 34
+                    let timelineTopPadding: CGFloat = chartHeight + 8
+                    let chartVerticalShift: CGFloat = timelineTopPadding - (chartHeight * startBase)
 
                     ZStack(alignment: .topLeading) {
                         // Gray stagnating line (Traditional)
@@ -363,7 +365,7 @@ private struct DualWaveChart: View {
                             traditionalColor,
                             style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round)
                         )
-                        .offset(x: leftPadding)
+                        .offset(x: leftPadding, y: chartVerticalShift)
 
                         // Blue upward trend line (Noiseless) with glow (on top)
                         WaveLine(
@@ -377,7 +379,7 @@ private struct DualWaveChart: View {
                         )
                         .shadow(color: noiselessColor.opacity(0.6), radius: 8, x: 0, y: 0)
                         .shadow(color: noiselessColor.opacity(0.4), radius: 16, x: 0, y: 0)
-                        .offset(x: leftPadding)
+                        .offset(x: leftPadding, y: chartVerticalShift)
 
                         // Bottom section with timeline and stats
                         VStack(alignment: .leading, spacing: timelineSpacing) {
@@ -420,7 +422,7 @@ private struct DualWaveChart: View {
                                 .scaleEffect(statsVisible ? 1 : 0.95)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.top, chartHeight + 8)
+                        .padding(.top, timelineTopPadding)
                         .onPreferenceChange(Month1WidthKey.self) { _ in }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -450,6 +452,7 @@ private struct DualWaveChart: View {
                                 backgroundColor: backgroundColor
                             )
                         }
+                        .offset(y: chartVerticalShift)
                     }
                 }
                 .frame(height: 205)
@@ -512,24 +515,36 @@ private struct WaveLineConfig {
 
 extension DualWaveChart {
     private func initializeTimelineVisibility() {
-        if normalizedProgress > 0 {
-            month1Visible = true
-        }
+        month1Visible = normalizedProgress > 0.01
+
         if normalizedProgress >= 0.999 {
             month6Visible = true
-            statsVisible = true
+            statsVisible = false
+            revealStatsAfterDelay()
+        } else {
+            month6Visible = false
+            statsVisible = false
         }
     }
 
     private func updateTimelineVisibility(for value: CGFloat) {
-        if value > 0, !month1Visible {
+        let resetThreshold: CGFloat = 0.002
+
+        if value <= resetThreshold {
+            month1Visible = false
+            month6Visible = false
+            statsVisible = false
+            return
+        }
+
+        if value > 0.01, !month1Visible {
             withAnimation(.easeOut(duration: 0.35)) {
                 month1Visible = true
             }
         }
 
-        if value >= 0.995, !month6Visible {
-            withAnimation(.easeOut(duration: 0.4)) {
+        if value >= 0.999, !month6Visible {
+            withAnimation(.easeOut(duration: 0.45)) {
                 month6Visible = true
             }
             revealStatsAfterDelay()
@@ -538,7 +553,7 @@ extension DualWaveChart {
 
     private func revealStatsAfterDelay() {
         guard !statsVisible else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             withAnimation(.spring(response: 0.65, dampingFraction: 0.75)) {
                 statsVisible = true
             }
