@@ -164,17 +164,24 @@ struct PhaseDataView: View {
         @EnvironmentObject var model: OnboardingModel
         @State private var drawProgress: CGFloat = 0.0
         @State private var animationFinished: Bool = false
-        
+        @State private var statsVisible: Bool = false
+
         var body: some View {
             VStack(spacing: 0) {
-                DualWaveChart(progress: drawProgress)
+                DualWaveChart(
+                    progress: drawProgress,
+                    animationFinished: animationFinished,
+                    onStatsVisibleChange: { isVisible in
+                        statsVisible = isVisible
+                    }
+                )
                     .frame(height: 250)
                     .padding(.horizontal, 4)
                     .padding(.top, 100)
-                
+
                 Spacer(minLength: 36)
-                
-                PrimaryButton(title: "Continue", disabled: !animationFinished) {
+
+                PrimaryButton(title: "Continue", disabled: !statsVisible) {
                     model.nextStep()
                 }
                 .padding(.bottom, 10)
@@ -183,19 +190,20 @@ struct PhaseDataView: View {
                 startAnimation()
             }
         }
-        
+
         private func startAnimation() {
             animationFinished = false
+            statsVisible = false
             drawProgress = 0
-            let duration = 1.6
-            
-            withAnimation(.easeOut(duration: duration)) {
+            let totalDuration: Double = 1.4
+            let easing = Animation.timingCurve(0.65, 0.05, 0.25, 1, duration: totalDuration)
+
+            withAnimation(easing) {
                 drawProgress = 1
             }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + totalDuration) {
                 animationFinished = true
-                HapticManager.lightTap()
             }
         }
     }
@@ -289,10 +297,12 @@ private struct Month1WidthKey: PreferenceKey {
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()
     }
-}
+    }
 
 private struct DualWaveChart: View {
     var progress: CGFloat
+    var animationFinished: Bool = false
+    var onStatsVisibleChange: (Bool) -> Void = { _ in }
     private let startBase: CGFloat = 0.85
     private let backgroundColor = Color(red: 0x11/255, green: 0x11/255, blue: 0x13/255)
     private let noiselessColor = Color(red: 0x37/255, green: 0x96/255, blue: 0xEF/255)
@@ -486,6 +496,9 @@ private struct DualWaveChart: View {
         .onChange(of: normalizedProgress) { newValue in
             updateTimelineVisibility(for: newValue)
         }
+        .onChange(of: animationFinished) { finished in
+            handleAnimationFinishedChange(finished)
+        }
     }
 
     private var chartTitle: some View {
@@ -537,14 +550,11 @@ private struct WaveLineConfig {
 extension DualWaveChart {
     private func initializeTimelineVisibility() {
         month1Visible = normalizedProgress > 0.01
+        month6Visible = false
+        setStatsVisible(false)
 
-        if normalizedProgress >= 0.999 {
-            month6Visible = true
-            statsVisible = false
-            revealStatsAfterDelay()
-        } else {
-            month6Visible = false
-            statsVisible = false
+        if animationFinished {
+            handleAnimationFinishedChange(true)
         }
     }
 
@@ -554,7 +564,7 @@ extension DualWaveChart {
         if value <= resetThreshold {
             month1Visible = false
             month6Visible = false
-            statsVisible = false
+            setStatsVisible(false)
             return
         }
 
@@ -563,21 +573,41 @@ extension DualWaveChart {
                 month1Visible = true
             }
         }
-
-        if value >= 0.999, !month6Visible {
-            withAnimation(.easeOut(duration: 0.45)) {
-                month6Visible = true
-            }
-            revealStatsAfterDelay()
-        }
     }
 
     private func revealStatsAfterDelay() {
         guard !statsVisible else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            withAnimation(.spring(response: 0.65, dampingFraction: 0.75)) {
-                statsVisible = true
+            setStatsVisible(true, animation: .spring(response: 0.65, dampingFraction: 0.75))
+        }
+    }
+
+    private func handleAnimationFinishedChange(_ finished: Bool) {
+        if finished {
+            withAnimation(.easeOut(duration: 0.45)) {
+                month6Visible = true
             }
+            revealStatsAfterDelay()
+        } else {
+            month6Visible = false
+            setStatsVisible(false)
+        }
+    }
+
+    private func setStatsVisible(_ visible: Bool, animation: Animation? = nil) {
+        guard statsVisible != visible else { return }
+
+        let update = {
+            statsVisible = visible
+            onStatsVisibleChange(visible)
+        }
+
+        if let animation {
+            withAnimation(animation) {
+                update()
+            }
+        } else {
+            update()
         }
     }
 }
