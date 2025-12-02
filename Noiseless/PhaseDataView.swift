@@ -393,20 +393,18 @@ private struct DualWaveChart: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .overlay(alignment: .topLeading) {
                         // Start marker positioned at Month 1
-                        if normalizedProgress > 0 {
-                            GeometryReader { overlayGeo in
-                                Circle()
-                                    .fill(Color(red: 0x11/255, green: 0x11/255, blue: 0x13/255))
-                                    .overlay(
-                                        Circle()
-                                            .stroke(Color.white.opacity(0.9), lineWidth: 2.5)
-                                    )
-                                    .frame(width: markerSize, height: markerSize)
-                                    .position(
-                                        x: leftPadding,
-                                        y: chartHeight * startBase
-                                    )
-                            }
+                        GeometryReader { overlayGeo in
+                            Circle()
+                                .fill(Color(red: 0x11/255, green: 0x11/255, blue: 0x13/255))
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color(red: 0x37/255, green: 0x96/255, blue: 0xEF/255), lineWidth: 1)
+                                )
+                                .frame(width: markerSize, height: markerSize)
+                                .position(
+                                    x: leftPadding,
+                                    y: chartHeight * startBase
+                                )
                         }
                     }
                 }
