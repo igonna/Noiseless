@@ -294,6 +294,7 @@ private struct Month1WidthKey: PreferenceKey {
 private struct DualWaveChart: View {
     var progress: CGFloat
     private let startBase: CGFloat = 0.85
+    private let backgroundColor = Color(red: 0x11/255, green: 0x11/255, blue: 0x13/255)
     private let noiselessColor = Color(red: 0x37/255, green: 0x96/255, blue: 0xEF/255)
     private let traditionalColor = Color(red: 0x52/255, green: 0x52/255, blue: 0x5C/255)
 
@@ -324,7 +325,7 @@ private struct DualWaveChart: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 24)
-                .fill(Color(red: 0x11/255, green: 0x11/255, blue: 0x13/255))
+                .fill(backgroundColor)
                 .overlay(
                     RoundedRectangle(cornerRadius: 24)
                         .stroke(Color.white.opacity(0.04), lineWidth: 1)
@@ -345,11 +346,7 @@ private struct DualWaveChart: View {
                     ZStack(alignment: .topLeading) {
                         // Gray stagnating line (Traditional)
                         WaveLine(
-                            amplitude: traditionalWave.amplitude,
-                            base: traditionalWave.base,
-                            trend: traditionalWave.trend,
-                            phase: traditionalWave.phase,
-                            curveExponent: traditionalWave.curveExponent,
+                            config: traditionalWave,
                             progress: normalizedProgress,
                             containerHeight: chartHeight
                         )
@@ -361,11 +358,7 @@ private struct DualWaveChart: View {
 
                         // Blue upward trend line (Noiseless) with glow (on top)
                         WaveLine(
-                            amplitude: noiselessWave.amplitude,
-                            base: noiselessWave.base,
-                            trend: noiselessWave.trend,
-                            phase: noiselessWave.phase,
-                            curveExponent: noiselessWave.curveExponent,
+                            config: noiselessWave,
                             progress: normalizedProgress,
                             containerHeight: chartHeight
                         )
@@ -417,7 +410,7 @@ private struct DualWaveChart: View {
                         // Start marker positioned at Month 1
                         GeometryReader { overlayGeo in
                             Circle()
-                                .fill(Color(red: 0x11/255, green: 0x11/255, blue: 0x13/255))
+                                .fill(backgroundColor)
                                 .overlay(
                                     Circle()
                                         .stroke(noiselessColor, lineWidth: 1)
@@ -435,7 +428,8 @@ private struct DualWaveChart: View {
                                 config: noiselessWave,
                                 chartHeight: chartHeight,
                                 chartWidth: overlayGeo.size.width,
-                                leftPadding: leftPadding
+                                leftPadding: leftPadding,
+                                backgroundColor: backgroundColor
                             )
                         }
                     }
@@ -490,6 +484,7 @@ private struct WaveEndMarker: View, Animatable {
     let chartHeight: CGFloat
     let chartWidth: CGFloat
     let leftPadding: CGFloat
+    let backgroundColor: Color
 
     var animatableData: CGFloat {
         get { progress }
@@ -515,7 +510,7 @@ private struct WaveEndMarker: View, Animatable {
                 .blur(radius: 6)
 
             Circle()
-                .fill(Color(red: 0x11/255, green: 0x11/255, blue: 0x13/255))
+                .fill(backgroundColor)
                 .overlay(
                     Circle()
                         .stroke(color, lineWidth: 1.4)
@@ -544,11 +539,7 @@ private struct LegendItem: View {
 }
 
 private struct WaveLine: Shape {
-    var amplitude: CGFloat
-    var base: CGFloat
-    var trend: CGFloat
-    var phase: CGFloat
-    var curveExponent: CGFloat
+    var config: WaveLineConfig
     var progress: CGFloat
     var containerHeight: CGFloat
 
@@ -562,35 +553,28 @@ private struct WaveLine: Shape {
         let clampedProgress = min(max(progress, 0), 1)
         guard clampedProgress > 0 else { return path }
 
-        let steps = 100
-        let maxIndex = Int(clampedProgress * CGFloat(steps))
+        let width = max(rect.width, 1)
+        let sampleCount = max(Int(width * 2), 120)
+        let step = 1 / CGFloat(sampleCount)
 
-        for i in 0...maxIndex {
-            let t = CGFloat(i) / CGFloat(steps)
-
-            // Apply curve exponent for non-linear trend
-            let easedT = curveExponent == 1.0 ? t : pow(t, curveExponent)
-
-            // Calculate x position
-            let x = t * rect.width
-
-            // Calculate wave oscillation
-            let wave = sin((t + phase) * .pi * 1.5)
-
-            // Calculate y position
-            let baseY = containerHeight * base
-            let waveOffset = wave * containerHeight * amplitude
-            let trendOffset = containerHeight * trend * easedT
-            let y = baseY - waveOffset - trendOffset
-
-            let point = CGPoint(x: x, y: y)
-
-            if i == 0 {
-                path.move(to: point)
-            } else {
-                path.addLine(to: point)
-            }
+        func point(at t: CGFloat) -> CGPoint {
+            config.point(
+                for: t,
+                chartHeight: containerHeight,
+                chartWidth: width,
+                leftPadding: 0
+            )
         }
+
+        path.move(to: point(at: 0))
+
+        var currentT: CGFloat = step
+        while currentT < clampedProgress {
+            path.addLine(to: point(at: currentT))
+            currentT += step
+        }
+
+        path.addLine(to: point(at: clampedProgress))
 
         return path
     }
