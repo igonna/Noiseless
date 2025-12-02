@@ -170,7 +170,7 @@ struct PhaseDataView: View {
                 DualWaveChart(progress: drawProgress)
                     .frame(height: 250)
                     .padding(.horizontal, 4)
-                    .padding(.top, 68)
+                    .padding(.top, 100)
                 
                 Spacer(minLength: 36)
                 
