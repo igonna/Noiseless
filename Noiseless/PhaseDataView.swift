@@ -297,6 +297,9 @@ private struct DualWaveChart: View {
     private let backgroundColor = Color(red: 0x11/255, green: 0x11/255, blue: 0x13/255)
     private let noiselessColor = Color(red: 0x37/255, green: 0x96/255, blue: 0xEF/255)
     private let traditionalColor = Color(red: 0x52/255, green: 0x52/255, blue: 0x5C/255)
+    @State private var month1Visible = false
+    @State private var month6Visible = false
+    @State private var statsVisible = false
 
     private var normalizedProgress: CGFloat {
         min(max(progress, 0), 1)
@@ -343,9 +346,11 @@ private struct DualWaveChart: View {
 
                 GeometryReader { geo in
                     let markerSize: CGFloat = 12
-                    let bottomPadding: CGFloat = 80
+                    let bottomPadding: CGFloat = 100
                     let chartHeight = geo.size.height - bottomPadding
                     let leftPadding: CGFloat = 0
+                    let timelineSpacing: CGFloat = 20
+                    let statsBottomPadding: CGFloat = 34
 
                     ZStack(alignment: .topLeading) {
                         // Gray stagnating line (Traditional)
@@ -375,7 +380,7 @@ private struct DualWaveChart: View {
                         .offset(x: leftPadding)
 
                         // Bottom section with timeline and stats
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: timelineSpacing) {
                             Rectangle()
                                 .fill(Color.white.opacity(0.12))
                                 .frame(height: 1)
@@ -390,8 +395,14 @@ private struct DualWaveChart: View {
                                             )
                                         }
                                     )
+                                    .opacity(month1Visible ? 1 : 0)
+                                    .offset(y: month1Visible ? 0 : 8)
+                                    .scaleEffect(month1Visible ? 1 : 0.9, anchor: .leading)
                                 Spacer()
                                 Text("Month 6")
+                                    .opacity(month6Visible ? 1 : 0)
+                                    .offset(y: month6Visible ? 0 : 8)
+                                    .scaleEffect(month6Visible ? 1 : 0.9, anchor: .trailing)
                             }
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.white.opacity(0.9))
@@ -403,7 +414,10 @@ private struct DualWaveChart: View {
                                 .fixedSize(horizontal: false, vertical: true)
                                 .multilineTextAlignment(.center)
                                 .frame(maxWidth: .infinity)
-                                .padding(.bottom, 16)
+                                .padding(.bottom, statsBottomPadding)
+                                .opacity(statsVisible ? 1 : 0)
+                                .offset(y: statsVisible ? 0 : 12)
+                                .scaleEffect(statsVisible ? 1 : 0.95)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.top, chartHeight + 8)
@@ -438,9 +452,15 @@ private struct DualWaveChart: View {
                         }
                     }
                 }
-                .frame(height: 185)
+                .frame(height: 205)
             }
             .padding(24)
+        }
+        .onAppear {
+            initializeTimelineVisibility()
+        }
+        .onChange(of: normalizedProgress) { newValue in
+            updateTimelineVisibility(for: newValue)
         }
     }
 
@@ -487,6 +507,42 @@ private struct WaveLineConfig {
         }
 
         return CGPoint(x: x, y: y)
+    }
+}
+
+extension DualWaveChart {
+    private func initializeTimelineVisibility() {
+        if normalizedProgress > 0 {
+            month1Visible = true
+        }
+        if normalizedProgress >= 0.999 {
+            month6Visible = true
+            statsVisible = true
+        }
+    }
+
+    private func updateTimelineVisibility(for value: CGFloat) {
+        if value > 0, !month1Visible {
+            withAnimation(.easeOut(duration: 0.35)) {
+                month1Visible = true
+            }
+        }
+
+        if value >= 0.995, !month6Visible {
+            withAnimation(.easeOut(duration: 0.4)) {
+                month6Visible = true
+            }
+            revealStatsAfterDelay()
+        }
+    }
+
+    private func revealStatsAfterDelay() {
+        guard !statsVisible else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            withAnimation(.spring(response: 0.65, dampingFraction: 0.75)) {
+                statsVisible = true
+            }
+        }
     }
 }
 
