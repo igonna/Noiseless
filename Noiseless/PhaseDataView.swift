@@ -167,11 +167,10 @@ struct PhaseDataView: View {
         
         var body: some View {
             VStack(spacing: 0) {
-                Spacer(minLength: 10)
-                
                 DualWaveChart(progress: drawProgress)
                     .frame(height: 250)
                     .padding(.horizontal, 4)
+                    .padding(.top, 60)
                 
                 Spacer(minLength: 36)
                 
