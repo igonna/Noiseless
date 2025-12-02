@@ -162,132 +162,41 @@ struct PhaseDataView: View {
     
     struct GraphContent: View {
         @EnvironmentObject var model: OnboardingModel
-        @State private var pathProgress: CGFloat = 0.0
-        @State private var nodeOpacity: Double = 0.0
-        @State private var nodeScale: CGFloat = 0.0
+        @State private var drawProgress: CGFloat = 0.0
         @State private var animationFinished: Bool = false
         
         var body: some View {
-            VStack {
-                Spacer()
-
-                // Graph Container
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.zinc900.opacity(0.3))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.zinc800, lineWidth: 1)
-                        )
-                    
-                    // Grid
-                    VStack(spacing: 0) {
-                        ForEach(0..<6) { _ in
-                            Divider().background(Color.zinc800.opacity(0.5))
-                            Spacer()
-                        }
-                    }
-                    .padding(.vertical, 16)
-                    
-                    HStack(spacing: 0) {
-                        ForEach(0..<6) { _ in
-                            Divider().background(Color.zinc800.opacity(0.5))
-                            Spacer()
-                        }
-                    }
-                    .padding(.horizontal, 16)
-                    
-                    // Lines (Simulated with Shapes)
-                    GeometryReader { geo in
-                        // Dashed Line (Linear)
-                        Path { path in
-                            path.move(to: CGPoint(x: 0, y: geo.size.height))
-                            path.addLine(to: CGPoint(x: geo.size.width, y: geo.size.height * 0.3))
-                        }
-                        .trim(from: 0, to: pathProgress)
-                        .stroke(Color.zinc500, style: StrokeStyle(lineWidth: 2, dash: [5, 5]))
-                        
-                        // Curved Line (Exponential)
-                        Path { path in
-                            path.move(to: CGPoint(x: 0, y: geo.size.height))
-                            path.addCurve(
-                                to: CGPoint(x: geo.size.width, y: 0),
-                                control1: CGPoint(x: geo.size.width * 0.5, y: geo.size.height * 0.8),
-                                control2: CGPoint(x: geo.size.width * 0.8, y: geo.size.height * 0.4)
-                            )
-                        }
-                        .trim(from: 0, to: pathProgress)
-                        .stroke(Color.blue, lineWidth: 3)
-                        
-                        // Glowing Node
-                        Circle()
-                            .fill(Color.blue)
-                            .frame(width: 16, height: 16)
-                            .shadow(color: Color.blue, radius: 10, x: 0, y: 0)
-                            .position(x: geo.size.width, y: 0)
-                            .opacity(nodeOpacity)
-                            .scaleEffect(nodeScale)
-                    }
-                    .padding(20) // Inset for graph drawing
-                    
-                    // Labels
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            Text("Without Guidance")
-                                .font(.system(size: 12))
-                                .foregroundColor(.zinc500)
-                                .padding(6)
-                                .background(Color.black.opacity(0.8))
-                                .cornerRadius(4)
-                                .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.zinc800, lineWidth: 1))
-                        }
-                        .padding(.bottom, 40)
-                        .padding(.trailing, 16)
-                    }
-                    
-                    VStack {
-                        HStack {
-                            Spacer()
-                            Text("With Personalized Insights")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.blue)
-                                .padding(6)
-                                .background(Color.black.opacity(0.8))
-                                .cornerRadius(4)
-                                .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.blue.opacity(0.3), lineWidth: 1))
-                        }
-                        .padding(.top, 32)
-                        .padding(.trailing, 16)
-                        Spacer()
-                    }
-                }
-                .frame(height: 256)
-                .padding(.top, 0)
-                .padding(.bottom, 16)
-                .onAppear {
-                    animationFinished = false
-                    withAnimation(.easeOut(duration: 1.5)) {
-                        pathProgress = 1.0
-                    }
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(1.5)) {
-                        nodeOpacity = 1.0
-                        nodeScale = 1.0
-                    }
-                    let totalDuration = 2.0
-                    DispatchQueue.main.asyncAfter(deadline: .now() + totalDuration) {
-                        animationFinished = true
-                        HapticManager.lightTap()
-                    }
-                }
-
-                Spacer(minLength: 20)
-
+            VStack(spacing: 0) {
+                Spacer(minLength: 10)
+                
+                DualWaveChart(progress: drawProgress)
+                    .frame(height: 250)
+                    .padding(.horizontal, 4)
+                
+                Spacer(minLength: 36)
+                
                 PrimaryButton(title: "Continue", disabled: !animationFinished) {
                     model.nextStep()
                 }
                 .padding(.bottom, 10)
+            }
+            .onAppear {
+                startAnimation()
+            }
+        }
+        
+        private func startAnimation() {
+            animationFinished = false
+            drawProgress = 0
+            let duration = 1.6
+            
+            withAnimation(.easeOut(duration: duration)) {
+                drawProgress = 1
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+                animationFinished = true
+                HapticManager.lightTap()
             }
         }
     }
@@ -371,8 +280,197 @@ struct PhaseDataView: View {
     }
     
     // Screen 11: Time Budget
-    var timeBudgetView: some View {
+var timeBudgetView: some View {
         TimeBudgetScreen()
+    }
+}
+
+private struct DualWaveChart: View {
+    var progress: CGFloat
+    private let startBase: CGFloat = 0.78
+    
+    private var normalizedProgress: CGFloat {
+        min(max(progress, 0), 1)
+    }
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color(red: 0x11/255, green: 0x11/255, blue: 0x13/255))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24)
+                        .stroke(Color.white.opacity(0.04), lineWidth: 1)
+                )
+                .shadow(color: Color.black.opacity(0.25), radius: 18, x: 0, y: 10)
+            
+            VStack(alignment: .leading, spacing: 18) {
+                chartTitle
+                
+                legend
+                
+                GeometryReader { geo in
+                    let markerSize: CGFloat = 14
+                    let startY = geo.size.height * startBase
+                    let baselineY = min(geo.size.height - 44, startY + markerSize * 0.25)
+                    
+                    ZStack {
+                        WaveLine(
+                            amplitude: 0.32,
+                            base: startBase,
+                            trend: 1.05,
+                            phase: 0.0,
+                            curveExponent: 3.1,
+                            progress: normalizedProgress
+                        )
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color(red: 0x24/255, green: 0x71/255, blue: 0xC7/255),
+                                    Color(red: 0x24/255, green: 0x71/255, blue: 0xC7/255).opacity(0.65)
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ),
+                            style: StrokeStyle(lineWidth: 2.2, lineCap: .round, lineJoin: .round)
+                        )
+                        .shadow(color: Color(red: 0x24/255, green: 0x71/255, blue: 0xC7/255).opacity(0.35), radius: 14, x: 0, y: 10)
+                        
+                        WaveLine(
+                            amplitude: 0.08,
+                            base: startBase,
+                            trend: -0.18,
+                            phase: 0.0,
+                            curveExponent: 0.6,
+                            progress: normalizedProgress
+                        )
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color.red.opacity(0.9), Color.red.opacity(0.6)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ),
+                            style: StrokeStyle(lineWidth: 2.2, lineCap: .round, lineJoin: .round)
+                        )
+                        
+                        Circle()
+                            .fill(Color(red: 0x11/255, green: 0x11/255, blue: 0x13/255))
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white.opacity(0.95), lineWidth: 2.2)
+                            )
+                            .frame(width: markerSize, height: markerSize)
+                            .allowsHitTesting(false)
+                            .position(x: 0, y: startY)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .overlay(alignment: .topLeading) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Rectangle()
+                                .fill(Color.white.opacity(0.12))
+                                .frame(height: 1)
+                            
+                            HStack {
+                                Text("Month 1")
+                                Spacer()
+                                Text("Month 6")
+                            }
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.zinc500)
+                            
+                            Text("82% of users achieve faster progress with guided daily insights.")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.9))
+                                .lineLimit(nil)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .multilineTextAlignment(.leading)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, baselineY)
+                        .allowsHitTesting(false)
+                    }
+                }
+                .frame(height: 185)
+            }
+            .padding(24)
+        }
+    }
+    
+    private var chartTitle: some View {
+        Text("Your growth")
+            .font(.system(size: 18, weight: .semibold))
+            .foregroundColor(.white.opacity(0.95))
+            .tracking(0.8)
+    }
+    
+    private var legend: some View {
+        HStack(spacing: 20) {
+            LegendItem(color: Color.green, label: "Noiseless")
+            LegendItem(color: Color.red, label: "Traditional")
+        }
+    }
+}
+
+private struct LegendItem: View {
+    let color: Color
+    let label: String
+    
+    var body: some View {
+        HStack(spacing: 6) {
+            Circle()
+                .fill(color)
+                .frame(width: 10, height: 10)
+            Text(label)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white.opacity(0.85))
+        }
+    }
+}
+
+private struct WaveLine: Shape {
+    var amplitude: CGFloat
+    var base: CGFloat
+    var trend: CGFloat
+    var phase: CGFloat
+    var curveExponent: CGFloat
+    var progress: CGFloat
+    
+    var animatableData: CGFloat {
+        get { progress }
+        set { progress = newValue }
+    }
+    
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let clampedProgress = min(max(progress, 0), 1)
+        guard clampedProgress > 0 else { return path }
+        
+        let steps = 120
+        let endIndex = max(1, Int(clampedProgress * CGFloat(steps)))
+        
+        for i in 0...endIndex {
+            let pct = CGFloat(i) / CGFloat(steps)
+            let clampedPct = min(max(pct, 0), 1)
+            let easedTrendPct: CGFloat
+            if curveExponent == 1 {
+                easedTrendPct = clampedPct
+            } else {
+                easedTrendPct = CGFloat(pow(Double(clampedPct), Double(max(curveExponent, 0.1))))
+            }
+            let x = clampedPct * rect.width
+            let wave = sin((clampedPct + phase) * .pi * 1.35)
+            let baseHeight = rect.height * base
+            let trendOffset = rect.height * trend * easedTrendPct
+            let y = baseHeight - wave * (rect.height * amplitude) - trendOffset
+            let point = CGPoint(x: x, y: y)
+            
+            if i == 0 {
+                path.move(to: point)
+            } else {
+                path.addLine(to: point)
+            }
+        }
+        
+        return path
     }
 }
 
