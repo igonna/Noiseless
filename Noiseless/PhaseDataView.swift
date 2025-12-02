@@ -118,6 +118,7 @@ struct PhaseDataView: View {
                     }
                 }
             }
+            .padding(.top, 8)
         }
     }
     
