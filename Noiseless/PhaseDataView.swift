@@ -405,6 +405,34 @@ private struct DualWaveChart: View {
                                     x: leftPadding,
                                     y: chartHeight * startBase
                                 )
+
+                            // End marker that follows the line
+                            if normalizedProgress > 0 {
+                                // Calculate the position of the last drawn point
+                                // Match exactly how WaveLine calculates points
+                                let t = normalizedProgress
+                                let easedT = pow(t, 2.2)
+
+                                // X position (matching WaveLine: x = t * rect.width)
+                                let endX = leftPadding + (t * overlayGeo.size.width)
+
+                                // Y position (matching WaveLine calculation)
+                                let wave = sin((t + 0.0) * .pi * 1.5)
+                                let baseY = chartHeight * startBase
+                                let waveOffset = wave * chartHeight * 0.35
+                                let trendOffset = chartHeight * 1.45 * easedT
+                                let endY = baseY - waveOffset - trendOffset
+
+                                Circle()
+                                    .fill(Color(red: 0x11/255, green: 0x11/255, blue: 0x13/255))
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color(red: 0x37/255, green: 0x96/255, blue: 0xEF/255), lineWidth: 1)
+                                    )
+                                    .frame(width: markerSize, height: markerSize)
+                                    .position(x: endX, y: endY)
+                                    .animation(.easeOut(duration: 1.6), value: normalizedProgress)
+                            }
                         }
                     }
                 }
