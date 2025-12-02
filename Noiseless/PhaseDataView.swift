@@ -354,6 +354,11 @@ private struct DualWaveChart: View {
                     let statsBottomPadding: CGFloat = 34
                     let timelineTopPadding: CGFloat = chartHeight + 8
                     let chartVerticalShift: CGFloat = timelineTopPadding - (chartHeight * startBase)
+                    let guidelineCount: Int = 2
+                    let guidelineSpacing = (startBase * 1.98) / CGFloat(guidelineCount + 1)
+                    let guidelineFactors: [CGFloat] = (1...guidelineCount).map { index in
+                        max(min(startBase - (guidelineSpacing * CGFloat(index)), 1), 0)
+                    }
 
                     ZStack(alignment: .topLeading) {
                         // Gray stagnating line (Traditional)
@@ -381,6 +386,21 @@ private struct DualWaveChart: View {
                         .shadow(color: noiselessColor.opacity(0.6), radius: 8, x: 0, y: 0)
                         .shadow(color: noiselessColor.opacity(0.4), radius: 16, x: 0, y: 0)
                         .offset(x: leftPadding, y: chartVerticalShift)
+
+                        // Guideline dotted lines
+                        ForEach(guidelineFactors, id: \.self) { factor in
+                            let clampedFactor = min(max(factor, 0), 1)
+                            let yPosition = (chartHeight * clampedFactor) + chartVerticalShift
+
+                            Path { path in
+                                path.move(to: CGPoint(x: leftPadding, y: yPosition))
+                                path.addLine(to: CGPoint(x: geo.size.width, y: yPosition))
+                            }
+                            .stroke(
+                                Color.white.opacity(0.12),
+                                style: StrokeStyle(lineWidth: 1, lineCap: .round, dash: [4, 6])
+                            )
+                        }
 
                         // Bottom section with timeline and stats
                         VStack(alignment: .leading, spacing: timelineSpacing) {
