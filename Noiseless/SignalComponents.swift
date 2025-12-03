@@ -327,7 +327,7 @@ struct SignalCard: View {
                                 .frame(width: 20, height: 20)
                         } else {
                             BookmarkIcon()
-                                .stroke(Color(hex: "3F3F41"), lineWidth: 2)
+                                .stroke(Color(hex: "3F3F41"), lineWidth: 1.5)
                                 .frame(width: 20, height: 20)
                         }
                     }
@@ -380,7 +380,7 @@ struct SignalCard: View {
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.zinc800, lineWidth: 1)
+                .stroke(config.borderColor, lineWidth: 1)
         )
     }
     
