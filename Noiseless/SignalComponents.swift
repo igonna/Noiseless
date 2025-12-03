@@ -287,7 +287,7 @@ struct SignalCard: View {
         
         return VStack(alignment: .leading, spacing: 12) {
             // Top Row: Label + Save Button
-            HStack(alignment: .top) {
+            HStack(alignment: .center) {
                 HStack(spacing: 6) {
                     Image(systemName: config.icon)
                         .font(.system(size: 14))
