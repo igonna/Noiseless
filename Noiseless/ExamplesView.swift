@@ -1,5 +1,8 @@
 import SwiftUI
 
+// Shared background color constant
+private let appBackgroundColor = Color(hex: "09090A")
+
 struct ExamplesView: View {
     @State private var selectedTab: Int = 0
     @State private var lastNonProfileTab: Int = 0
@@ -25,8 +28,8 @@ struct ExamplesView: View {
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            EdgeFadeBackground()
-                .allowsHitTesting(false)
+            appBackgroundColor
+                .ignoresSafeArea()
                 .zIndex(0)
 
             TabView(selection: $selectedTab) {
@@ -95,31 +98,46 @@ struct ExamplesView: View {
                 }
                 
                 // Tab 2: Trends
-                Text("Trends View Placeholder")
-                    .tag(1)
-                    .tabItem {
-                        Image("tab_activity")
-                            .renderingMode(.template)
-                        Text("Trends")
-                    }
-                
+                ZStack {
+                    appBackgroundColor
+                        .ignoresSafeArea()
+                    Text("Trends View Placeholder")
+                        .foregroundColor(.white)
+                }
+                .tag(1)
+                .tabItem {
+                    Image("tab_activity")
+                        .renderingMode(.template)
+                    Text("Trends")
+                }
+
                 // Tab 3: Growth/Market
-                Text("Growth View Placeholder")
-                    .tag(2)
-                    .tabItem {
-                        Image("tab_trending")
-                            .renderingMode(.template)
-                        Text("Growth")
-                    }
-                
+                ZStack {
+                    appBackgroundColor
+                        .ignoresSafeArea()
+                    Text("Growth View Placeholder")
+                        .foregroundColor(.white)
+                }
+                .tag(2)
+                .tabItem {
+                    Image("tab_trending")
+                        .renderingMode(.template)
+                    Text("Growth")
+                }
+
                 // Tab 4: Saved
-                Text("Saved Items Placeholder")
-                    .tag(3)
-                    .tabItem {
-                        Image("tab_bookmark")
-                            .renderingMode(.template)
-                        Text("Saved")
-                    }
+                ZStack {
+                    appBackgroundColor
+                        .ignoresSafeArea()
+                    Text("Saved Items Placeholder")
+                        .foregroundColor(.white)
+                }
+                .tag(3)
+                .tabItem {
+                    Image("tab_bookmark")
+                        .renderingMode(.template)
+                    Text("Saved")
+                }
 
                 // Profile tab that opens sheet instead of switching content
                 Color.clear
@@ -130,7 +148,6 @@ struct ExamplesView: View {
                         Text("Profile")
                     }
             }
-            .background(Color(.systemBackground))
             .overlay(alignment: .top) {
                 EdgeFadeTop()
                     .allowsHitTesting(false)
@@ -164,7 +181,7 @@ struct EdgeFadeBackground: View {
 struct EdgeFadeTop: View {
     var body: some View {
         LinearGradient(
-            colors: [Color(.systemBackground), Color(.systemBackground).opacity(0)],
+            colors: [appBackgroundColor, appBackgroundColor.opacity(0)],
             startPoint: .top,
             endPoint: .bottom
         )
@@ -175,7 +192,7 @@ struct EdgeFadeTop: View {
 struct EdgeFadeBottom: View {
     var body: some View {
         LinearGradient(
-            colors: [Color(.systemBackground).opacity(0), Color(.systemBackground)],
+            colors: [appBackgroundColor.opacity(0), appBackgroundColor],
             startPoint: .top,
             endPoint: .bottom
         )

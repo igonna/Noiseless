@@ -1,5 +1,30 @@
 import SwiftUI
 
+// Shared background color constant
+private let appBackgroundColor = Color(hex: "09090A")
+
+// MARK: - Custom Bookmark Icon
+// Based on svg-icons/bookmark.svg: m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z
+
+struct BookmarkIcon: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let scaleX = rect.width / 24
+        let scaleY = rect.height / 24
+
+        path.move(to: CGPoint(x: 19 * scaleX, y: 21 * scaleY))
+        path.addLine(to: CGPoint(x: 12 * scaleX, y: 17 * scaleY))
+        path.addLine(to: CGPoint(x: 5 * scaleX, y: 21 * scaleY))
+        path.addLine(to: CGPoint(x: 5 * scaleX, y: 5 * scaleY))
+        path.addArc(tangent1End: CGPoint(x: 5 * scaleX, y: 3 * scaleY), tangent2End: CGPoint(x: 7 * scaleX, y: 3 * scaleY), radius: 2 * min(scaleX, scaleY))
+        path.addLine(to: CGPoint(x: 17 * scaleX, y: 3 * scaleY))
+        path.addArc(tangent1End: CGPoint(x: 19 * scaleX, y: 3 * scaleY), tangent2End: CGPoint(x: 19 * scaleX, y: 5 * scaleY), radius: 2 * min(scaleX, scaleY))
+        path.addLine(to: CGPoint(x: 19 * scaleX, y: 21 * scaleY))
+        path.closeSubpath()
+        return path
+    }
+}
+
 // MARK: - Data Models
 
 struct UserProfile: Identifiable {
@@ -134,7 +159,7 @@ struct TodayView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 headerView
-                
+
                 if isLoading {
                     loadingView
                 } else {
@@ -145,6 +170,7 @@ struct TodayView: View {
             .padding(.bottom, 32) // reduce extra bottom padding so last card sits near tab bar
             .frame(maxWidth: 672) // md:max-w-2xl
         }
+        .background(appBackgroundColor)
         .onAppear {
             loadData()
         }
@@ -274,7 +300,7 @@ struct SignalCard: View {
                 .background(config.bgColor)
                 .foregroundColor(config.textColor)
                 .cornerRadius(999)
-                
+
                 if item.type == "hype_hot" {
                     ZStack {
                         Circle()
@@ -288,17 +314,27 @@ struct SignalCard: View {
                             .frame(width: 10, height: 10)
                     }
                 }
-                
+
                 Spacer()
-                
+
                 Button(action: {
                     onToggleSave()
                 }) {
-                    Image(systemName: isSaved ? "bookmark.fill" : "bookmark")
-                        .font(.system(size: 20))
-                        .foregroundColor(isSaved ? .primary : .secondary)
+                    ZStack {
+                        if isSaved {
+                            BookmarkIcon()
+                                .fill(Color(hex: "3F3F41"))
+                                .frame(width: 20, height: 20)
+                        } else {
+                            BookmarkIcon()
+                                .stroke(Color(hex: "3F3F41"), lineWidth: 2)
+                                .frame(width: 20, height: 20)
+                        }
+                    }
+                    .frame(width: 24, height: 24)
                 }
             }
+            .padding(.horizontal, -4)
             
             // Title
             Text(item.title)
@@ -340,11 +376,11 @@ struct SignalCard: View {
             }
         }
         .padding(20)
-        .background(Color(uiColor: .systemBackground)) // bg-white dark:bg-zinc-900
+        .background(Color(hex: "151516"))
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(config.borderColor, lineWidth: config.isChallenge ? 2 : 1)
+                .stroke(Color.zinc800, lineWidth: 1)
         )
     }
     
