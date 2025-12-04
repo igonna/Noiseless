@@ -97,18 +97,18 @@ struct ExamplesView: View {
                     Text("Today")
                 }
                 
-                // Tab 2: Trends
+                // Tab 2: Future
                 ZStack {
                     appBackgroundColor
                         .ignoresSafeArea()
-                    Text("Trends View Placeholder")
+                    Text("Future View Placeholder")
                         .foregroundColor(.white)
                 }
                 .tag(1)
                 .tabItem {
-                    Image("tab_activity")
+                    Image("tab_telescope")
                         .renderingMode(.template)
-                    Text("Trends")
+                    Text("Future")
                 }
 
                 // Tab 3: Next Steps
@@ -120,7 +120,7 @@ struct ExamplesView: View {
                 }
                 .tag(2)
                 .tabItem {
-                    Image("tab_trending")
+                    Image("tab_chess_knight")
                         .renderingMode(.template)
                     Text("Next Steps")
                 }
