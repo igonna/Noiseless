@@ -66,6 +66,24 @@ struct TodaySignalDTO: Codable {
     }
 }
 
+// MARK: - Signal Action Models
+
+struct SignalActionRequest: Codable {
+    let signalId: String
+
+    enum CodingKeys: String, CodingKey {
+        case signalId = "signal_id"
+    }
+}
+
+struct SignalActionResponse: Codable {
+    let actionResult: String
+
+    enum CodingKeys: String, CodingKey {
+        case actionResult = "action-result"
+    }
+}
+
 // MARK: - Today Signals Service
 
 enum TodaySignalsService {
@@ -102,6 +120,44 @@ enum TodaySignalsService {
 
         // Convert DTOs to SignalItems
         return apiResponse.todaySignals.map { $0.toSignalItem() }
+    }
+
+    static func performSignalAction(signalId: String) async throws -> String {
+        guard let url = URL(string: "\(NoiselessAPIService.baseURL)/signal-action") else {
+            throw ServiceError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.timeoutInterval = 10
+
+        let requestBody = SignalActionRequest(signalId: signalId)
+        request.httpBody = try JSONEncoder().encode(requestBody)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ServiceError.invalidResponse
+        }
+
+        // Debug: Print raw response
+        #if DEBUG
+        if let rawResponse = String(data: data, encoding: .utf8) {
+            print("Signal Action API Response: \(rawResponse)")
+        }
+        #endif
+
+        guard httpResponse.statusCode == 200 else {
+            let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw ServiceError.httpError(statusCode: httpResponse.statusCode, message: errorMessage)
+        }
+
+        let decoder = JSONDecoder()
+        let apiResponse = try decoder.decode(SignalActionResponse.self, from: data)
+
+        return apiResponse.actionResult
     }
 }
 

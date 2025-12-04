@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 // Shared background color constant
 private let appBackgroundColor = Color(hex: "09090A")
@@ -268,10 +269,11 @@ struct TodayView: View {
 }
 
 struct SignalCardButtonStyle: ButtonStyle {
+    let onHaptic: () -> Void
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 1.02 : 1.0)
-            // Modern shadow: softer and more diffused
             .shadow(color: Color.black.opacity(configuration.isPressed ? 0.08 : 0.06), radius: configuration.isPressed ? 12 : 10, x: 0, y: configuration.isPressed ? 6 : 4)
             .animation(.spring(response: 0.2, dampingFraction: 0.6), value: configuration.isPressed)
             .onChange(of: configuration.isPressed) { isPressed in
@@ -279,8 +281,80 @@ struct SignalCardButtonStyle: ButtonStyle {
                     // Delay haptic to match when scale animation completes
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         HapticManager.tap()
+                        // Trigger action after haptic
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                            onHaptic()
+                        }
                     }
                 }
+            }
+    }
+}
+
+// MARK: - Animated Word
+
+struct AnimatedWord: Identifiable {
+    let id = UUID()
+    let text: String
+    var opacity: Double = 0.0
+}
+
+struct AnimatedTextView: View {
+    let words: [AnimatedWord]
+
+    var body: some View {
+        Text(buildAttributedText())
+    }
+
+    private func buildAttributedText() -> AttributedString {
+        var result = AttributedString()
+
+        for (index, word) in words.enumerated() {
+            var wordText = AttributedString(word.text)
+            wordText.foregroundColor = .secondary.opacity(word.opacity)
+            result += wordText
+
+            // Add space after word (except for last word)
+            if index < words.count - 1 {
+                result += AttributedString(" ")
+            }
+        }
+
+        return result
+    }
+}
+
+// MARK: - Pulsing Dot
+
+struct PulsingDot: View {
+    @State private var isPulsing = false
+    let color: Color
+
+    var body: some View {
+        Circle()
+            .fill(color)
+            .frame(width: 8, height: 8)
+            .scaleEffect(isPulsing ? 1.2 : 0.8)
+            .opacity(isPulsing ? 1.0 : 0.5)
+            .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: isPulsing)
+            .onAppear {
+                isPulsing = true
+            }
+    }
+}
+
+// MARK: - Animated Thinking Text
+
+struct AnimatedThinkingText: View {
+    @State private var dotCount = 0
+    let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+
+    var body: some View {
+        Text("Thinking" + String(repeating: ".", count: dotCount))
+            .font(.system(size: 14))
+            .foregroundColor(.secondary)
+            .onReceive(timer) { _ in
+                dotCount = (dotCount + 1) % 4
             }
     }
 }
@@ -290,13 +364,60 @@ struct SignalCard: View {
     let isSaved: Bool
     let onToggleSave: () -> Void
 
+    @State private var actionResult: String?
+    @State private var animatedWords: [AnimatedWord] = []
+    @State private var isLoadingAction = false
+    @State private var hasRequestedAction = false
+
     var body: some View {
         Button(action: {
-            // Card tap action
+            // Action is triggered by button style after haptic
         }) {
             cardContent
         }
-        .buttonStyle(SignalCardButtonStyle())
+        .buttonStyle(SignalCardButtonStyle(onHaptic: handleCardTap))
+    }
+
+    private func handleCardTap() {
+        // Only send request once
+        guard !hasRequestedAction else { return }
+
+        hasRequestedAction = true
+
+        Task {
+            do {
+                isLoadingAction = true
+                let result = try await TodaySignalsService.performSignalAction(signalId: item.id)
+                actionResult = result
+                isLoadingAction = false
+                // Start typewriter animation
+                await animateText(result)
+            } catch {
+                print("Error performing signal action: \(error)")
+                isLoadingAction = false
+            }
+        }
+    }
+
+    private func animateText(_ fullText: String) async {
+        animatedWords = []
+        let words = fullText.split(separator: " ")
+
+        for word in words {
+            // Add new word with 0 opacity
+            let newWord = AnimatedWord(text: String(word), opacity: 0.0)
+            animatedWords.append(newWord)
+
+            // Animate opacity to 1
+            withAnimation(.easeIn(duration: 0.3)) {
+                if let index = animatedWords.firstIndex(where: { $0.id == newWord.id }) {
+                    animatedWords[index].opacity = 1.0
+                }
+            }
+
+            // Wait before next word (70ms for smoother effect)
+            try? await Task.sleep(nanoseconds: 70_000_000)
+        }
     }
     
     var cardContent: some View {
@@ -368,27 +489,43 @@ struct SignalCard: View {
             
             Divider()
                 .background(config.isChallenge ? Color.orange.opacity(0.2) : Color(uiColor: .systemGray6))
-            
+
             // Bottom Row: Action
             HStack(alignment: .top, spacing: 12) {
                 Circle()
                     .fill(config.bgColor)
                     .frame(width: 24, height: 24)
                     .overlay(
-                        Image(systemName: config.isChallenge ? "trophy.fill" : "arrow.right")
-                            .font(.system(size: 12))
-                            .foregroundColor(config.textColor)
+                        Group {
+                            if isLoadingAction {
+                                PulsingDot(color: config.textColor)
+                            } else {
+                                Image(systemName: config.isChallenge ? "trophy.fill" : "arrow.right")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(config.textColor)
+                            }
+                        }
                     )
-                
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text(actionLabel(for: item.type))
                         .font(.system(size: 12, weight: .semibold))
                         .textCase(.uppercase)
                         .foregroundColor(config.isChallenge ? .orange : .secondary)
-                    
-                    Text(item.action)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.primary)
+
+                    if isLoadingAction {
+                        AnimatedThinkingText()
+                    } else if actionResult != nil {
+                        AnimatedTextView(words: animatedWords)
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                            .lineSpacing(4)
+                            .fixedSize(horizontal: false, vertical: true)
+                    } else {
+                        Text(item.action)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.primary)
+                    }
                 }
             }
         }
