@@ -33,12 +33,21 @@ struct UserProfile: Identifiable {
 }
 
 struct SignalItem: Identifiable, Equatable {
-    let id = UUID()
+    let id: String
     let type: String
     let title: String
     let description: String
     let action: String
-    
+
+    // Convenience initializer for local/test data without explicit id
+    init(id: String = UUID().uuidString, type: String, title: String, description: String, action: String) {
+        self.id = id
+        self.type = type
+        self.title = title
+        self.description = description
+        self.action = action
+    }
+
     // Equatable conformance for efficient updates
     static func == (lhs: SignalItem, rhs: SignalItem) -> Bool {
         return lhs.id == rhs.id && lhs.type == rhs.type && lhs.title == rhs.title
