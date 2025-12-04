@@ -14,7 +14,13 @@ struct ProfileSettingsView: View {
             NavigationView {
                 List {
                     Section(header: Text("Account")) {
-                        Text("Profile Details")
+                        NavigationLink(destination: ProfileDetailsView()) {
+                            HStack {
+                                Image(systemName: "person.circle.fill")
+                                    .foregroundColor(.blue)
+                                Text("Profile Details")
+                            }
+                        }
                         Text("Notifications")
                         Text("Privacy")
                     }

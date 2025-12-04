@@ -3,6 +3,7 @@ import UserNotifications
 
 struct PhaseFinalView: View {
     @EnvironmentObject var model: OnboardingModel
+    @State private var isSavingData = false
     
     var body: some View {
         Group {
@@ -65,8 +66,7 @@ struct PhaseFinalView: View {
             topPadding: 0
         ) {
             FinalWelcomeContent(onContinue: {
-                UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-                model.goToStep(.dashboard)
+                saveUserDataAndComplete()
             })
         }
     }
@@ -153,6 +153,36 @@ struct PhaseFinalView: View {
                     model.nextStep()
                 }
                 .padding(.bottom, 20)
+            }
+        }
+    }
+
+    // MARK: - Helper Functions
+
+    private func saveUserDataAndComplete() {
+        guard !isSavingData else { return }
+        isSavingData = true
+
+        Task {
+            do {
+                // Save user data both locally and to backend
+                try await UserDataManager.shared.saveUserDataComplete(model.userData)
+                print("✅ User data saved successfully")
+
+                // Mark onboarding as complete
+                await MainActor.run {
+                    UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+                    model.goToStep(.dashboard)
+                    isSavingData = false
+                }
+            } catch {
+                print("❌ Error saving user data: \(error.localizedDescription)")
+                // Still complete onboarding even if save fails
+                await MainActor.run {
+                    UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+                    model.goToStep(.dashboard)
+                    isSavingData = false
+                }
             }
         }
     }
