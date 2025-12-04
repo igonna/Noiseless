@@ -166,9 +166,9 @@ struct TodayView: View {
                     signalsList
                 }
             }
-            .padding(24)
+            .padding(16)
             .padding(.bottom, 32) // reduce extra bottom padding so last card sits near tab bar
-            .frame(maxWidth: 672) // md:max-w-2xl
+            .frame(maxWidth: .infinity)
         }
         .background(appBackgroundColor)
         .onAppear {
@@ -377,9 +377,9 @@ struct SignalCard: View {
         }
         .padding(20)
         .background(Color(hex: "151516"))
-        .cornerRadius(16)
+        .cornerRadius(24)
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 24)
                 .stroke(config.borderColor, lineWidth: 1)
         )
     }

@@ -111,18 +111,18 @@ struct ExamplesView: View {
                     Text("Trends")
                 }
 
-                // Tab 3: Growth/Market
+                // Tab 3: Next Steps
                 ZStack {
                     appBackgroundColor
                         .ignoresSafeArea()
-                    Text("Growth View Placeholder")
+                    Text("Next Steps View Placeholder")
                         .foregroundColor(.white)
                 }
                 .tag(2)
                 .tabItem {
                     Image("tab_trending")
                         .renderingMode(.template)
-                    Text("Growth")
+                    Text("Next Steps")
                 }
 
                 // Tab 4: Saved
