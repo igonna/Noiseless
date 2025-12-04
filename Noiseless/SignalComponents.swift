@@ -261,10 +261,18 @@ struct TodayView: View {
 struct SignalCardButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .scaleEffect(configuration.isPressed ? 1.02 : 1.0)
             // Modern shadow: softer and more diffused
-            .shadow(color: Color.black.opacity(configuration.isPressed ? 0.04 : 0.06), radius: configuration.isPressed ? 6 : 10, x: 0, y: configuration.isPressed ? 2 : 4)
+            .shadow(color: Color.black.opacity(configuration.isPressed ? 0.08 : 0.06), radius: configuration.isPressed ? 12 : 10, x: 0, y: configuration.isPressed ? 6 : 4)
             .animation(.spring(response: 0.2, dampingFraction: 0.6), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { isPressed in
+                if isPressed {
+                    // Delay haptic to match when scale animation completes
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        HapticManager.tap()
+                    }
+                }
+            }
     }
 }
 
@@ -272,7 +280,7 @@ struct SignalCard: View {
     let item: SignalItem
     let isSaved: Bool
     let onToggleSave: () -> Void
-    
+
     var body: some View {
         Button(action: {
             // Card tap action
