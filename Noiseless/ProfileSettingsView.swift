@@ -40,6 +40,7 @@ struct ProfileSettingsView: View {
                 .background(appBackgroundColor)
                 .navigationTitle("Settings")
                 .navigationBarTitleDisplayMode(.inline)
+                .preferredColorScheme(.dark)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {

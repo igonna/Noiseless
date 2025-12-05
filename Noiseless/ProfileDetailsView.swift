@@ -32,6 +32,7 @@ struct ProfileDetailsView: View {
         }
         .navigationTitle("Your Profile")
         .navigationBarTitleDisplayMode(.large)
+        .preferredColorScheme(.dark)
         .sheet(isPresented: $showExportSheet) {
             exportJSONSheet
         }
@@ -249,6 +250,7 @@ struct ProfileDetailsView: View {
             }
             .navigationTitle("JSON Export")
             .navigationBarTitleDisplayMode(.inline)
+            .preferredColorScheme(.dark)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
