@@ -2,7 +2,8 @@ import SwiftUI
 
 struct PhaseValueView: View {
     @EnvironmentObject var model: OnboardingModel
-    
+    @EnvironmentObject var authController: AuthController
+
     var body: some View {
         Group {
             switch model.currentStep {
@@ -20,21 +21,39 @@ struct PhaseValueView: View {
                 Spacer()
 
                 VStack(spacing: 16) {
-                    SignInButton(style: .apple) {
-                        model.nextStep()
+                    SignInButton(
+                        style: .apple,
+                        isLoading: authController.isAuthenticating && authController.activeProvider == .apple
+                    ) {
+                        authController.signIn(with: .apple)
                     }
-                    SignInButton(style: .google) {
-                        model.nextStep()
+                    SignInButton(
+                        style: .google,
+                        isLoading: authController.isAuthenticating && authController.activeProvider == .google
+                    ) {
+                        authController.signIn(with: .google)
                     }
                 }
                 .padding(.horizontal, 12)
 
                 Spacer()
 
+                if let errorMessage = authController.lastErrorMessage {
+                    Text(errorMessage)
+                        .font(.system(size: 12))
+                        .foregroundColor(.red)
+                        .padding(.bottom, 8)
+                }
+
                 Text("We'll sync your data securely.")
                     .font(.system(size: 12))
                     .foregroundColor(.zinc600)
                     .padding(.bottom, 24)
+            }
+        }
+        .onChange(of: authController.isAuthenticated) { _, isAuthenticated in
+            if isAuthenticated {
+                model.nextStep()
             }
         }
     }
@@ -224,36 +243,43 @@ private struct SignInButton: View {
         case apple
         case google
     }
-    
+
     let style: Style
+    let isLoading: Bool
     let action: () -> Void
-    
+
     private var label: String {
         switch style {
         case .apple: return "Sign in with Apple"
         case .google: return "Sign in with Google"
         }
     }
-    
+
     private var background: Color {
         switch style {
         case .apple: return .white
         case .google: return Color.zinc900
         }
     }
-    
+
     private var foreground: Color {
         style == .apple ? .black : .white
     }
-    
+
     private var borderColor: Color {
         style == .apple ? Color.clear : Color.zinc700
     }
-    
+
     var body: some View {
         Button(action: triggerAction) {
             HStack(spacing: 12) {
-                icon
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: foreground))
+                        .frame(width: 24, height: 24)
+                } else {
+                    icon
+                }
                 Text(label)
                     .font(.system(size: 16, weight: .bold))
             }
@@ -269,13 +295,14 @@ private struct SignInButton: View {
             .shadow(color: style == .apple ? Color.white.opacity(0.2) : Color.black.opacity(0.4), radius: 15, x: 0, y: 0)
         }
         .buttonStyle(.plain)
+        .disabled(isLoading)
     }
 
     private func triggerAction() {
         HapticManager.tap()
         action()
     }
-    
+
     @ViewBuilder
     private var icon: some View {
         switch style {
