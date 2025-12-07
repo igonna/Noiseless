@@ -76,14 +76,21 @@ class UserDataManager {
 
     /// Save user data to backend API
     func saveUserDataToBackend(_ userData: UserData, authController: AuthController) async throws -> Bool {
-        guard let url = URL(string: "\(NoiselessAPIService.baseURL)/v1/user/profile/update") else {
+        let urlString = "\(NoiselessAPIService.baseURL)/v1/user/profile/update"
+        print("🌐 Preparing request to: \(urlString)")
+
+        guard let url = URL(string: urlString) else {
+            print("❌ Invalid URL: \(urlString)")
             throw UserDataError.invalidURL
         }
 
         // Get access token
+        print("🔑 Requesting access token from AuthController...")
         guard let accessToken = await authController.getAccessToken() else {
+            print("❌ Failed to get access token")
             throw UserDataError.authenticationRequired
         }
+        print("✅ Full access token: \(accessToken)")
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -94,20 +101,35 @@ class UserDataManager {
         encoder.outputFormatting = .prettyPrinted
         request.httpBody = try encoder.encode(userData)
 
+        if let jsonString = String(data: request.httpBody!, encoding: .utf8) {
+            print("📦 Request body:\n\(jsonString)")
+        }
+
+        print("📡 Sending POST request to \(url.absoluteString)...")
         let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
+            print("❌ Invalid HTTP response")
             throw UserDataError.invalidResponse
+        }
+
+        print("📨 Response status code: \(httpResponse.statusCode)")
+
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📥 Response body: \(responseString)")
         }
 
         if httpResponse.statusCode == 200 || httpResponse.statusCode == 201 {
             // Parse response to confirm success
             if let jsonResponse = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                let success = jsonResponse["success"] as? Bool {
+                print("✅ Server confirmed success: \(success)")
                 return success
             }
+            print("✅ Request successful (no explicit success field)")
             return true
         } else {
+            print("❌ Server error: Status \(httpResponse.statusCode)")
             throw UserDataError.serverError(statusCode: httpResponse.statusCode)
         }
     }

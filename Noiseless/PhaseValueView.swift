@@ -212,24 +212,65 @@ private struct InsightsPreviewContent: View {
             VStack(spacing: 0) {
                 Spacer()
 
-                VStack(spacing: 16) {
-                    SignInButton(
-                        style: .apple,
-                        isLoading: authController.isAuthenticating && authController.activeProvider == .apple,
-                        action: {
-                            authController.signIn(with: .apple)
-                        },
-                        customLabel: "Sign in with Apple"
-                    )
-                    SignInButton(
-                        style: .email,
-                        isLoading: authController.isAuthenticating && authController.activeProvider == .email,
-                        action: {
-                            showEmailSignIn = true
+                if authController.isAuthenticated {
+                    // Already signed in - show options
+                    VStack(spacing: 20) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 48))
+                            .foregroundColor(.green)
+
+                        if let email = authController.userInfo?.email {
+                            Text("Signed in as")
+                                .font(.system(size: 14))
+                                .foregroundColor(.zinc500)
+                            Text(email)
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                        } else {
+                            Text("You're already signed in")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
                         }
-                    )
+
+                        VStack(spacing: 12) {
+                            PrimaryButton(title: "Continue", enableHaptics: true, enablePressAnimation: true) {
+                                model.nextStep()
+                            }
+
+                            Button {
+                                Task {
+                                    await authController.signOut()
+                                }
+                            } label: {
+                                Text("Sign in with a different account")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.zinc400)
+                            }
+                        }
+                        .padding(.top, 8)
+                    }
+                    .padding(.horizontal, 24)
+                } else {
+                    // Not signed in - show sign in buttons
+                    VStack(spacing: 16) {
+                        SignInButton(
+                            style: .apple,
+                            isLoading: authController.isAuthenticating && authController.activeProvider == .apple,
+                            action: {
+                                authController.signIn(with: .apple)
+                            },
+                            customLabel: "Sign in with Apple"
+                        )
+                        SignInButton(
+                            style: .email,
+                            isLoading: authController.isAuthenticating && authController.activeProvider == .email,
+                            action: {
+                                showEmailSignIn = true
+                            }
+                        )
+                    }
+                    .padding(.horizontal, 12)
                 }
-                .padding(.horizontal, 12)
 
                 Spacer()
 
@@ -250,15 +291,35 @@ private struct InsightsPreviewContent: View {
             }
         }
         .onChange(of: authController.isAuthenticated) { isAuthenticated in
+            print("🔔 Auth state changed: isAuthenticated = \(isAuthenticated)")
             if isAuthenticated {
-                showEmailSignIn = false
-                model.nextStep()
+                handleAuthentication()
             }
         }
         .sheet(isPresented: $showEmailSignIn) {
             EmailSignInSheet()
                 .environmentObject(authController)
         }
+    }
+
+    private func handleAuthentication() {
+        print("✅ User authenticated, closing sheet and sending data to backend")
+        showEmailSignIn = false
+
+        // Send user data to backend after authentication
+        Task {
+            print("📤 Starting to send user data to backend...")
+            do {
+                print("🔑 Getting access token...")
+                let result = try await UserDataManager.shared.saveUserDataToBackend(model.userData, authController: authController)
+                print("✅ User data sent to backend successfully: \(result)")
+            } catch {
+                print("❌ Failed to send user data to backend: \(error.localizedDescription)")
+            }
+        }
+
+        print("➡️ Moving to next step")
+        model.nextStep()
     }
 }
 

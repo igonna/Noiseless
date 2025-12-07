@@ -43,12 +43,32 @@ final class AuthController: NSObject, ObservableObject {
     }
 
     func getAccessToken() async -> String? {
+        print("🔐 AuthController: Getting access token...")
         do {
             let session = try await supabase.auth.session
+            print("✅ AuthController: Access token retrieved successfully")
             return session.accessToken
         } catch {
-            print("Failed to get access token: \(error)")
+            print("❌ AuthController: Failed to get access token: \(error.localizedDescription)")
             return nil
+        }
+    }
+
+    func signOut() async {
+        print("🚪 Signing out...")
+        do {
+            try await supabase.auth.signOut()
+            await MainActor.run {
+                self.isAuthenticated = false
+                self.userInfo = nil
+                self.lastErrorMessage = nil
+                print("✅ Signed out successfully")
+            }
+        } catch {
+            print("❌ Sign out error: \(error.localizedDescription)")
+            await MainActor.run {
+                self.lastErrorMessage = error.localizedDescription
+            }
         }
     }
 
@@ -168,6 +188,7 @@ extension AuthController: ASAuthorizationControllerDelegate {
 
         Task { @MainActor in
             do {
+                print("🍎 Signing in with Apple ID token...")
                 let session = try await supabase.auth.signInWithIdToken(
                     credentials: .init(
                         provider: .apple,
@@ -175,6 +196,7 @@ extension AuthController: ASAuthorizationControllerDelegate {
                         nonce: nonce
                     )
                 )
+                print("✅ Apple sign-in successful, user ID: \(session.user.id.uuidString)")
 
                 var fullName: String?
                 if let nameComponents = appleIDCredential.fullName {
@@ -189,9 +211,12 @@ extension AuthController: ASAuthorizationControllerDelegate {
                 )
 
                 self.userInfo = userInfo
+                print("🔄 Setting isAuthenticated = true")
                 self.isAuthenticated = true
                 self.resetState(errorMessage: nil, preserveAuthFlag: true)
+                print("✅ Apple authentication complete")
             } catch {
+                print("❌ Apple sign-in error: \(error.localizedDescription)")
                 self.resetState(errorMessage: error.localizedDescription)
             }
         }
