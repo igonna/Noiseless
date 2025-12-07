@@ -87,76 +87,120 @@ struct SignalActionResponse: Codable {
 // MARK: - Today Signals Service
 
 enum TodaySignalsService {
-    static func fetchTodaySignals() async throws -> [SignalItem] {
-        guard let url = URL(string: "\(NoiselessAPIService.baseURL)/today-signals") else {
+    static func fetchTodaySignals(authController: AuthController) async throws -> [SignalItem] {
+        let urlString = "\(NoiselessAPIService.baseURL)/v1/signal/today"
+        print("🌐 Fetching today signals from: \(urlString)")
+
+        guard let url = URL(string: urlString) else {
+            print("❌ Invalid URL: \(urlString)")
             throw ServiceError.invalidURL
         }
+
+        // Get access token
+        print("🔑 Requesting access token for today signals...")
+        guard let accessToken = await authController.getAccessToken() else {
+            print("❌ Failed to get access token for today signals")
+            throw ServiceError.authenticationRequired
+        }
+        print("✅ Access token retrieved for today signals")
 
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         request.timeoutInterval = 10
 
+        print("📡 Sending GET request to \(url.absoluteString)...")
         let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
+            print("❌ Invalid HTTP response")
             throw ServiceError.invalidResponse
         }
+
+        print("📨 Response status code: \(httpResponse.statusCode)")
 
         // Debug: Print raw response
         #if DEBUG
         if let rawResponse = String(data: data, encoding: .utf8) {
-            print("Today Signals API Response: \(rawResponse)")
+            print("📥 Today Signals API Response: \(rawResponse)")
         }
         #endif
 
         guard httpResponse.statusCode == 200 else {
             let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+            print("❌ Server error: Status \(httpResponse.statusCode), Message: \(errorMessage)")
             throw ServiceError.httpError(statusCode: httpResponse.statusCode, message: errorMessage)
         }
 
         let decoder = JSONDecoder()
         let apiResponse = try decoder.decode(TodaySignalsResponse.self, from: data)
 
+        print("✅ Successfully fetched \(apiResponse.todaySignals.count) signals")
         // Convert DTOs to SignalItems
         return apiResponse.todaySignals.map { $0.toSignalItem() }
     }
 
-    static func performSignalAction(signalId: String) async throws -> String {
-        guard let url = URL(string: "\(NoiselessAPIService.baseURL)/signal-action") else {
+    static func performSignalAction(signalId: String, authController: AuthController) async throws -> String {
+        let urlString = "\(NoiselessAPIService.baseURL)/v1/signal/action"
+        print("🌐 Performing signal action for signal ID: \(signalId)")
+        print("🌐 Endpoint: \(urlString)")
+
+        guard let url = URL(string: urlString) else {
+            print("❌ Invalid URL: \(urlString)")
             throw ServiceError.invalidURL
         }
+
+        // Get access token
+        print("🔑 Requesting access token for signal action...")
+        guard let accessToken = await authController.getAccessToken() else {
+            print("❌ Failed to get access token for signal action")
+            throw ServiceError.authenticationRequired
+        }
+        print("✅ Access token retrieved for signal action")
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         request.timeoutInterval = 10
 
         let requestBody = SignalActionRequest(signalId: signalId)
-        request.httpBody = try JSONEncoder().encode(requestBody)
+        let encoder = JSONEncoder()
+        request.httpBody = try encoder.encode(requestBody)
 
+        if let jsonString = String(data: request.httpBody!, encoding: .utf8) {
+            print("📦 Request body: \(jsonString)")
+        }
+
+        print("📡 Sending POST request to \(url.absoluteString)...")
         let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
+            print("❌ Invalid HTTP response")
             throw ServiceError.invalidResponse
         }
+
+        print("📨 Response status code: \(httpResponse.statusCode)")
 
         // Debug: Print raw response
         #if DEBUG
         if let rawResponse = String(data: data, encoding: .utf8) {
-            print("Signal Action API Response: \(rawResponse)")
+            print("📥 Signal Action API Response: \(rawResponse)")
         }
         #endif
 
         guard httpResponse.statusCode == 200 else {
             let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+            print("❌ Server error: Status \(httpResponse.statusCode), Message: \(errorMessage)")
             throw ServiceError.httpError(statusCode: httpResponse.statusCode, message: errorMessage)
         }
 
         let decoder = JSONDecoder()
         let apiResponse = try decoder.decode(SignalActionResponse.self, from: data)
 
+        print("✅ Signal action completed successfully")
         return apiResponse.actionResult
     }
 }
@@ -168,6 +212,7 @@ enum ServiceError: LocalizedError {
     case invalidResponse
     case httpError(statusCode: Int, message: String)
     case decodingError(String)
+    case authenticationRequired
 
     var errorDescription: String? {
         switch self {
@@ -179,6 +224,8 @@ enum ServiceError: LocalizedError {
             return "HTTP \(statusCode): \(message)"
         case .decodingError(let message):
             return "Failed to decode response: \(message)"
+        case .authenticationRequired:
+            return "Authentication required"
         }
     }
 }

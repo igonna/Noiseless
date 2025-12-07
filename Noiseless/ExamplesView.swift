@@ -4,6 +4,8 @@ import SwiftUI
 private let appBackgroundColor = Color(hex: "09090A")
 
 struct ExamplesView: View {
+    @EnvironmentObject var authController: AuthController
+
     @State private var selectedTab: Int = 0
     @State private var lastNonProfileTab: Int = 0
     @State private var showProfile = false
@@ -130,7 +132,7 @@ struct ExamplesView: View {
             do {
                 isLoadingSignals = true
                 signalsError = nil
-                todaySignals = try await TodaySignalsService.fetchTodaySignals()
+                todaySignals = try await TodaySignalsService.fetchTodaySignals(authController: authController)
                 isLoadingSignals = false
             } catch {
                 isLoadingSignals = false

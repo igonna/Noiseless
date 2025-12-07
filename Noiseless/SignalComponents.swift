@@ -360,6 +360,8 @@ struct AnimatedThinkingText: View {
 }
 
 struct SignalCard: View {
+    @EnvironmentObject var authController: AuthController
+
     let item: SignalItem
     let isSaved: Bool
     let onToggleSave: () -> Void
@@ -387,7 +389,7 @@ struct SignalCard: View {
         Task {
             do {
                 isLoadingAction = true
-                let result = try await TodaySignalsService.performSignalAction(signalId: item.id)
+                let result = try await TodaySignalsService.performSignalAction(signalId: item.id, authController: authController)
                 actionResult = result
                 isLoadingAction = false
                 // Start typewriter animation

@@ -135,28 +135,65 @@ class UserDataManager {
     }
 
     /// Retrieve user data from backend API
-    func fetchUserDataFromBackend() async throws -> UserData {
-        guard let url = URL(string: "\(NoiselessAPIService.baseURL)/user-data") else {
+    func fetchUserDataFromBackend(authController: AuthController) async throws -> UserData {
+        let urlString = "\(NoiselessAPIService.baseURL)/v1/user/profile"
+        print("🌐 Fetching user profile from: \(urlString)")
+
+        guard let url = URL(string: urlString) else {
+            print("❌ Invalid URL: \(urlString)")
             throw UserDataError.invalidURL
         }
 
+        // Get access token
+        print("🔑 Requesting access token for profile fetch...")
+        guard let accessToken = await authController.getAccessToken() else {
+            print("❌ Failed to get access token for profile fetch")
+            throw UserDataError.authenticationRequired
+        }
+        print("✅ Access token retrieved for profile fetch")
+
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
 
+        print("📡 Sending GET request to \(url.absoluteString)...")
         let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
+            print("❌ Invalid HTTP response")
             throw UserDataError.invalidResponse
         }
 
+        print("📨 Response status code: \(httpResponse.statusCode)")
+
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📥 Response body: \(responseString)")
+        }
+
         guard httpResponse.statusCode == 200 else {
+            print("❌ Server error: Status \(httpResponse.statusCode)")
             throw UserDataError.serverError(statusCode: httpResponse.statusCode)
         }
 
         let decoder = JSONDecoder()
-        let userData = try decoder.decode(UserData.self, from: data)
-        return userData
+        do {
+            // Decode the nested response structure
+            struct ProfileResponse: Codable {
+                struct ProfileWrapper: Codable {
+                    let id: String
+                    let profile: UserData
+                }
+                let profile: ProfileWrapper
+            }
+
+            let response = try decoder.decode(ProfileResponse.self, from: data)
+            print("✅ Successfully fetched user profile from backend")
+            return response.profile.profile
+        } catch {
+            print("❌ Decoding error: \(error.localizedDescription)")
+            throw UserDataError.decodingError(error.localizedDescription)
+        }
     }
 
     // MARK: - Complete Save (Local + Backend)
@@ -186,7 +223,7 @@ enum UserDataError: LocalizedError {
     case invalidResponse
     case serverError(statusCode: Int)
     case encodingError
-    case decodingError
+    case decodingError(String)
     case authenticationRequired
 
     var errorDescription: String? {
@@ -199,8 +236,8 @@ enum UserDataError: LocalizedError {
             return "Server error (Status: \(code))"
         case .encodingError:
             return "Failed to encode user data"
-        case .decodingError:
-            return "Failed to decode user data"
+        case .decodingError(let message):
+            return "Failed to decode user data: \(message)"
         case .authenticationRequired:
             return "Authentication required"
         }

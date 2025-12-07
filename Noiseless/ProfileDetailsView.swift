@@ -8,12 +8,14 @@
 import SwiftUI
 
 struct ProfileDetailsView: View {
+    @EnvironmentObject var authController: AuthController
     @Environment(\.dismiss) var dismiss
     @State private var userData: UserData?
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var showExportSheet = false
     @State private var exportedJSON: String = ""
+    @State private var isExportingJSON = false
 
     var body: some View {
         ZStack {
@@ -181,9 +183,16 @@ struct ProfileDetailsView: View {
                     // Export Button
                     Button(action: { exportJSON() }) {
                         HStack {
-                            Image(systemName: "square.and.arrow.up")
-                            Text("Export as JSON")
-                                .font(.system(size: 16, weight: .semibold))
+                            if isExportingJSON {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                Text("Exporting...")
+                                    .font(.system(size: 16, weight: .semibold))
+                            } else {
+                                Image(systemName: "square.and.arrow.up")
+                                Text("Export as JSON")
+                                    .font(.system(size: 16, weight: .semibold))
+                            }
                         }
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -195,6 +204,7 @@ struct ProfileDetailsView: View {
                                 .stroke(Color.white.opacity(0.2), lineWidth: 1)
                         )
                     }
+                    .disabled(isExportingJSON)
                     .padding(.horizontal)
                     .padding(.top, 8)
                 }
@@ -279,7 +289,9 @@ struct ProfileDetailsView: View {
 
         Task {
             do {
-                let data = try UserDataManager.shared.loadUserDataLocally()
+                print("📡 Loading profile from backend...")
+                let data = try await UserDataManager.shared.fetchUserDataFromBackend(authController: authController)
+
                 await MainActor.run {
                     userData = data
                     isLoading = false
@@ -294,13 +306,31 @@ struct ProfileDetailsView: View {
     }
 
     private func exportJSON() {
-        do {
-            if let json = try UserDataManager.shared.exportUserDataAsJSON() {
-                exportedJSON = json
-                showExportSheet = true
+        isExportingJSON = true
+
+        Task {
+            do {
+                print("📡 Fetching profile from backend for export...")
+                let data = try await UserDataManager.shared.fetchUserDataFromBackend(authController: authController)
+
+                // Encode to JSON
+                let encoder = JSONEncoder()
+                encoder.outputFormatting = .prettyPrinted
+                let jsonData = try encoder.encode(data)
+
+                if let json = String(data: jsonData, encoding: .utf8) {
+                    await MainActor.run {
+                        exportedJSON = json
+                        showExportSheet = true
+                        isExportingJSON = false
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = "Failed to export JSON: \(error.localizedDescription)"
+                    isExportingJSON = false
+                }
             }
-        } catch {
-            errorMessage = "Failed to export JSON: \(error.localizedDescription)"
         }
     }
 
