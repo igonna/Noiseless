@@ -2,7 +2,9 @@ import SwiftUI
 
 struct PhaseTrustView: View {
     @EnvironmentObject var model: OnboardingModel
+    @EnvironmentObject var authController: AuthController
     @State private var identityDetailInput: String = ""
+    @State private var showSignIn = false
 
     var body: some View {
         Group {
@@ -22,7 +24,7 @@ struct PhaseTrustView: View {
             ZStack {
                 // Glow effect
                 GlowView()
-                
+
                 VStack(spacing: 32) {
                     // Logo placeholder
                     ZStack {
@@ -30,32 +32,54 @@ struct PhaseTrustView: View {
                             .fill(Color.white)
                             .frame(width: 80, height: 80)
                             .shadow(color: Color.white.opacity(0.1), radius: 20, x: 0, y: 10)
-                        
+
                         Circle()
                             .fill(Color.black)
                             .frame(width: 40, height: 40)
                     }
                     .padding(.bottom, 24)
-                    
-                    Text("Let’s accelerate your growth.")
+
+                    Text("Let's accelerate your growth.")
                         .font(.system(size: 36, weight: .bold))
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
-                    
+
                     Text("Daily insights. Smarter choices. Better outcomes.")
                         .font(.system(size: 20))
                         .multilineTextAlignment(.center)
                         .foregroundColor(.zinc400)
                         .frame(maxWidth: 300)
-                    
+
                     Spacer()
-                    
-                    PrimaryButton(title: "Get Started") {
-                        model.nextStep()
+
+                    VStack(spacing: 16) {
+                        PrimaryButton(title: "Get Started") {
+                            model.nextStep()
+                        }
+
+                        Button(action: {
+                            showSignIn = true
+                        }) {
+                            HStack(spacing: 4) {
+                                Text("Already have an account?")
+                                    .font(.system(size: 15))
+                                    .foregroundColor(.zinc400)
+                                Text("Sign in")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundColor(.white)
+                            }
+                        }
                     }
                     .padding(.bottom, 40)
                 }
             }
+        }
+        .sheet(isPresented: $showSignIn) {
+            SignInSheet()
+                .environmentObject(authController)
+                .environmentObject(model)
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
         }
     }
     
@@ -316,6 +340,403 @@ struct IdentityDetailsSelectionScreen: View {
     private func focusAddFieldSoon() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
             addFieldFocused = true
+        }
+    }
+}
+
+// MARK: - Sign In Sheet
+
+private struct SignInSheet: View {
+    @EnvironmentObject var authController: AuthController
+    @EnvironmentObject var model: OnboardingModel
+    @Environment(\.dismiss) var dismiss
+    @State private var showEmailSignIn = false
+    @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
+
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color.zinc950.ignoresSafeArea()
+
+                VStack(spacing: 24) {
+                    // Header
+                    VStack(spacing: 8) {
+                        Text("Sign in to your account")
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(.white)
+
+                        Text("Access your personalized insights and progress")
+                            .font(.system(size: 15))
+                            .foregroundColor(.zinc400)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(.top, 20)
+
+                    Spacer()
+
+                    // Sign in options
+                    VStack(spacing: 16) {
+                        SignInButton(
+                            style: .apple,
+                            isLoading: authController.isAuthenticating && authController.activeProvider == .apple,
+                            action: {
+                                authController.signIn(with: .apple)
+                            },
+                            customLabel: "Sign in with Apple"
+                        )
+                        SignInButton(
+                            style: .email,
+                            isLoading: authController.isAuthenticating && authController.activeProvider == .email,
+                            action: {
+                                showEmailSignIn = true
+                            }
+                        )
+                    }
+                    .padding(.horizontal, 12)
+
+                    Spacer()
+
+                    VStack(spacing: 8) {
+                        Text("We'll sync your data securely.")
+                            .font(.system(size: 12))
+                            .foregroundColor(.zinc600)
+
+                        if let errorMessage = authController.lastErrorMessage {
+                            Text(errorMessage)
+                                .font(.system(size: 11))
+                                .foregroundColor(.red.opacity(0.8))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 24)
+                        }
+                    }
+                    .padding(.bottom, 24)
+                }
+                .padding(.horizontal, 24)
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundColor(.zinc400)
+                }
+            }
+        }
+        .onChange(of: authController.isAuthenticated) { isAuthenticated in
+            if isAuthenticated {
+                handleAuthentication()
+            }
+        }
+        .sheet(isPresented: $showEmailSignIn) {
+            EmailSignInSheet()
+                .environmentObject(authController)
+        }
+        .onAppear {
+            // If already authenticated, skip to dashboard immediately
+            if authController.isAuthenticated {
+                handleAuthentication()
+            }
+        }
+    }
+
+    private func handleAuthentication() {
+        showEmailSignIn = false
+        // Skip to dashboard since user is signed in
+        hasCompletedOnboarding = true
+        dismiss()
+    }
+}
+
+// MARK: - Email Sign In Sheet (Reused from PhaseValueView)
+
+private struct EmailSignInSheet: View {
+    @EnvironmentObject var authController: AuthController
+    @Environment(\.dismiss) var dismiss
+    @State private var email = ""
+    @State private var magicLinkSent = false
+    @State private var isCheckingAuth = false
+    @State private var checkTimer: Timer?
+    @State private var validationError: String?
+    @FocusState private var isEmailFocused: Bool
+
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color.zinc950.ignoresSafeArea()
+
+                VStack(spacing: 0) {
+                    if magicLinkSent {
+                        // Waiting for verification state
+                        VStack(spacing: 16) {
+                            Spacer()
+
+                            Image(systemName: "envelope.badge.fill")
+                                .font(.system(size: 64))
+                                .foregroundColor(.green)
+                                .padding(.bottom, 16)
+
+                            Text("Check your email")
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundColor(.white)
+
+                            Text("We've sent a magic login link to:")
+                                .font(.system(size: 14))
+                                .foregroundColor(.zinc400)
+
+                            Text(email)
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                                .padding(.bottom, 16)
+
+                            Spacer()
+
+                            // Resend button
+                            Button(action: handleResend) {
+                                HStack(spacing: 6) {
+                                    Text("Didn't get it?")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.zinc500)
+                                    Text("Resend link")
+                                        .font(.system(size: 13, weight: .medium))
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            .padding(.bottom, 8)
+                        }
+                        .padding(.horizontal, 24)
+                    } else {
+                        // Email input state
+                        Spacer()
+
+                        VStack(spacing: 20) {
+                            Text("We'll send a verification link to your email")
+                                .font(.system(size: 15))
+                                .foregroundColor(.zinc400)
+                                .multilineTextAlignment(.center)
+                                .padding(.bottom, 4)
+
+                            TextField("Email", text: $email)
+                                .textFieldStyle(CustomTextFieldStyle())
+                                .textContentType(.emailAddress)
+                                .autocapitalization(.none)
+                                .keyboardType(.emailAddress)
+                                .focused($isEmailFocused)
+                                .onChange(of: email) { _ in
+                                    validationError = nil
+                                }
+
+                            Button {
+                                handleSubmit()
+                            } label: {
+                                Group {
+                                    if authController.isAuthenticating {
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle(tint: .zinc950))
+                                    } else {
+                                        Text("Send Magic Link")
+                                            .font(.system(size: 17, weight: .semibold))
+                                    }
+                                }
+                                .foregroundColor(.zinc950)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 56)
+                                .background(Color.white)
+                                .cornerRadius(28)
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(authController.isAuthenticating || email.isEmpty)
+                            .opacity((authController.isAuthenticating || email.isEmpty) ? 0.5 : 1.0)
+
+                            if let errorMessage = validationError {
+                                Text(errorMessage)
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.red.opacity(0.9))
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal, 24)
+                            } else if let errorMessage = authController.lastErrorMessage {
+                                Text(errorMessage)
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.red.opacity(0.9))
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal, 24)
+                            }
+                        }
+
+                        Spacer()
+                    }
+                }
+                .padding(24)
+            }
+            .navigationTitle("Continue with Email")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        stopCheckingAuth()
+                        dismiss()
+                    }
+                    .foregroundColor(.zinc400)
+                }
+            }
+            .onDisappear {
+                stopCheckingAuth()
+            }
+            .onAppear {
+                isEmailFocused = true
+            }
+        }
+    }
+
+    private func isValidEmail(_ email: String) -> Bool {
+        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailRegex)
+        return emailPredicate.evaluate(with: email)
+    }
+
+    private func handleSubmit() {
+        // Validate email format
+        guard isValidEmail(email) else {
+            validationError = "Please enter a valid email address"
+            return
+        }
+
+        Task {
+            let success = await authController.signInWithMagicLink(email: email)
+            if success {
+                magicLinkSent = true
+                startCheckingAuth()
+            }
+        }
+    }
+
+    private func handleResend() {
+        Task {
+            await authController.signInWithMagicLink(email: email)
+        }
+    }
+
+    private func startCheckingAuth() {
+        isCheckingAuth = true
+        checkTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+            Task {
+                await checkAuthStatus()
+            }
+        }
+    }
+
+    private func stopCheckingAuth() {
+        checkTimer?.invalidate()
+        checkTimer = nil
+        isCheckingAuth = false
+    }
+
+    private func checkAuthStatus() async {
+        if authController.isAuthenticated {
+            await MainActor.run {
+                stopCheckingAuth()
+                dismiss()
+            }
+        }
+    }
+}
+
+private struct CustomTextFieldStyle: TextFieldStyle {
+    func _body(configuration: TextField<Self._Label>) -> some View {
+        configuration
+            .padding(16)
+            .background(Color.zinc900)
+            .foregroundColor(.white)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.zinc700, lineWidth: 1)
+            )
+    }
+}
+
+private struct SignInButton: View {
+    enum Style {
+        case apple
+        case email
+    }
+
+    let style: Style
+    let isLoading: Bool
+    let action: () -> Void
+    var customLabel: String? = nil
+
+    private var label: String {
+        if let customLabel = customLabel {
+            return customLabel
+        }
+        switch style {
+        case .apple: return "Continue with Apple"
+        case .email: return "Continue with Email"
+        }
+    }
+
+    private var background: Color {
+        switch style {
+        case .apple: return .white
+        case .email: return Color.zinc900
+        }
+    }
+
+    private var foreground: Color {
+        style == .apple ? .black : .white
+    }
+
+    private var borderColor: Color {
+        style == .apple ? Color.clear : Color.zinc700
+    }
+
+    var body: some View {
+        Button(action: triggerAction) {
+            HStack(spacing: 12) {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: foreground))
+                        .frame(width: 24, height: 24)
+                } else {
+                    icon
+                }
+                Text(label)
+                    .font(.system(size: 16, weight: .bold))
+            }
+            .foregroundColor(foreground)
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
+            .background(background)
+            .overlay(
+                RoundedRectangle(cornerRadius: 28)
+                    .stroke(borderColor, lineWidth: borderColor == .clear ? 0 : 1)
+            )
+            .cornerRadius(28)
+            .shadow(color: style == .apple ? Color.white.opacity(0.2) : Color.black.opacity(0.4), radius: 15, x: 0, y: 0)
+        }
+        .buttonStyle(.plain)
+        .disabled(isLoading)
+        .opacity(isLoading ? 0.7 : 1.0)
+    }
+
+    private func triggerAction() {
+        HapticManager.tap()
+        action()
+    }
+
+    @ViewBuilder
+    private var icon: some View {
+        switch style {
+        case .apple:
+            Image("apple_icon")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 26, height: 26)
+                .offset(y: -2)
+        case .email:
+            Image(systemName: "envelope.fill")
+                .font(.system(size: 20))
         }
     }
 }
