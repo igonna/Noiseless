@@ -3,6 +3,7 @@ import UserNotifications
 
 struct PhaseFinalView: View {
     @EnvironmentObject var model: OnboardingModel
+    @EnvironmentObject var authController: AuthController
     @State private var isSavingData = false
     
     var body: some View {
@@ -166,7 +167,7 @@ struct PhaseFinalView: View {
         Task {
             do {
                 // Save user data both locally and to backend
-                try await UserDataManager.shared.saveUserDataComplete(model.userData)
+                try await UserDataManager.shared.saveUserDataComplete(model.userData, authController: authController)
                 print("✅ User data saved successfully")
 
                 // Mark onboarding as complete

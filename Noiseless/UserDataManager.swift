@@ -75,14 +75,20 @@ class UserDataManager {
     // MARK: - Backend Storage
 
     /// Save user data to backend API
-    func saveUserDataToBackend(_ userData: UserData) async throws -> Bool {
-        guard let url = URL(string: "\(NoiselessAPIService.baseURL)/user-data") else {
+    func saveUserDataToBackend(_ userData: UserData, authController: AuthController) async throws -> Bool {
+        guard let url = URL(string: "\(NoiselessAPIService.baseURL)/v1/user/profile/update") else {
             throw UserDataError.invalidURL
+        }
+
+        // Get access token
+        guard let accessToken = await authController.getAccessToken() else {
+            throw UserDataError.authenticationRequired
         }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
 
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
@@ -134,13 +140,13 @@ class UserDataManager {
     // MARK: - Complete Save (Local + Backend)
 
     /// Save user data both locally and to backend
-    func saveUserDataComplete(_ userData: UserData) async throws {
+    func saveUserDataComplete(_ userData: UserData, authController: AuthController) async throws {
         // First save locally for immediate access
         try saveUserDataLocally(userData)
 
         // Then attempt to save to backend
         do {
-            let success = try await saveUserDataToBackend(userData)
+            let success = try await saveUserDataToBackend(userData, authController: authController)
             if success {
                 print("User data successfully saved to backend")
             }
@@ -159,6 +165,7 @@ enum UserDataError: LocalizedError {
     case serverError(statusCode: Int)
     case encodingError
     case decodingError
+    case authenticationRequired
 
     var errorDescription: String? {
         switch self {
@@ -172,6 +179,8 @@ enum UserDataError: LocalizedError {
             return "Failed to encode user data"
         case .decodingError:
             return "Failed to decode user data"
+        case .authenticationRequired:
+            return "Authentication required"
         }
     }
 }

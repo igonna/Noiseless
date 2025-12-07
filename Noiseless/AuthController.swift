@@ -42,6 +42,16 @@ final class AuthController: NSObject, ObservableObject {
         super.init()
     }
 
+    func getAccessToken() async -> String? {
+        do {
+            let session = try await supabase.auth.session
+            return session.accessToken
+        } catch {
+            print("Failed to get access token: \(error)")
+            return nil
+        }
+    }
+
     func signIn(with provider: SignInProvider) {
         guard !isAuthenticating else { return }
 

@@ -215,16 +215,19 @@ private struct InsightsPreviewContent: View {
                 VStack(spacing: 16) {
                     SignInButton(
                         style: .apple,
-                        isLoading: authController.isAuthenticating && authController.activeProvider == .apple
-                    ) {
-                        authController.signIn(with: .apple)
-                    }
+                        isLoading: authController.isAuthenticating && authController.activeProvider == .apple,
+                        action: {
+                            authController.signIn(with: .apple)
+                        },
+                        customLabel: "Sign in with Apple"
+                    )
                     SignInButton(
                         style: .email,
-                        isLoading: authController.isAuthenticating && authController.activeProvider == .email
-                    ) {
-                        showEmailSignIn = true
-                    }
+                        isLoading: authController.isAuthenticating && authController.activeProvider == .email,
+                        action: {
+                            showEmailSignIn = true
+                        }
+                    )
                 }
                 .padding(.horizontal, 12)
 
@@ -377,7 +380,7 @@ private struct EmailSignInSheet: View {
                 }
                 .padding(24)
             }
-            .navigationTitle("Sign In with Email")
+            .navigationTitle("Continue with Email")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -476,11 +479,15 @@ private struct SignInButton: View {
     let style: Style
     let isLoading: Bool
     let action: () -> Void
+    var customLabel: String? = nil
 
     private var label: String {
+        if let customLabel = customLabel {
+            return customLabel
+        }
         switch style {
-        case .apple: return "Sign in with Apple"
-        case .email: return "Sign in with Email"
+        case .apple: return "Continue with Apple"
+        case .email: return "Continue with Email"
         }
     }
 
